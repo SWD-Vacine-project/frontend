@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es5",                      // Đầu ra sẽ là mã ES5
+    "lib": ["dom", "es2015"],             // Thư viện sẽ được bao gồm trong biên dịch
+    "jsx": "react-jsx",                   // Cấu hình biên dịch JSX của React
+    "moduleResolution": "node",           // Cách TypeScript sẽ tìm kiếm mô-đun
+    "module": "esnext",                   // Sử dụng mô-đun ESNext cho đầu ra
+    "strict": true,                       // Bật các chế độ kiểm tra nghiêm ngặt
+    "esModuleInterop": true,              // Hỗ trợ các mô-đun ES
+    "skipLibCheck": true,                 // Bỏ qua kiểm tra thư viện (giúp tăng tốc quá trình biên dịch)
+    "forceConsistentCasingInFileNames": true  // Đảm bảo tên tệp nhất quán
+  },
+  "include": [
+    "src/**/*"  // Bao gồm tất cả các tệp trong thư mục src
+  ]
+}
