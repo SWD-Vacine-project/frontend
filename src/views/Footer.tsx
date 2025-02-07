@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
       <div style={styles.container}>
         {/* Regions Section */}
         <div style={styles.section}>
-          <h3 style={styles.heading}>Regions</h3>
+          <h4 style={styles.heading}>Regions</h4>
           <ul style={styles.list}>
             <li>Africa</li>
             <li>Americas</li>
@@ -18,94 +18,85 @@ const Footer: React.FC = () => {
         </div>
         {/* Policies Section */}
         <div style={styles.section}>
-          <h3 style={styles.heading}>Policies</h3>
+          <h4 style={styles.heading}>Policies</h4>
           <ul style={styles.list}>
             <li>Cybersecurity</li>
             <li>Ethics</li>
             <li>Information disclosure</li>
-            <li>Permissions and licensing</li>
-            <li>Preventing sexual exploitation</li>
+            <li>Permissions & licensing</li>
             <li>Terms of use</li>
           </ul>
         </div>
         {/* About Us Section */}
         <div style={styles.section}>
-          <h3 style={styles.heading}>About us</h3>
+          <h4 style={styles.heading}>About us</h4>
           <ul style={styles.list}>
             <li>Careers</li>
-            <li>Frequently asked questions</li>
+            <li>FAQs</li>
             <li>Library</li>
             <li>Newsletters</li>
-            <li>Procurement</li>
-            <li>Publications</li>
           </ul>
         </div>
         {/* Contact Us Section */}
         <div style={styles.section}>
-          <h3 style={styles.heading}>Contact us</h3>
-          <button style={styles.button}>Report misconduct</button>
+          <h4 style={styles.heading}>Contact us</h4>
+          <button style={styles.button}>Report issue</button>
         </div>
       </div>
-
-    
-     
+      {/* Bottom Section */}
+      <div style={styles.bottom}>
+        <p>&copy; 2025 YourCompany. All Rights Reserved.</p>
+      </div>
     </footer>
   );
 };
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   footer: {
-    backgroundColor: "#D8BFD8", 
-    color: "#FFFFFF",
-    padding: "30px",
+    backgroundColor: "#D8BFD8",
+    color: "#333",
+    padding: "20px 15px",
+    textAlign: "center",
+    fontSize: "14px",
   },
   container: {
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "20px",
-    marginBottom: "30px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: "15px",
+    maxWidth: "900px",
+    margin: "0 auto",
+    textAlign: "left",
   },
-  section: {},
+  section: {
+    padding: "5px",
+  },
   heading: {
     fontSize: "16px",
     fontWeight: "bold",
-    marginBottom: "10px",
+    marginBottom: "8px",
   },
   list: {
     listStyleType: "none",
     padding: 0,
     margin: 0,
+    fontSize: "13px",
+    lineHeight: 1.5,
   },
   button: {
-    backgroundColor: "#D8BFD8",
-    color: "#FFFFFF",
-    border: '1px solid white',
-    borderRadius: '30px',
-    padding: "10px 15px",
+    backgroundColor: "#fff",
+    color: "#D8BFD8",
+    border: "1px solid #D8BFD8",
+    borderRadius: "20px",
+    padding: "8px 12px",
     cursor: "pointer",
+    transition: "all 0.3s ease-in-out",
+    fontSize: "12px",
   },
   bottom: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderTop: "1px solid #1A3C71",
-    paddingTop: "20px",
-  },
-  logoContainer: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-  },
-  logo: {
-    width: "50px", // Adjust as needed
-    height: "50px",
-  },
-  logoText: {
-    fontSize: "16px",
-    fontWeight: "bold",
-  },
-  social: {
-    fontSize: "14px",
+    marginTop: "20px",
+    borderTop: "1px solid #999",
+    paddingTop: "8px",
+    fontSize: "12px",
   },
 };
 
