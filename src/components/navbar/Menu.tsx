@@ -22,10 +22,10 @@ const Menu: React.FC = () => {
           transform: isDropdownVisible ? "translateY(0px)" : "translateY(10px)",
         }}
       >
-        <a href="/login" style={styles.dropdownItem}>
+        <a href="/Login" style={styles.dropdownItem}>
           Login
         </a>
-        <a href="/Create" style={styles.dropdownItem}>
+        <a href="/Signup" style={styles.dropdownItem}>
           Sign Up
         </a>
       </div>
