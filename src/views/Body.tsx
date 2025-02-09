@@ -3,14 +3,17 @@ import { useSpring, animated } from '@react-spring/web';
 import Modal from '../components/Modal/VaccineModal';
 import ImageSlider from '../components/body/bodySlider';
 
+// Định nghĩa kiểu cho animated.div
 
 
+const AnimatedDiv = animated.div;
 
 const Body: React.FC = () => {
   const [activeCard, setActiveCard] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '' });
   const vaccineCardRef = useRef<HTMLDivElement>(null); 
+
   const heroSectionProps = useSpring({
     opacity: 1,
     from: { opacity: 0 },
@@ -25,14 +28,11 @@ const Body: React.FC = () => {
     config: { tension: 180, friction: 15 },
   });
 
-
-
   const handleClickOutside = (event: MouseEvent) => {
     if (vaccineCardRef.current && !vaccineCardRef.current.contains(event.target as Node)) {
       setActiveCard(null); // Reset the active card when clicking outside
     }
   };
-
 
   const locationCardProps = useSpring({
     opacity: 1,
@@ -41,7 +41,6 @@ const Body: React.FC = () => {
     delay: 400,
     config: { tension: 180, friction: 15 },
   });
-
 
   const testimonialCardProps = useSpring({
     opacity: 1,
@@ -85,9 +84,6 @@ const Body: React.FC = () => {
     setIsModalOpen(true);
     setModalContent({ title: vaccine, content: details });
   };
-  
-
-
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -117,26 +113,25 @@ const Body: React.FC = () => {
             ref={vaccineCardRef} // Assign ref to the vaccine card container
           >
             {["Moderna", "Sinovac", "Pfizer"].map((vaccine) => (
-              <animated.div
-                key={vaccine}
-                style={{
-                  ...styles.vaccineCard,
-                  ...vaccineCardProps,
-                  backgroundColor: activeCard === vaccine ? '#e0f7fa' : '#f9f9f9',
-                }}
-                onClick={() => handleCardClick(vaccine)}
-                onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)')}
-                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)')}
-              >
-                <h3 style={styles.vaccineTitle}>{vaccine}</h3>
-                <p style={styles.vaccineDescription}>
-                  {vaccine === "Moderna"
-                    ? "Final trial results confirm this vaccine has a 94% efficacy, and the data has been reviewed."
-                    : vaccine === "Sinovac"
-                    ? "Sinovac COVID-19 vaccine is an inactivated virus vaccine developed to reduce the risk of severe disease."
-                    : "Developed by the University of Oxford, Pfizer has a vaccine efficacy of up to 90%."}
-                </p>
-              </animated.div>
+             <AnimatedDiv
+             key={vaccine}
+             style ={{
+               ...vaccineCardProps, // Directly pass all animated values (opacity, transform)
+               backgroundColor: activeCard === vaccine ? '#e0f7fa' : '#f9f9f9', // This is fine; it won't conflict
+             }}
+             onClick={() => handleCardClick(vaccine)}
+             onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)')}
+             onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)')}
+           >
+             <h3 style={styles.vaccineTitle}>{vaccine}</h3>
+             <p style={styles.vaccineDescription}>
+               {vaccine === "Moderna"
+                 ? "Final trial results confirm this vaccine has a 94% efficacy, and the data has been reviewed."
+                 : vaccine === "Sinovac"
+                 ? "Sinovac COVID-19 vaccine is an inactivated virus vaccine developed to reduce the risk of severe disease."
+                 : "Developed by the University of Oxford, Pfizer has a vaccine efficacy of up to 90%."}
+             </p>
+           </AnimatedDiv>
             ))}
           </div>
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalContent.title} content={modalContent.content} />
@@ -151,37 +146,31 @@ const Body: React.FC = () => {
         <section style={styles.locationsSection}>
         <h2 style={styles.sectionTitle}>Get Vaccine Location</h2>
         <div style={styles.locationCardContainer}>
-          <animated.div style={{ ...styles.locationCard, ...locationCardProps }}>
+          <AnimatedDiv style={{ ...styles.locationCard, ...locationCardProps }}>
             <h3 style={styles.locationName}>White Square</h3>
             <p style={styles.locationAddress}>Jalan Setiabudi Santoso</p>
             <button style={styles.locationButton}>Get Your Vaccine</button>
-          </animated.div>
-          <animated.div style={{ ...styles.locationCard, ...locationCardProps }}>
+          </AnimatedDiv>
+          <AnimatedDiv style={{ ...styles.locationCard, ...locationCardProps }}>
             <h3 style={styles.locationName}>White Town</h3>
             <p style={styles.locationAddress}>Jalan Jenderal Sudirman</p>
             <button style={styles.locationButton}>Get Your Vaccine</button>
-          </animated.div>
+          </AnimatedDiv>
         </div>
       </section>
-
-
 
       {/* Testimonials Section with Animation */}
       <section style={styles.testimonialsSection}>
         <h2 style={styles.sectionTitle}>What People Say About Us</h2>
-        <animated.div style={{ ...styles.testimonialCard, ...testimonialCardProps }}>
+        <AnimatedDiv style={{ ...styles.testimonialCard, ...testimonialCardProps }}>
           <p style={styles.testimonialText}>
             "I am very grateful to Vaccining. With the Vaccining application, it
             is really easier for me to find vaccination sites, and it also makes
             it easier for me."
           </p>
           <p style={styles.testimonialAuthor}>- Arya Wijaya, 25 Years Old</p>
-        </animated.div>
+        </AnimatedDiv>
       </section>
-
-      
-
-
       </div>
     </body>
   );
