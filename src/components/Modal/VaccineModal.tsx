@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { ReactNode } from 'react';
 
 interface ModalProps {
     isOpen: boolean;
@@ -6,9 +7,9 @@ interface ModalProps {
     title: string;
     content: string;
     image?: string;
+    children?: React.ReactNode,
   }
-  
-  const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content , image}) => {
+  const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content, image, children }) => {
     if (!isOpen) return null;
   
     return (
@@ -17,6 +18,7 @@ interface ModalProps {
           <h2 style={styles.title}>{title}</h2>
           {image && <img src={image} alt={title} style={styles.image} />}
           <p style={styles.content}>{content}</p>
+          {children && <div>{children}</div>} {/* Hiển thị các children nếu có */}
           <button style={styles.closeButton} onClick={onClose}>
             Close
           </button>
@@ -45,6 +47,7 @@ interface ModalProps {
       maxWidth: '500px',
       width: '100%',
       textAlign: 'center',
+     
     } as React.CSSProperties,
     title: {
       fontSize: '24px',

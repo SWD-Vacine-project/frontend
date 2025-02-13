@@ -1,5 +1,5 @@
 import React from "react";
-
+import Chatbot from '../Chatbot/Chat';
 const Footer: React.FC = () => {
   return (
     <footer style={styles.footer}>
@@ -47,6 +47,8 @@ const Footer: React.FC = () => {
       <div style={styles.bottom}>
         <p>&copy; 2025 YourCompany. All Rights Reserved.</p>
       </div>
+     
+
     </footer>
   );
 };

@@ -2,16 +2,34 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import Modal from '../components/Modal/VaccineModal';
 import ImageSlider from '../components/body/bodySlider';
-
+import Chatbot from '../Chatbot/Chat';
 // Định nghĩa kiểu cho animated.div
 
 
 const AnimatedDiv = animated.div;
 
+
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+  };
+
+
+
 const Body: React.FC = () => {
+
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
+
   const [activeCard, setActiveCard] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', content: '' });
+  const [modalContent, setModalContent] = useState({ title: '', content: '', image:'' });
   const vaccineCardRef = useRef<HTMLDivElement>(null); 
 
   const heroSectionProps = useSpring({
@@ -61,20 +79,20 @@ const Body: React.FC = () => {
         details = `The Moderna COVID-19 vaccine (mRNA-1273) is an mRNA vaccine developed 
                    by Moderna and approved for emergency use. It has a 94% efficacy rate 
                    in preventing COVID-19 and requires two doses, administered 28 days apart.`;
-       imageUrl = "./images/moderna.png";
+
         break;
       case "Sinovac":
         details = `Sinovac's CoronaVac is an inactivated virus vaccine. It was developed 
                    to reduce the severity of COVID-19 cases. It has an efficacy rate 
                    varying between 50% to 83% depending on clinical trials in different regions.`;
-        imageUrl = "/Users/cozy/swd-frontend/frontend/src/components/images/sinovac.png";
+
         break;
 
       case "Pfizer":
         details = `The Pfizer-BioNTech COVID-19 vaccine (BNT162b2) is an mRNA vaccine with 
                    a 90% efficacy rate. It requires two doses, given 21 days apart, 
                    and has been authorized for use in multiple countries worldwide.`;
-         imageUrl = "./images/pfizer.png";
+        
         break;
       default:
         details = "No information available.";
@@ -82,7 +100,7 @@ const Body: React.FC = () => {
   
     setActiveCard(vaccine);
     setIsModalOpen(true);
-    setModalContent({ title: vaccine, content: details });
+    setModalContent({ title: vaccine, content: details ,image: imageUrl });
   };
 
   useEffect(() => {
@@ -127,6 +145,7 @@ const Body: React.FC = () => {
              <p style={styles.vaccineDescription}>
                {vaccine === "Moderna"
                  ? "Final trial results confirm this vaccine has a 94% efficacy, and the data has been reviewed."
+                
                  : vaccine === "Sinovac"
                  ? "Sinovac COVID-19 vaccine is an inactivated virus vaccine developed to reduce the risk of severe disease."
                  : "Developed by the University of Oxford, Pfizer has a vaccine efficacy of up to 90%."}
@@ -134,8 +153,12 @@ const Body: React.FC = () => {
            </AnimatedDiv>
             ))}
           </div>
-          <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalContent.title} content={modalContent.content} />
-          
+          <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={''} content={''}>
+  <h2>{modalContent.title}</h2>
+  <img src={modalContent.image} alt={modalContent.title} style={{ maxWidth: '100%' }} />
+  <p>{modalContent.content}</p>
+</Modal>
+
           <div style={{ marginTop: '40px' }}>
             <ImageSlider />
           </div>
@@ -171,6 +194,61 @@ const Body: React.FC = () => {
           <p style={styles.testimonialAuthor}>- Arya Wijaya, 25 Years Old</p>
         </AnimatedDiv>
       </section>
+     {/* Features Section */}
+     <section style={styles.featuresSection}>
+          <h2 style={styles.sectionTitle}>Why Choose Us?</h2>
+          <div style={styles.featuresContainer}>
+            <div style={styles.feature}>
+              <h3 style={styles.featureTitle}>Fast Booking</h3>
+              <p style={styles.featureDescription}>Easily schedule your vaccination appointment online.</p>
+            </div>
+            <div style={styles.feature}>
+              <h3 style={styles.featureTitle}>Trusted Vaccines</h3>
+              <p style={styles.featureDescription}>We only offer WHO-approved vaccines.</p>
+            </div>
+            <div style={styles.feature}>
+              <h3 style={styles.featureTitle}>Nearby Locations</h3>
+              <p style={styles.featureDescription}>Find vaccination sites near you with a single click.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section style={styles.faqSection}>
+          <h2 style={styles.sectionTitle}>Frequently Asked Questions</h2>
+          <div style={styles.faqItem}>
+            <h3 style={styles.faqQuestion}>How many doses do I need?</h3>
+            <p style={styles.faqAnswer}>Most vaccines require two doses for full protection.</p>
+          </div>
+          <div style={styles.faqItem}>
+            <h3 style={styles.faqQuestion}>Are there any side effects?</h3>
+            <p style={styles.faqAnswer}>
+              Some may experience mild side effects such as soreness or fever.
+            </p>
+          </div>
+        </section>
+
+        {/* Contact Us Section */}
+        <section style={styles.contactSection}>
+          <h2 style={styles.sectionTitle}>Contact Us</h2>
+          <p style={styles.contactText}>Have questions? Reach out to us at support@vaccining.com</p>
+        </section>
+        <div style={styles.chatbotSection}>
+  <h3 style={styles.chatbotTitle}>Need More Help? Chat with Us!</h3>
+  <button style={styles.chatbotButton} onClick={toggleChat}>
+    {isChatOpen ? 'Close Chat' : 'Open Chat'}
+  </button>
+  {isChatOpen && <Chatbot />}
+</div>
+        
+        
+        {/* Back to Top Button */}
+        <button style={styles.backToTopButton} onClick={scrollToTop}>
+  ↑ Back to Top
+</button>
+
+ 
+
       </div>
     </body>
   );
@@ -310,6 +388,98 @@ const styles = {
     zIndex: 1000,
     visibility: 'visible', // Ensures it's visible
   } as React.CSSProperties,
+  featuresSection: { marginBottom: '40px' } as React.CSSProperties,
+  featuresContainer: { display: 'flex', gap: '20px', justifyContent: 'space-between' } as React.CSSProperties,
+  feature: {
+    flex: '1',
+    padding: '20px',
+    backgroundColor: '#f1f1f1',
+    borderRadius: '10px',
+    textAlign: 'center',
+  } as React.CSSProperties,
+  featureTitle: { fontSize: '20px', fontWeight: 'bold', marginBottom: '10px' } as React.CSSProperties,
+  featureDescription: { fontSize: '16px' } as React.CSSProperties,
+  faqSection: { marginBottom: '40px' } as React.CSSProperties,
+  faqItem: { marginBottom: '20px' } as React.CSSProperties,
+  faqQuestion: { fontSize: '18px', fontWeight: 'bold' } as React.CSSProperties,
+  faqAnswer: { fontSize: '16px' } as React.CSSProperties,
+  contactSection: { textAlign: 'center', marginBottom: '40px' } as React.CSSProperties,
+  contactText: { fontSize: '18px' } as React.CSSProperties,
+
+
+  backToTopButton: {
+  position: 'fixed',
+  bottom: '68px', // Adjust this value to move the button higher
+  right: '15px',
+  padding: '10px 20px',
+  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  color: '#333',
+  border: 'none',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+  zIndex: 1000,
+} as React.CSSProperties,
+
+  chatContainer: {
+    position: 'fixed',
+    bottom: '80px',
+    right: '20px',
+    width: '300px',
+    height: '400px',
+    backgroundColor: '#fff',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+    borderRadius: '10px',
+    overflow: 'hidden',
+    zIndex: 1000,
+  } as React.CSSProperties,
+  closeChatButton: {
+    position: 'absolute',
+    top: '5px',
+    right: '5px',
+    backgroundColor: 'red',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    padding: '5px 10px',
+    cursor: 'pointer',
+  } as React.CSSProperties,
+  
+  chatButton: {
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+    backgroundColor: '#28a745',
+    color: '#fff',
+    padding: '15px',
+    border: 'none',
+    borderRadius: '50%',
+    fontSize: '18px',
+    cursor: 'pointer',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+  } as React.CSSProperties,
+  chatbotSection: {
+    marginTop: '20px',
+    padding: '20px',
+    backgroundColor: '#f1f1f1',
+    borderRadius: '10px',
+    textAlign: 'center',
+  } as React.CSSProperties,
+  chatbotTitle: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    marginBottom: '10px',
+  } as React.CSSProperties,
+  chatbotButton: {
+    padding: '10px 20px',
+    fontSize: '16px',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  } as React.CSSProperties,
+  
 };
 
 export default Body;
