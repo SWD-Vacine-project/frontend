@@ -4,12 +4,23 @@ import Header from "./views/Header";
 import Body from "./views/Body";
 import Footer from "./views/Footer";
 import Login from "./pages/loginPage";
+import SignIn from "./pages/signIn";
+import { ToastContainer, Slide } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const App: React.FC = () => {
   return (
     <Router>
       <MainLayout />
+      <ToastContainer
+                transition={Slide}
+                autoClose={1500}
+                newestOnTop={true}
+                pauseOnHover={true}
+                pauseOnFocusLoss={false}
+                limit={5}
+              />
     </Router>
   );
 };
@@ -25,7 +36,7 @@ const MainLayout: React.FC = () => {
         <Routes>
           <Route path="/" element={<Body />} />
           <Route path="/Login" element={<Login />} />
-         
+          <Route path="/signIn" element={<SignIn />} />
         </Routes>
         
       </main>

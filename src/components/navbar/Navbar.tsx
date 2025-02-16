@@ -7,10 +7,15 @@ import Menu from './Menu';
 const Navbar: React.FC = () => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
+
+  const handleLogoClick = () => {
+    window.location.href = '/';
+  }
+
   return (
     <div style={styles.navbar}>
       <Logo
-        onClick={() => console.log('Logo clicked!')}
+        onClick= {handleLogoClick}
         src={logoImage}
         altText="Site Logo"
       />

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "target": "es5",                      // Đầu ra sẽ là mã ES5
     "lib": ["dom", "es2015"],             // Thư viện sẽ được bao gồm trong biên dịch
     "jsx": "react-jsx",                   // Cấu hình biên dịch JSX của React
