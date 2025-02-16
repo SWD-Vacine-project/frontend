@@ -2,18 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import Modal from '../components/Modal/VaccineModal';
 import ImageSlider from '../components/body/bodySlider';
-import Chatbot from '../Chatbot/Chat';
-// Định nghĩa kiểu cho animated.div
-const AnimatedDiv = animated.div;
 
-
-
-const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth',
-  });
-  };
 
 
 
