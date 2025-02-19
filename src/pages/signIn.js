@@ -8,13 +8,14 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import LoadingAnimation from "../animation/loading-animation";
 import './signIn.css';
 import ReCAPTCHA from "react-google-recaptcha";
+import SignInGoogle from "./Google"; 
 
 function SignIn() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [userEmail, setUserEmail] = useState(null); // Track logged-in user email
-  const [error, setError] = useState(null); // Store error messages
+  const [userEmail, setUserEmail] = useState(null);
+  const [error, setError] = useState(null);
   const [confirmPassword, setconfirmPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
@@ -32,6 +33,7 @@ function SignIn() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
+  const [isGoogleSignIn, setIsGoogleSignIn] = useState(false); // Track Google Sign-In state
 
   const onChange = (value) => {
     setIsCaptchaVerified(!!value);
@@ -47,21 +49,13 @@ function SignIn() {
   };
 
   const handleGoogleLogin = async () => {
-    try {
-      setLoading(true)
-      toast.success("Login successfully. Wish you enjoy our best experience", {
-        autoClose: 2000,
-      });
-    } catch (error) {
-      console.error("Error during Google sign-in:", error);
-      toast.error("Failed to sign in with Google. Please try again.", {
-        autoClose: 2000,
-        onClose: () => {
-          setLoading(false)
-          forceUpdate(); // Equivalent to `forceUpdate()`
-        },
-      });
-    }
+    setIsGoogleSignIn(true); // Set Google Sign-In state to true
+    // Redirect the user to Google's OAuth consent screen
+    const clientId = "1006543489483-mrg7qa1pas18ulb0hvnadiagh8jajghs.apps.googleusercontent.com";
+    const redirectUri = encodeURIComponent("https://localhost:7090/signin-google");
+    const scope = encodeURIComponent("openid profile email");
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
+    window.location.href = authUrl;
   };
 
   const isValidEmail = (email) => {
@@ -81,7 +75,7 @@ function SignIn() {
       return;
     }
     if (!validatePassword(password)) {
-      toast.error("Password must be cotained at least one digit, one special symbol, one uppercase letter.", { autoClose: 2000 });
+      toast.error("Password must contain at least one digit, one special symbol, and one uppercase letter.", { autoClose: 2000 });
       return;
     }
     
@@ -96,6 +90,7 @@ function SignIn() {
       setIsRegistering(true);
       setLoading(true);
       try {
+        // Registration logic here
       } catch (error) {
         toast.error("Something went wrong. Please try again!", { autoClose: 2000 });
         setLoading(false);
@@ -118,6 +113,7 @@ function SignIn() {
       setconfirmPassword(value);
     }
   };
+
   const onOtpSuccess = async () => {
     try {
       console.log("Email: ", email);
@@ -125,12 +121,9 @@ function SignIn() {
       
       setLoading(true); // Show spinner
     
-  
       const userEmail = email;
       setUserEmail(userEmail);
       localStorage.setItem("email", userEmail);
-  
-
   
       toast.success("Login successfully. Wish you enjoy our best experience!", {
         autoClose: 2000,
@@ -182,7 +175,6 @@ function SignIn() {
     container.classList.remove("active");
   };
 
- 
   const resetInactivityTimer = () => {
     clearTimeout(inactivityTimeoutRef.current);
     inactivityTimeoutRef.current = setTimeout(() => {
@@ -228,7 +220,6 @@ function SignIn() {
                 <span>or use your email for registeration</span>
                 <input
                   id="email"
-                  // type="email"
                   type="text"
                   autoComplete="off"
                   required
@@ -392,6 +383,7 @@ function SignIn() {
           </div>
         </div>
       )}
+      {isGoogleSignIn && <SignInGoogle />} {/* Render SignInGoogle when Google Sign-In is initiated */}
       <ToastContainer />
     </div>
   );

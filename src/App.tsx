@@ -1,10 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom"; 
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import SignIn from "./pages/signIn";
 import Header from "./views/Header";
 import Body from "./views/Body";
 import Footer from "./views/Footer";
 import Login from "./pages/loginPage";
-import SignIn from "./pages/signIn";
+
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -36,7 +37,7 @@ const MainLayout: React.FC = () => {
         <Routes>
           <Route path="/" element={<Body />} />
           <Route path="/Login" element={<Login />} />
-          <Route path="/signIn" element={<SignIn />} />
+          <Route path="/signIn" element={<SignIn/>}/>
         </Routes>
         
       </main>

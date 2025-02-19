@@ -2,9 +2,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import Modal from '../components/Modal/VaccineModal';
 import ImageSlider from '../components/body/bodySlider';
+import Chatbot from '../Chatbot/Chat';
 
 
 
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+  };
+
+  
 
 const Body: React.FC = () => {
 
@@ -118,7 +127,7 @@ const Body: React.FC = () => {
             ref={vaccineCardRef} // Assign ref to the vaccine card container
           >
             {["Moderna", "Sinovac", "Pfizer"].map((vaccine) => (
-             <AnimatedDiv
+             <animated.div
              key={vaccine}
              style ={{
                ...vaccineCardProps, // Directly pass all animated values (opacity, transform)
@@ -137,7 +146,7 @@ const Body: React.FC = () => {
                  ? "Sinovac COVID-19 vaccine is an inactivated virus vaccine developed to reduce the risk of severe disease."
                  : "Developed by the University of Oxford, Pfizer has a vaccine efficacy of up to 90%."}
              </p>
-           </AnimatedDiv>
+             </animated.div>
             ))}
           </div>
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={''} content={''}>
@@ -156,30 +165,30 @@ const Body: React.FC = () => {
         <section style={styles.locationsSection}>
         <h2 style={styles.sectionTitle}>Get Vaccine Location</h2>
         <div style={styles.locationCardContainer}>
-          <AnimatedDiv style={{ ...styles.locationCard, ...locationCardProps }}>
+        <animated.div style={{ ...styles.locationCard, ...locationCardProps }}>
             <h3 style={styles.locationName}>White Square</h3>
             <p style={styles.locationAddress}>Jalan Setiabudi Santoso</p>
             <button style={styles.locationButton}>Get Your Vaccine</button>
-          </AnimatedDiv>
-          <AnimatedDiv style={{ ...styles.locationCard, ...locationCardProps }}>
+            </animated.div>
+          <animated.div style={{ ...styles.locationCard, ...locationCardProps }}>
             <h3 style={styles.locationName}>White Town</h3>
             <p style={styles.locationAddress}>Jalan Jenderal Sudirman</p>
             <button style={styles.locationButton}>Get Your Vaccine</button>
-          </AnimatedDiv>
+            </animated.div>
         </div>
       </section>
 
       {/* Testimonials Section with Animation */}
       <section style={styles.testimonialsSection}>
         <h2 style={styles.sectionTitle}>What People Say About Us</h2>
-        <AnimatedDiv style={{ ...styles.testimonialCard, ...testimonialCardProps }}>
+        <animated.div style={{ ...styles.testimonialCard, ...testimonialCardProps }}>
           <p style={styles.testimonialText}>
             "I am very grateful to Vaccining. With the Vaccining application, it
             is really easier for me to find vaccination sites, and it also makes
             it easier for me."
           </p>
           <p style={styles.testimonialAuthor}>- Arya Wijaya, 25 Years Old</p>
-        </AnimatedDiv>
+          </animated.div>
       </section>
      {/* Features Section */}
      <section style={styles.featuresSection}>
@@ -222,13 +231,13 @@ const Body: React.FC = () => {
         </section>
         <div style={styles.chatbotSection}>
   <h3 style={styles.chatbotTitle}>Need More Help? Chat with Us!</h3>
+  
   <button style={styles.chatbotButton} onClick={toggleChat}>
     {isChatOpen ? 'Close Chat' : 'Open Chat'}
   </button>
   {isChatOpen && <Chatbot />}
 </div>
-        
-        
+
         {/* Back to Top Button */}
         <button style={styles.backToTopButton} onClick={scrollToTop}>
   ↑ Back to Top
@@ -396,8 +405,8 @@ const styles = {
 
   backToTopButton: {
   position: 'fixed',
-  bottom: '68px', // Adjust this value to move the button higher
-  right: '15px',
+  bottom: '1px', // Adjust this value to move the button higher
+  right: '20px',
   padding: '10px 20px',
   backgroundColor: 'rgba(255, 255, 255, 0.8)',
   color: '#333',
@@ -465,6 +474,7 @@ const styles = {
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
+    
   } as React.CSSProperties,
   
 };
