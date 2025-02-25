@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "checkJs": false,
+    "allowJs": true,  
+    "checkJs": false,  
     "target": "es5",
     "lib": ["dom", "es2015"],
     "jsx": "react-jsx",
@@ -10,19 +10,15 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "./dist"  // 🔥 Định nghĩa thư mục output, tránh ghi đè lên src/
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
-    "**/*.json", // Exclude JSON files (if any)
-    "**/*.d.ts.json", // Exclude D types (if any)
-    "**/*.svelte.js", // Exclude Svelte files
-    "**/*.svelte.ts", // Exclude TypeScript translations of Svelte files
-    "**/*.tsx", // Exclude TypeScript Expressions
-    "**/*.js", // Exclude all JavaScript files in test directories
-    "**/Animations/**/*" // Exclude specific test directory and its contents
+    "dist",
+    "**/Animations/**/*"
   ]
 }

@@ -269,3 +269,8 @@ label {
   background: none; 
   cursor: pointer; 
 } 
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+}

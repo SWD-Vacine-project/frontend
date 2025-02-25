@@ -23,3 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 .tsconfig.json
+
+# Lock file
+package-lock.json
+package.json

@@ -10,6 +10,8 @@ const Menu: React.FC = () => {
     navigate("/signIn");
   }
 
+
+
   return (
     <div
       style={styles.menuContainer}
@@ -26,10 +28,8 @@ const Menu: React.FC = () => {
           transform: isDropdownVisible ? 'translateY(0px)' : 'translateY(10px)',
         }}
       >
-        <a href="/Login" style={styles.dropdownItem}>
-          Login
-        </a>
-        <button style={styles.dropdownItem} onClick={login}>Sign Up</button>
+         <button style={styles.dropdownItem} onClick={login}>Sign Up</button>
+        <button style={styles.dropdownItem} onClick={login}>Sign In</button>
       </div>
     </div>
   );

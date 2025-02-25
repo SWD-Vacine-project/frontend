@@ -9,6 +9,7 @@ import LoadingAnimation from "../animation/loading-animation";
 import './signIn.css';
 import ReCAPTCHA from "react-google-recaptcha";
 import SignInGoogle from "./Google"; 
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -198,6 +199,12 @@ function SignIn() {
     setShowConfirmPassword((prevState) => !prevState);
   };
 
+
+  const handleBackToMain = () => {
+    navigate("/"); // Adjust the route if your main page has a different path
+  };
+  
+
   useEffect(() => {
     resetInactivityTimer();
     return () => clearTimeout(inactivityTimeoutRef.current);
@@ -206,16 +213,17 @@ function SignIn() {
   return (
     <div>
       {!userEmail && (
-        <div className="signIn" style={{ height: "100vh", backgroundColor: "#cdd8fa" }}>
+        <div className="signIn" style={{ height: "100vh",width:"100vh",backgroundColor: 'linear-gradient(135deg, #D8BFD8, #C3AED6)' }}>
           {loading && <LoadingAnimation />}
           <div className="container form" id="container">
             <div className="form-container sign-up">
               <form onSubmit={onSubmit}>
                 <h1>Create Account</h1>
                 <div className="social-icons">
-                  <button type="button" onClick={handleGoogleLogin}>
-                    Login with Google
-                  </button>
+                <button type="button" onClick={handleGoogleLogin} className="google-login-btn">
+                <FontAwesomeIcon icon={faGoogle} className="mr-2" />
+                Login with Google
+               </button>
                 </div>
                 <span>or use your email for registeration</span>
                 <input
@@ -363,6 +371,9 @@ function SignIn() {
                   >
                     Sign In
                   </button>
+                  <button className="homeButton"    onClick={handleBackToMain}>
+                    Back to Home Page
+                  </button>
                 </div>
                 <div className="toggle-panel toggle-right">
                   <h1>Hello, Friend!</h1>
@@ -376,6 +387,11 @@ function SignIn() {
                     onClick={handleClickButtonReg}
                   >
                     Sign Up
+                  </button>
+                  <button
+                  className="homeButton"    onClick={handleBackToMain}
+                  >
+                    Back to Home Page
                   </button>
                 </div>
               </div>
