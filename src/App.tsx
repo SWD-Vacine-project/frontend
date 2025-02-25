@@ -9,6 +9,7 @@ import Vaccine from "./pages/Vaccine";
 import Contact from "./pages/Contact";
 import LoadingAnimation from "./animation/loading-animation";
 import Services from "./pages/Services";
+import StickyContactBar from "./pages/StickyContactBar";
 
 
 import { ToastContainer, Slide } from "react-toastify";
@@ -34,6 +35,11 @@ const App: React.FC = () => {
 const MainLayout: React.FC = () => {
   const location = useLocation();
   const isFullPage = ["/signIn","/about"].includes(location.pathname);
+  const [currentPath, setCurrentPath] = useState("");
+
+  useEffect(() => {
+    setCurrentPath(location.pathname);
+  }, [location.pathname]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,6 +70,7 @@ const MainLayout: React.FC = () => {
             <Route path="/services" element={<Services />} />
           </Routes>
         )}
+        <StickyContactBar currentPath={currentPath} />
       </main>
       {!isFullPage && <Footer />}
     </div>
