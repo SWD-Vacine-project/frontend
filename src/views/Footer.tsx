@@ -127,6 +127,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     paddingTop: "8px",
     fontSize: "12px",
   },
+  footerSocial: {
+    marginTop: "20px",
+  } as React.CSSProperties,
+  socialIcon: {
+    fontSize: "24px",
+    marginRight: "30px",
+    color: "#000",
+  } as React.CSSProperties,
+
 };
 
 export default Footer;

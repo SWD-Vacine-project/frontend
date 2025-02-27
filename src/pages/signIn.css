@@ -5,19 +5,17 @@
 /* @import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap'); */
 
 .container {
-  background-color: #fff;
+ background-color: #fff;
   border-radius: 30px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
-  position: relative;
+  position: absolute;
   overflow: hidden;
   width: 768px;
   max-width: 100%;
   min-height: 480px;
-  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  margin: 50px 0;
 }
 
 
@@ -33,12 +31,14 @@ html {
   background-color: #fff;
   border-radius: 30px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
-  position: relative;
+  position: absolute;
   overflow: hidden;
   width: 768px;
   max-width: 100%;
   min-height: 480px;
-  margin: 50px 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 a {
@@ -117,6 +117,7 @@ a {
   left: 0;
   width: 50%;
   z-index: 2;
+  
 }
 
 .container.active .sign-in {

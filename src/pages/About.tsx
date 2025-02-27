@@ -10,14 +10,14 @@ import { useLocation } from "react-router-dom";
 
 const styles = { 
   container: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    minHeight: '90vh',
-    width: '150vh',
-    background: 'linear-gradient(to right, #d3aef2, #b084d3)',
-    padding: '20px',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "column",
+    minHeight: "100vh",
+    width: "100%",
+    background: "linear-gradient(135deg, #FFD3E0, #C3AED6)",
+    padding: "40px 20px",
   } as React.CSSProperties,
   
   mainCard: {
