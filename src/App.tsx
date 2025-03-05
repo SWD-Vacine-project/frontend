@@ -10,9 +10,11 @@ import Contact from "./pages/Contact";
 import LoadingAnimation from "./animation/loading-animation";
 import Services from "./pages/Services";
 import StickyContactBar from "./pages/StickyContactBar";
-
+import UserDashboard from "./Customer/userDash";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import SchedulePage from "./Customer/Schedule";
+import UserProfile from "./Customer/User";
 
 const App: React.FC = () => {
   return (
@@ -44,7 +46,7 @@ const MainLayout: React.FC = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const loadingPaths = ["/about", "/signIn", "/contact", "/services"];
+    const loadingPaths = ["/about", "/signIn", "/contact", "/services","/vaccine"];
     if (loadingPaths.includes(location.pathname)) {
       setIsLoading(true);
       setTimeout(() => {
@@ -82,6 +84,7 @@ const MainLayout: React.FC = () => {
   return (
     <div style={isFullPage ? styles.fullPage : styles.appContainer}>
       {!isFullPage && <Header />}
+      
       <main style={styles.mainContent}>
         {isLoading ? (
           <LoadingAnimation />
@@ -93,8 +96,10 @@ const MainLayout: React.FC = () => {
             <Route path="/vaccine" element={<VaccineComponent />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/userDashboard" element={<UserDashboard />} />
+            <Route path="/schedule" element={<SchedulePage />} />
+            <Route path="/user" element={<UserProfile />} />
             
-            <Route path="/customer/postpone" element={<Services />} />
           </Routes>
         )}
         {!isFullPage && <StickyContactBar currentPath={currentPath} />}

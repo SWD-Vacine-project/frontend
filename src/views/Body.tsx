@@ -3,7 +3,7 @@ import { useSpring, animated } from '@react-spring/web';
 import Modal from '../components/Modal/VaccineModal';
 import ImageSlider from '../components/body/bodySlider';
 import Chatbot from '../Chatbot/Chat';
-
+import styled from "styled-components";
 
 
 const scrollToTop = () => {
@@ -106,6 +106,37 @@ const Body: React.FC = () => {
     };
   }, []);
 
+
+  
+  const StyledWrapper = styled("div")`
+  button {
+    border-radius: 0.25rem;
+    text-transform: uppercase;
+    font-style: normal;
+    font-weight: 400;
+    padding-left: 25px;
+    padding-right: 25px;
+    color: #fff;
+    -webkit-clip-path: polygon(0 0, 0 0, 100% 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 100%);
+    clip-path: polygon(0 0, 0 0, 100% 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 100%);
+    height: 40px;
+    font-size: 0.7rem;
+    line-height: 14px;
+    letter-spacing: 1.2px;
+    transition: 0.2s 0.1s;
+    background-image: linear-gradient(90deg, #1c1c1c, #6220fb);
+    border: 0 solid;
+    overflow: hidden;
+  }
+
+  button:hover {
+    cursor: pointer;
+    transition: all 0.3s ease-in;
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+`;
+
   return (
     <body style={styles.body}>
       {/* Hero Section Outside Container to Ensure Full Width */}
@@ -115,7 +146,11 @@ const Body: React.FC = () => {
           Vaccining will help you to know your vaccine and find the nearest
           vaccination place from your house fast and easily to help you.
         </p>
-        <button style={styles.heroButton}>Get Your Vaccine</button>
+        <StyledWrapper>
+        <button>
+          GET STARTED
+        </button>
+      </StyledWrapper>
       </animated.section>
   
       <div style={styles.Container}>
@@ -263,7 +298,7 @@ const styles = {
     textAlign: 'center',
     marginBottom: '40px',
     color: '#fff',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#2c2c4a',
     padding: '40px',
     borderRadius: '10px',
   } as React.CSSProperties,

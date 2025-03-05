@@ -160,24 +160,53 @@ function SignIn() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             },
-            body: JSON.stringify({ email, password }),
-            mode: "cors",  // This disables CORS
+            body: JSON.stringify({ userName: username, password }),
+            mode: "cors",  
         });
 
         const data = await response.json();
 
         if (response.ok) {
+          console.log("API Response:", data)
             toast.success("Login successful!", { autoClose: 2000 });
 
-            // Lấy username từ API response
-            const userName = data.userName; 
+            const userData = {
+              customerId: data.customerId,
+              email: data.email,
+              name: data.name,
+              phone: data.phone,
+              role: data.role,
+              address: data.address,
+              children: [],
+            };
+            
+            if (data.role === "Customer") {
+              console.log("Fetching children list...");
 
-            // Lưu thông tin user vào localStorage
-            localStorage.setItem("user", JSON.stringify({ userName }));
+              const childResponse = await fetch(
+                `https://vaccinesystem.azurewebsites.net/Child/get-child/${data.customerId}`,{
+                  method: "GET",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept-Encoding": "application/json"
+          },
+                }
+                
+              );
+            
+              if (childResponse.ok) {
+                const childrenData = await childResponse.json();
+                userData.children = childrenData; // ✅ Assign children
+              }
+            }
 
+          localStorage.setItem("user", JSON.stringify(userData));
+          console.log("Saved to localStorage:", localStorage.getItem("user"));
             // Điều hướng đến trang dashboard hoặc trang chính
-            navigate("/dashboard");
+            navigate("/userDashboard");
         } else {
             toast.error(data.message || "Login failed. Please try again.", { autoClose: 2000 });
         }
