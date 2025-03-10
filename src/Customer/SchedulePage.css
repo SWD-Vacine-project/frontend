@@ -1,0 +1,55 @@
+/* Custom FullCalendar Toolbar Styling */
+.fc-toolbar {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px 0 !important;
+  }
+  
+  /* Styling for the toolbar buttons */
+  .fc-toolbar .fc-button {
+    background-color: #9d6dff !important; /* Soft purple */
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease-in-out !important;
+    border: none !important;
+    box-shadow: 0 3px 6px rgba(157, 109, 255, 0.3) !important;
+  }
+  
+  /* Hover effect */
+  .fc-toolbar .fc-button:hover {
+    background-color: #7c3aed !important; /* Darker purple */
+    transform: scale(1.05);
+  }
+  
+  /* Active button styling */
+  .fc-toolbar .fc-button-active {
+    background-color: #6b21a8 !important; /* Active button */
+  }
+  
+  /* Customizing the title */
+  .fc-toolbar-title {
+    font-size: 22px !important;
+    font-weight: bold !important;
+    color: #6b21a8 !important;
+    text-transform: uppercase;
+  }
+  
+  /* Styling for calendar cells */
+  .fc-daygrid-day-number {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #6b21a8 !important;
+  }
+  
+  /* Enhancing day hover effect */
+  .fc-daygrid-day:hover {
+    background-color: rgba(124, 58, 237, 0.1) !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease-in-out;
+  }
+  

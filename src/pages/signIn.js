@@ -6,9 +6,9 @@ import useForceUpdate from "../hooks/useForceUpdate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import LoadingAnimation from "../animation/loading-animation";
-import './signIn.css';
+import "./signIn.css";
 import ReCAPTCHA from "react-google-recaptcha";
-import SignInGoogle from "./Google"; 
+import SignInGoogle from "./Google";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 
 function SignIn() {
@@ -36,50 +36,56 @@ function SignIn() {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [isGoogleSignIn, setIsGoogleSignIn] = useState(false); // Track Google Sign-In state
 
-  const onChange = (value) => {
-    setIsCaptchaVerified(!!value);
-    setCaptchaError(null);
-  };
-  const onErrored = () => {
-    setCaptchaError("Failed to load reCAPTCHA. Please try again.");
-  };
+  // const onChange = (value) => {
+  //   setIsCaptchaVerified(!!value);
+  //   setCaptchaError(null);
+  // };
+  // const onErrored = () => {
+  //   setCaptchaError("Failed to load reCAPTCHA. Please try again.");
+  // };
 
-  const onExpired = () => {
-    setIsCaptchaVerified(false);
-    setCaptchaError("reCAPTCHA expired. Please verify again.");
-  };
+  // const onExpired = () => {
+  //   setIsCaptchaVerified(false);
+  //   setCaptchaError("reCAPTCHA expired. Please verify again.");
+  // };
 
   const handleGoogleLogin = async () => {
     setIsGoogleSignIn(true); // Set Google Sign-In state to true
     // Redirect the user to Google's OAuth consent screen
-    const clientId = "1006543489483-mrg7qa1pas18ulb0hvnadiagh8jajghs.apps.googleusercontent.com";
-    const redirectUri = encodeURIComponent("https://localhost:7090/signin-google");
+    const clientId =
+      "1006543489483-mrg7qa1pas18ulb0hvnadiagh8jajghs.apps.googleusercontent.com";
+    const redirectUri = encodeURIComponent(
+      "https://localhost:7090/signin-google"
+    );
     const scope = encodeURIComponent("openid profile email");
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
     window.location.href = authUrl;
   };
 
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  // const isValidEmail = (email) => {
+  //   return username.trim().length > 0;
+  // };
 
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{4,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{4,}$/;
     return passwordRegex.test(password);
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!isValidEmail(email)) {
-      toast.error("Invalid email format. Please enter a valid email.", { autoClose: 2000 });
-      return;
-    }
+    // if (!isValidEmail(email)) {
+    //   toast.error("Invalid email format. Please enter a valid email.", { autoClose: 2000 });
+    //   return;
+    // }
     if (!validatePassword(password)) {
-      toast.error("Password must contain at least one digit, one special symbol, and one uppercase letter.", { autoClose: 2000 });
+      toast.error(
+        "Password must contain at least one digit, one special symbol, and one uppercase letter.",
+        { autoClose: 2000 }
+      );
       return;
     }
-    
+
     if (password !== confirmPassword) {
       toast.error("Password not match, please try again!", { autoClose: 2000 });
       return;
@@ -93,7 +99,9 @@ function SignIn() {
       try {
         // Registration logic here
       } catch (error) {
-        toast.error("Something went wrong. Please try again!", { autoClose: 2000 });
+        toast.error("Something went wrong. Please try again!", {
+          autoClose: 2000,
+        });
         setLoading(false);
       } finally {
         setLoading(false);
@@ -119,19 +127,21 @@ function SignIn() {
     try {
       console.log("Email: ", email);
       console.log("Password: ", password);
-      
+
       setLoading(true); // Show spinner
-    
+
       const userEmail = email;
       setUserEmail(userEmail);
       localStorage.setItem("email", userEmail);
-  
+
       toast.success("Login successfully. Wish you enjoy our best experience!", {
         autoClose: 2000,
       });
     } catch (error) {
       console.error("Error during login after OTP verification:", error);
-      toast.error("Failed to login after OTP verification. Please try again.", { autoClose: 2000 });
+      toast.error("Failed to login after OTP verification. Please try again.", {
+        autoClose: 2000,
+      });
       setLoading(false); // Hide spinner
     }
   };
@@ -140,30 +150,92 @@ function SignIn() {
     event.preventDefault();
     setError(null);
 
-    if (!isValidEmail(email)) {
-      toast.error("Invalid email format. Please enter a valid email.", { autoClose: 2000 });
-      return;
-    }
+    // if (!isValidEmail(email)) {
+    //   toast.error("Invalid email format. Please enter a valid email.", { autoClose: 2000 });
+    //   return;
+    // }
     if (!validatePassword(password)) {
-      toast.error("Password must contain at least one digit, one special symbol, and one uppercase letter.", { autoClose: 2000 });
+      toast.error(
+        "Password must contain at least one digit, one special symbol, and one uppercase letter.",
+        { autoClose: 2000 }
+      );
       return;
     }
 
-    if (!isCaptchaVerified) {
-      toast.error("Please complete the captcha before submitting the form.");
-      return;
-    }
+    // if (!isCaptchaVerified) {
+    //   toast.error("Please complete the captcha before submitting the form.");
+    //   return;
+    // }
 
     try {
-      setLoading(true); // Show spinner
+      setLoading(true); // Hiển thị spinner
 
-      toast.info("OTP sent to your email. Please verify to continue.", { autoClose: 2000 });
-      setLoading(false); // Hide spinner
-      setShowOtpModal(true); // Show OTP modal
+      const response = await fetch(
+        "https://vaccinesystem.azurewebsites.net/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ userName: username, password }),
+          mode: "cors",
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("API Response:", data);
+        toast.success("Login successful!", { autoClose: 2000 });
+
+        const userData = {
+          customerId: data.customerId,
+          email: data.email,
+          name: data.name,
+          phone: data.phone,
+          role: data.role,
+          address: data.address,
+          children: [],
+        };
+
+        if (data.role === "Customer") {
+          console.log("Fetching children list...");
+
+          const childResponse = await fetch(
+            `https://vaccinesystem.azurewebsites.net/Child/get-child/${data.customerId}`,
+            {
+              method: "GET",
+              mode: "cors",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept-Encoding": "application/json",
+              },
+            }
+          );
+
+          if (childResponse.ok) {
+            const childrenData = await childResponse.json();
+            userData.children = childrenData; // ✅ Assign children
+          }
+        }
+
+        localStorage.setItem("user", JSON.stringify(userData));
+        console.log("Saved to localStorage:", localStorage.getItem("user"));
+        // Điều hướng đến trang dashboard hoặc trang chính
+        navigate("/userDashboard");
+      } else {
+        toast.error(data.message || "Login failed. Please try again.", {
+          autoClose: 2000,
+        });
+      }
     } catch (error) {
-      console.error("Error sending OTP:", error);
-      toast.error("Failed to send OTP. Please try again.", { autoClose: 2000 });
-      setLoading(false); // Hide spinner
+      console.error("Login error:", error);
+      toast.error("Failed to connect to server. Please try again.", {
+        autoClose: 2000,
+      });
+    } finally {
+      setLoading(false); // Ẩn spinner
     }
   };
 
@@ -180,15 +252,15 @@ function SignIn() {
     clearTimeout(inactivityTimeoutRef.current);
     inactivityTimeoutRef.current = setTimeout(() => {
       setIsInactive(true);
-      setCaptchaError(
-        "You have been inactive for a while. Please verify reCAPTCHA again."
-      );
+      // setCaptchaError(
+      //   "You have been inactive for a while. Please verify reCAPTCHA again."
+      // );
     }, 5 * 60 * 1000); // 5 minutes inactivity timeout
   };
 
   const handleRetry = () => {
     setRetry(retry + 1);
-    setCaptchaError(null);
+    // setCaptchaError(null);
     setIsInactive(false);
     resetInactivityTimer();
   };
@@ -199,11 +271,9 @@ function SignIn() {
     setShowConfirmPassword((prevState) => !prevState);
   };
 
-
   const handleBackToMain = () => {
     navigate("/"); // Adjust the route if your main page has a different path
   };
-  
 
   useEffect(() => {
     resetInactivityTimer();
@@ -213,28 +283,39 @@ function SignIn() {
   return (
     <div>
       {!userEmail && (
-        <div className="signIn" style={{ height: "100vh",width:"100vh",backgroundColor: 'linear-gradient(135deg, #D8BFD8, #C3AED6)' }}>
+        <div
+          className="signIn"
+          style={{
+            height: "100vh",
+            width: "100vh",
+            backgroundColor: "linear-gradient(135deg, #D8BFD8, #C3AED6)",
+          }}
+        >
           {loading && <LoadingAnimation />}
           <div className="container form" id="container">
             <div className="form-container sign-up">
               <form onSubmit={onSubmit}>
                 <h1>Create Account</h1>
                 <div className="social-icons">
-                <button type="button" onClick={handleGoogleLogin} className="google-login-btn">
-                <FontAwesomeIcon icon={faGoogle} className="mr-2" />
-                Login with Google
-               </button>
+                  <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    className="google-login-btn"
+                  >
+                    <FontAwesomeIcon icon={faGoogle} className="mr-2" />
+                    Login with Google
+                  </button>
                 </div>
                 <span>or use your email for registeration</span>
                 <input
-                  id="email"
+                  id="username"
                   type="text"
                   autoComplete="off"
                   required
-                  value={email}
+                  value={username}
                   placeholder="Input your email"
                   onChange={(e) => {
-                    setEmail(e.target.value || "");
+                    setUsername(e.target.value || "");
                   }}
                   className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
                 />
@@ -262,7 +343,10 @@ function SignIn() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-600 font-bold" style={{color: "#666", fontSize: "14px" }}>
+                  <label
+                    className="text-sm text-gray-600 font-bold"
+                    style={{ color: "#666", fontSize: "14px" }}
+                  >
                     Confirm Password
                   </label>
                   <div className="input-wrapper">
@@ -304,59 +388,35 @@ function SignIn() {
             <div className="form-container sign-in">
               <form onSubmit={handleEmailLogin}>
                 <h1>Sign In</h1>
-                <div className="social-icons">
-                  <button type="button" onClick={handleGoogleLogin}>
-                    Login with Google
-                  </button>
-                </div>
-                <span>or use your email password</span>
                 <input
-                  type="email"
-                  id="email"
-                  name="email"
+                  type="text"
+                  id="username"
+                  name="username"
                   placeholder="Input your email"
-                  value={email}
+                  value={username}
                   onChange={handleChange}
                   required
                 />
-                 <div className="input-wrapper">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Input your password"
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={handleChange}
-                  required
-                  
-                />
-                <div
+                <div className="input-wrapper">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Input your password"
+                    id="password"
+                    name="password"
+                    value={password}
+                    onChange={handleChange}
+                    required
+                  />
+                  <div
                     className="toggle-password"
                     onClick={togglePasswordVisibility}
                   >
-                    <FontAwesomeIcon
-                      id="toggleIcon"
-                      icon={showPassword ? faEyeSlash : faEye}
-                    />
-                    </div>
-                    </div>
-                <a style={{cursor: "pointer"}} onClick={() => navigate("/forgot-password")}>Forget Your Password?</a>
-                {!isInactive && (
-                  <ReCAPTCHA
-                    key={retry} // This forces re-rendering of the component on retry
-                    sitekey="6LfjlPcpAAAAAPLRaxVhKzYI4OYR2mBW_wv6LZwW"
-                    onChange={onChange}
-                    onErrored={onErrored}
-                    onExpired={onExpired}
-                  />
-                )}
-                {captchaError && (
-                  <div style={{ color: "red", textAlign: "center" }}>
-                    {captchaError}
-                    {isInactive && <button onClick={handleRetry}>Retry</button>}
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                   </div>
-                )}
-                <button disabled={!isCaptchaVerified}>Sign In</button>
+                </div>
+                <button type="submit" className="login-button">
+                  Sign In
+                </button>
               </form>
             </div>
             <div className="toggle-container">
@@ -371,7 +431,7 @@ function SignIn() {
                   >
                     Sign In
                   </button>
-                  <button className="homeButton"    onClick={handleBackToMain}>
+                  <button className="homeButton" onClick={handleBackToMain}>
                     Back to Home Page
                   </button>
                 </div>
@@ -388,9 +448,7 @@ function SignIn() {
                   >
                     Sign Up
                   </button>
-                  <button
-                  className="homeButton"    onClick={handleBackToMain}
-                  >
+                  <button className="homeButton" onClick={handleBackToMain}>
                     Back to Home Page
                   </button>
                 </div>
@@ -399,7 +457,8 @@ function SignIn() {
           </div>
         </div>
       )}
-      {isGoogleSignIn && <SignInGoogle />} {/* Render SignInGoogle when Google Sign-In is initiated */}
+      {isGoogleSignIn && <SignInGoogle />}{" "}
+      {/* Render SignInGoogle when Google Sign-In is initiated */}
       <ToastContainer />
     </div>
   );
