@@ -15,10 +15,14 @@ import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SchedulePage from "./Customer/Schedule";
 import UserProfile from "./Customer/User";
+import Book from "./pages/booking/book";
+import { BookingProvider } from "./components/context/BookingContext";
+import ManageBookings from "./pages/booking/ManageBooking";
 
 const App: React.FC = () => {
   return (
     <Router>
+      <BookingProvider>
       <MainLayout />
       <ToastContainer
         transition={Slide}
@@ -28,6 +32,7 @@ const App: React.FC = () => {
         pauseOnFocusLoss={false}
         limit={5}
       />
+      </BookingProvider>
     </Router>
   );
 };
@@ -99,7 +104,8 @@ const MainLayout: React.FC = () => {
             <Route path="/userDashboard" element={<UserDashboard />} />
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/user" element={<UserProfile />} />
-            
+            <Route path="/book/*" element={<Book />} />
+            <Route path="/manage-booking" element={<ManageBookings />} />
           </Routes>
         )}
         {!isFullPage && <StickyContactBar currentPath={currentPath} />}

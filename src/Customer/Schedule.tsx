@@ -2,6 +2,7 @@ import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { DayCellContentArg } from '@fullcalendar/core';
 import "./SchedulePage.css"; // Import external CSS for button styling
 
 const SchedulePage = () => {
@@ -25,7 +26,7 @@ const SchedulePage = () => {
             right: "dayGridMonth,dayGridWeek,dayGridDay",
           }}
           height={600}
-          dayCellContent={(e) => (
+          dayCellContent={(e: DayCellContentArg) => (
             <div style={styles.dayCell}>{e.dayNumberText}</div>
           )}
         />

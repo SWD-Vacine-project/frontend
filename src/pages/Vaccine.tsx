@@ -1,6 +1,7 @@
 import { useState, useEffect,useRef } from "react";
 import Modal from "../Modal/ModalVaccine"; // Import modal component
 import { motion } from "framer-motion";
+import { navigate } from "@reach/router";
 
 interface Vaccine {
   vaccineId: number;  // Đổi 'id' thành 'vaccineId'
@@ -29,15 +30,11 @@ const VaccineComponent = () => {
 
 
 
-
-
-
-
   useEffect(() => {
     const fetchVaccines = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://vaccinesystem.azurewebsites.net/api/Vaccine", {
+        const response = await fetch("https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine", {
           method: "GET",
           mode: "cors",
           headers: {
@@ -67,7 +64,7 @@ const VaccineComponent = () => {
 
   const fetchVaccineByName = async (name: string) => {
     try {
-      const response = await fetch(`https://vaccinesystem.azurewebsites.net/api/Vaccine?name=${encodeURIComponent(name)}`);
+      const response = await fetch(`https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine?name=${encodeURIComponent(name)}`);
       if (!response.ok) throw new Error("Không tìm thấy vaccine");
       const data: Vaccine[] = await response.json();
       setVaccines(data);
@@ -88,7 +85,7 @@ const VaccineComponent = () => {
   const fetchSortedVaccines = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://vaccinesystem.azurewebsites.net/api/Vaccine/sort-by-price");
+      const response = await fetch("https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine/sort-by-price");
       const sortedData = await response.json();
       setVaccines(sortedData);
     } catch (error) {
@@ -105,6 +102,7 @@ const VaccineComponent = () => {
   
     if (user) {
       console.log("Proceed to buy vaccine...");
+      navigate("/book/booking-confirm");
     } else {
       setShowLoginPopup(true);
     }
