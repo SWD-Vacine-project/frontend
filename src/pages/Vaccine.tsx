@@ -1,7 +1,8 @@
 import { useState, useEffect,useRef } from "react";
 import Modal from "../Modal/ModalVaccine"; // Import modal component
 import { motion } from "framer-motion";
-
+import SelectDateTime from "./booking/SelectDateTime";
+import { useNavigate } from "react-router-dom"; 
 interface Vaccine {
   vaccineId: number;  // Đổi 'id' thành 'vaccineId'
   name: string;
@@ -10,6 +11,32 @@ interface Vaccine {
   description: string;
   internalDurationDoses: number;
 }
+
+interface Child {
+  childId: number;
+  customerId: number;
+  name: string;
+  dob: string;
+  gender: string;
+  bloodType: string;
+  appointments: any[];
+}
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  role: string;
+  children: Child[];
+}
+
+interface CartItem {
+  vaccine: Vaccine;
+  selectedChildren: Child[];
+}
+
 
 const ITEMS_PER_PAGE = 9; // Hiển thị 9 vaccine mỗi trang
 
@@ -23,13 +50,18 @@ const VaccineComponent = () => {
   const [selectedVaccine, setSelectedVaccine] = useState<Vaccine | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  const [cart, setCart] = useState<Vaccine[]>([]);
+
   const [showCart, setShowCart] = useState(false);
   const cartRef = useRef<HTMLDivElement | null>(null);
-
-
-
-
+  const [childrenList, setChildrenList] = useState<Child[]>([]);
+  const [showChildrenModal, setShowChildrenModal] = useState(false);
+  const [tempSelectedChildren, setTempSelectedChildren] = useState<Child[]>([]);
+  const [currentAction, setCurrentAction] = useState<"addToCart" | "buyNow">("addToCart");
+  const userData = localStorage.getItem("user");
+  const user: User | null = userData ? JSON.parse(userData) : null;
+  const customerId: number | undefined = user?.id;
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const navigate = useNavigate(); 
 
 
 
@@ -37,7 +69,7 @@ const VaccineComponent = () => {
     const fetchVaccines = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://vaccinesystem.azurewebsites.net/api/Vaccine", {
+        const response = await fetch("https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine", {
           method: "GET",
           mode: "cors",
           headers: {
@@ -67,7 +99,7 @@ const VaccineComponent = () => {
 
   const fetchVaccineByName = async (name: string) => {
     try {
-      const response = await fetch(`https://vaccinesystem.azurewebsites.net/api/Vaccine?name=${encodeURIComponent(name)}`);
+      const response = await fetch(`https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine/?name=${encodeURIComponent(name)}`);
       if (!response.ok) throw new Error("Không tìm thấy vaccine");
       const data: Vaccine[] = await response.json();
       setVaccines(data);
@@ -88,7 +120,7 @@ const VaccineComponent = () => {
   const fetchSortedVaccines = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://vaccinesystem.azurewebsites.net/api/Vaccine/sort-by-price");
+      const response = await fetch("https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine/sort-by-price");
       const sortedData = await response.json();
       setVaccines(sortedData);
     } catch (error) {
@@ -100,29 +132,34 @@ const VaccineComponent = () => {
 
 
   const handleBuyClick = () => {
-    const storedUser = localStorage.getItem("user");
-    const user = storedUser ? JSON.parse(storedUser) : null;
-  
-    if (user) {
-      console.log("Proceed to buy vaccine...");
-    } else {
-      setShowLoginPopup(true);
+    if (!selectedVaccine) {
+      alert("Vui lòng chọn vaccine trước!");
+      return;
     }
-  };
-  
-  const addToCart = (vaccine: Vaccine) => {
-    setCart((prevCart) => {
-      if (prevCart.some((item) => item.vaccineId === vaccine.vaccineId)) {
-        return prevCart; // Không thêm nếu đã có
-      }
-      return [...prevCart, vaccine];
-    });
+    if (!user) {
+      setShowLoginPopup(true);
+      return;
+    }
+    openChildrenSelection("buyNow");
   };
 
+  
 
+  const addToCart = () => {
+    if (!selectedVaccine) {
+      alert("Vui lòng chọn vaccine trước!");
+      return;
+    }
+    if (!user) {
+      setShowLoginPopup(true);
+      return;
+    }
+    openChildrenSelection("addToCart");
+  };
 
   
-    
+
+
   
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
@@ -141,8 +178,125 @@ const VaccineComponent = () => {
     }, [showCart]);
   
   
-  
+  // Trong component VaccineComponent
+  const calculateTotal = () => cart.reduce(
+    (sum, item) => sum + (item.vaccine.price * item.selectedChildren.length), 
+    0
+  );
 
+
+
+
+if (customerId) {
+  fetchLatestChildren(customerId)
+    .then(children => console.log('Fetched children:', children))
+    .catch(error => console.error('Fetch error:', error));
+} else {
+  console.warn("No valid customerId found.");
+}
+
+async function fetchLatestChildren(customerId: number): Promise<any[]> {
+  try {
+    const response = await fetch(
+      `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Child/get-child/${customerId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) throw new Error(`Failed to fetch children: ${response.statusText}`);
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching children:", error);
+    return [];
+  }
+}
+
+
+
+useEffect(() => {
+  if (customerId) {
+    fetchLatestChildren(customerId)
+      .then(children => setChildrenList(children))
+      .catch(error => console.error('Error fetching children:', error));
+  }
+}, [customerId]);
+
+
+ // Hàm mở modal chọn trẻ em
+ const openChildrenSelection = (action: "addToCart" | "buyNow") => {
+  if (customerId) {
+    fetchLatestChildren(customerId)
+      .then(children => setChildrenList(children))
+      .catch(error => console.error('Error fetching children:', error));
+  }
+  
+  setCurrentAction(action);
+  setShowChildrenModal(true);
+};
+
+
+
+const handleChildSelect = (child: Child) => {
+  setTempSelectedChildren(prev => {
+    const isSelected = prev.some(c => c.childId === child.childId);
+    return isSelected 
+      ? prev.filter(c => c.childId !== child.childId)
+      : [...prev, child];
+  });
+};
+
+// Xác nhận chọn trẻ em
+const confirmChildrenSelection = () => {
+  if (!selectedVaccine) {
+    alert("Vui lòng chọn vaccine trước!");
+    return;
+  }
+  
+  if (tempSelectedChildren.length === 0) {
+    alert("Vui lòng chọn ít nhất một trẻ!");
+    return;
+  }
+
+  if (currentAction === "addToCart") {
+    setCart(prev => {
+      const existing = prev.find(i => i.vaccine.vaccineId === selectedVaccine.vaccineId);
+      if (existing) {
+        return prev.map(item => 
+          item.vaccine.vaccineId === selectedVaccine.vaccineId
+            ? {...item, selectedChildren: [...item.selectedChildren, ...tempSelectedChildren]}
+            : item
+        );
+      }
+      return [...prev, { vaccine: selectedVaccine, selectedChildren: tempSelectedChildren }];
+    });
+  } else {
+    navigate("/book/select-datetime", {
+      state: {
+        cartItems: [{
+          vaccine: selectedVaccine,
+          selectedChildren: tempSelectedChildren
+        }]
+      }
+    });
+    // Xử lý mua ngay
+    alert(`Mua ngay ${selectedVaccine.name} cho ${tempSelectedChildren.length} trẻ`);
+  }
+  
+  setShowChildrenModal(false);
+  setTempSelectedChildren([]);
+};
+
+const calculateAge = (dob: string) => {
+  const birthDate = new Date(dob);
+  const diff = Date.now() - birthDate.getTime();
+  const ageDate = new Date(diff);
+  return Math.abs(ageDate.getUTCFullYear() - 1970);
+};
 
   return (
     <div style={styles.container}>
@@ -163,7 +317,7 @@ const VaccineComponent = () => {
         <h2 style={styles.heading}>🔄 Sắp xếp</h2>
         <button onClick={() => setSortOrder("asc")} style={styles.sortButton}>A - Z</button>
         <button onClick={() => setSortOrder("desc")} style={styles.sortButton}>Z - A</button>
-        <button onClick={() => fetchSortedVaccines} style={styles.sortButton}>Sort By Price</button>
+        <button onClick={fetchSortedVaccines} style={styles.sortButton}>Sort By Price</button>
         <button onClick={() => setShowCart(true)} style={styles.sortButton}>🛒 Giỏ hàng ({cart.length})</button>   
       
       </div>
@@ -227,7 +381,7 @@ const VaccineComponent = () => {
       </div>
    
 
-{showCart && (
+      {showCart && (
   <div ref={cartRef} style={{
     position: "fixed",
     top: "130px",
@@ -236,39 +390,124 @@ const VaccineComponent = () => {
     backgroundColor: "#fff",
     boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
     borderRadius: "8px",
-    padding: "15px"
+    padding: "15px",
+    zIndex: 1000
   }}>
-    <h3>🛒 Giỏ hàng</h3>
+    <h3 style={{ marginBottom: "15px" }}>🛒 Giỏ hàng</h3>
     
     {cart.length > 0 ? (
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {cart.map((vaccine, index) => (
-          <li key={index} style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-            <strong>{vaccine.name}</strong> - {vaccine.price.toLocaleString()} VND
-          </li>
-        ))}
-      </ul>
+      <>
+        <ul style={{ 
+          listStyle: "none", 
+          padding: 0, 
+          maxHeight: "300px", 
+          overflowY: "auto",
+          marginBottom: "15px"
+        }}>
+          {cart.map((item, index) => (
+            <li 
+              key={index} 
+              style={{ 
+                padding: "10px", 
+                borderBottom: "1px solid #ddd",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+            >
+              <div>
+                <strong>{item.vaccine.name}</strong>
+                <div style={{ fontSize: "0.9em", color: "#666" }}>
+                  {item.vaccine.price.toLocaleString()} VND
+                </div>
+              </div>
+              <button 
+               onClick={() => setCart(cart.filter(cartItem => cartItem.vaccine.vaccineId !== item.vaccine.vaccineId))}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#ff4444",
+                  cursor: "pointer",
+                  padding: "5px"
+                }}
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <div style={{
+          borderTop: "2px solid #eee",
+          paddingTop: "15px",
+          marginBottom: "15px"
+        }}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontWeight: "bold",
+            marginBottom: "10px"
+          }}>
+            <span>Tổng cộng:</span>
+            <span>{calculateTotal().toLocaleString()} VND</span>
+          </div>
+
+          <button 
+            onClick={() => {
+              const user = localStorage.getItem("user");
+              if (!user) {
+                setShowLoginPopup(true);
+                setShowCart(false);
+              } else {
+                navigate("/book/select-datetime", { state: { cartItems: cart } });
+                setCart([]);
+                setShowCart(false);
+                // Xử lý thanh toán
+                alert("Chuyển hướng đến trang thanh toán...");
+                setCart([]);
+                setShowCart(false);
+              }
+            }}
+            style={{
+              width: "100%",
+              padding: "12px",
+              backgroundColor: "#4CAF50",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "16px",
+              fontWeight: "bold",
+              transition: "background 0.3s"
+            }}
+          >
+            💳 Thanh toán
+          </button>
+        </div>
+      </>
     ) : (
-      <p>Giỏ hàng trống 😢</p>
+      <p style={{ textAlign: "center" }}>Giỏ hàng trống 😢</p>
     )}
 
-    <button 
-      onClick={() => setCart([])} // Xóa giỏ hàng
-      style={{
-        width: "100%",
-        padding: "10px",
-        backgroundColor: "#9147d1",
-        color: "#fff",
-        borderRadius: "5px",
-        cursor: "pointer",
-        marginTop: "10px"
-      }}
-    >
-      🗑 Xóa giỏ hàng
-    </button>
+    {cart.length > 0 && (
+      <button 
+        onClick={() => setCart([])}
+        style={{
+          width: "100%",
+          padding: "10px",
+          backgroundColor: "#ff4444",
+          color: "#fff",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+          marginTop: "10px"
+        }}
+      >
+        🗑 Xóa giỏ hàng
+      </button>
+    )}
   </div>
 )}
-
 
       {selectedVaccine && (
   <Modal onClose={() => setSelectedVaccine(null)}>
@@ -317,38 +556,42 @@ const VaccineComponent = () => {
     </motion.div>
 
 
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+  <motion.button 
+    style={{
+      ...styles.buyButton,
+      ...(isHovered ? styles.buyButtonHover : {}),
+      width: "180px",
+      textAlign: "center",
+    }}
+    onMouseEnter={() => setIsHovered(true)}
+    onMouseLeave={() => setIsHovered(false)}
+    onClick={() => addToCart()}
+    initial={{ opacity: 0, scale: 0.9 }} 
+    animate={{ opacity: 1, scale: 1 }} 
+    transition={{ delay: 1.2, duration: 0.5 }}
+  >
+    🛒 Add to cart
+  </motion.button>
 
-    <motion.button 
-  style={{
-    ...styles.buyButton,
-    ...(isHovered ? styles.buyButtonHover : {}),
-  }}
-  onMouseEnter={() => setIsHovered(true)}
-  onMouseLeave={() => setIsHovered(false)}
-  onClick={() => addToCart(selectedVaccine)} // Thêm vaccine vào giỏ
-  initial={{ opacity: 0, scale: 0.9 }} 
-  animate={{ opacity: 1, scale: 1 }} 
-  transition={{ delay: 1.2, duration: 0.5 }}
->
-  🛒 Thêm vào giỏ hàng
-</motion.button>
+  <motion.button 
+    style={{
+      ...styles.buyButton,
+      ...(isHovered ? styles.buyButtonHover : {}),
+      width: "180px",
+      textAlign: "center",
+    }}
+    onMouseEnter={() => setIsHovered(true)}
+    onMouseLeave={() => setIsHovered(false)}
+    onClick={handleBuyClick}
+    initial={{ opacity: 0, scale: 0.9 }} 
+    animate={{ opacity: 1, scale: 1 }} 
+    transition={{ delay: 1.2, duration: 0.5 }}
+  >
+    Buy Now
+  </motion.button>
+</div>
 
-
-
-    <motion.button 
-  style={{
-    ...styles.buyButton,
-    ...(isHovered ? styles.buyButtonHover : {}),
-  }}
-  onMouseEnter={() => setIsHovered(true)}
-  onMouseLeave={() => setIsHovered(false)}
-  onClick={handleBuyClick} // Gọi hàm kiểm tra đăng nhập
-  initial={{ opacity: 0, scale: 0.9 }} 
-  animate={{ opacity: 1, scale: 1 }} 
-  transition={{ delay: 1.2, duration: 0.5 }}
->
-  Buy Now
-</motion.button>
 
 
   </Modal>
@@ -356,8 +599,8 @@ const VaccineComponent = () => {
 {/* Modal đăng nhập */}
 {showLoginPopup && (
   <Modal onClose={() => setShowLoginPopup(false)}>
-    <h2 style={{ textAlign: "center" }}>Bạn cần đăng nhập</h2>
-    <p style={{ textAlign: "center" }}>Vui lòng đăng nhập để mua vaccine.</p>
+    <h1 style={{ textAlign: "center" }}>Bạn cần đăng nhập</h1>
+    <h2 style={{ textAlign: "center" }}>Vui lòng đăng nhập để mua vaccine.</h2>
     <div style={{ textAlign: "center", marginTop: "20px" }}>
       <button 
         style={{ padding: "10px 20px", backgroundColor: "#4B0082", color: "#fff", borderRadius: "5px", cursor: "pointer" }} 
@@ -368,6 +611,113 @@ const VaccineComponent = () => {
       >
         Đăng nhập
       </button>
+    </div>
+  </Modal>
+)}
+
+{showChildrenModal && (
+  <Modal onClose={() => setShowChildrenModal(false)}>
+    <div style={styles.childrenModal}>
+      {/* Header với search và counter */}
+      <div style={styles.modalHeader}>
+        <h2 style={styles.modalTitle}>👪 Chọn trẻ tiêm chủng</h2>
+        <input
+          type="text"
+          placeholder="Tìm kiếm theo tên..."
+          style={styles.searchInput}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <div style={styles.selectedCounter}>
+          🎯 Đã chọn: {tempSelectedChildren.length}
+        </div>
+      </div>
+
+      {/* Danh sách children dạng card */}
+      <div style={styles.childrenGrid}>
+        {childrenList
+          .filter(child => 
+            child.name.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          .map(child => {
+            const age = calculateAge(child.dob);
+            const isSelected = tempSelectedChildren.some(c => c.childId === child.childId);
+            
+            return (
+              <motion.div 
+                key={child.childId}
+                style={{
+                  ...styles.childCard,
+                  ...(isSelected ? styles.selectedChildCard : {})
+                }}
+                onClick={() => handleChildSelect(child)}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+              >
+                {/* Avatar và thông tin cơ bản */}
+                <div style={styles.childAvatar}>
+                  {child.gender === 'Male' ? '👦' : '👧'}
+                </div>
+                
+                <div style={styles.childInfo}>
+                  <h3 style={styles.childName}>{child.name}</h3>
+                  <div style={styles.childDetails}>
+                    <span>🏷️ {age} tuổi</span>
+                    <span>🩸 {child.bloodType}</span>
+                  </div>
+                </div>
+
+                {/* Checkbox custom */}
+                <div style={styles.checkboxContainer}>
+                  <div style={{
+                    ...styles.customCheckbox,
+                    ...(isSelected ? styles.checked : {})
+                  }}>
+                    {isSelected && '✓'}
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
+      </div>
+
+      {/* Footer với các action */}
+      <div style={styles.modalFooter}>
+        <button 
+          onClick={() => {
+            setShowChildrenModal(false);
+            setTempSelectedChildren([]);
+          }}
+          style={styles.cancelButton}
+        >
+          ✖️ Hủy
+        </button>
+        
+        <button
+          onClick={confirmChildrenSelection}
+          disabled={tempSelectedChildren.length === 0}
+          style={{
+            ...styles.confirmButton,
+            ...(tempSelectedChildren.length === 0 ? styles.disabledButton : {})
+          }}
+         
+        >
+          ✅ Xác nhận cho {tempSelectedChildren.length} trẻ
+        </button>
+      </div>
+
+      {/* Empty state */}
+      {childrenList.length === 0 && (
+        <div style={styles.emptyState}>
+          <div style={styles.emptyIllustration}>📄</div>
+          <p>Bạn chưa có hồ sơ trẻ nào!</p>
+          <button 
+            style={styles.addChildButton}
+            onClick={() => window.location.href = '/profile'}
+          >
+            ＋ Thêm trẻ mới
+          </button>
+        </div>
+      )}
     </div>
   </Modal>
 )}
@@ -542,9 +892,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 
   // Sort button với gradient
-
-
-
   sortButton: {
     width: "100%",
     padding: "10px",
@@ -611,6 +958,129 @@ const styles: { [key: string]: React.CSSProperties } = {
     transform: "scale(1.05)",
     boxShadow: "0 6px 15px rgba(143, 92, 246, 0.5)",
   },
+  childrenModal: {
+    maxWidth: '800px',
+    padding: '20px',
+    backgroundColor: '#f8f9fa'
+  },
+  modalHeader: {
+    marginBottom: '20px',
+    paddingBottom: '15px',
+    borderBottom: '1px solid #eee'
+  },
+  searchInput: {
+    width: '100%',
+    padding: '12px',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+    margin: '10px 0'
+  },
+  selectedCounter: {
+    color: '#4CAF50',
+    fontWeight: 'bold',
+    fontSize: '0.9rem'
+  },
+  childrenGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+    gap: '15px',
+    maxHeight: '60vh',
+    overflowY: 'auto',
+    padding: '10px'
+  },
+  childCard: {
+    backgroundColor: 'white',
+    borderRadius: '12px',
+    padding: '15px',
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.3s',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    position: 'relative'
+  },
+  selectedChildCard: {
+    backgroundColor: '#e3f2fd',
+    border: '2px solid #2196f3'
+  },
+  childAvatar: {
+    fontSize: '2rem',
+    marginRight: '15px'
+  },
+  childInfo: {
+    flexGrow: 1
+  },
+  childName: {
+    margin: '0 0 5px 0',
+    color: '#2c3e50'
+  },
+  childDetails: {
+    display: 'flex',
+    gap: '10px',
+    fontSize: '0.9rem',
+    color: '#7f8c8d'
+  },
+  checkboxContainer: {
+    marginLeft: '10px'
+  },
+  customCheckbox: {
+    width: '20px',
+    height: '20px',
+    border: '2px solid #ddd',
+    borderRadius: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  checked: {
+    backgroundColor: '#2196f3',
+    color: 'white',
+    borderColor: '#2196f3'
+  },
+  modalFooter: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '10px',
+    marginTop: '20px',
+    paddingTop: '15px',
+    borderTop: '1px solid #eee'
+  },
+  confirmButton: {
+    padding: '12px 25px',
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    transition: 'all 0.3s'
+  },
+ 
+  cancelButton: {
+    padding: '12px 25px',
+    backgroundColor: '#ff4444',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer'
+  },
+  emptyState: {
+    textAlign: 'center',
+    padding: '40px 0'
+  },
+  emptyIllustration: {
+    fontSize: '4rem',
+    marginBottom: '20px'
+  },
+  addChildButton: {
+    padding: '12px 30px',
+    backgroundColor: '#2196f3',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    marginTop: '15px'
+  },
+ 
 };
 
 export default VaccineComponent;

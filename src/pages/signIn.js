@@ -156,7 +156,7 @@ function SignIn() {
     try {
         setLoading(true); // Hiển thị spinner
 
-        const response = await fetch("https://vaccinesystem.azurewebsites.net/api/auth/login", {
+        const response = await fetch("https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/auth/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -173,20 +173,20 @@ function SignIn() {
             toast.success("Login successful!", { autoClose: 2000 });
 
             const userData = {
-              customerId: data.customerId,
+             id: data.id,
               email: data.email,
               name: data.name,
               phone: data.phone,
-              role: data.role,
+              role: data.role || "user", // Nếu không có role, có thể gán giá trị mặc định
               address: data.address,
-              children: [],
+              children: data.children || [],
             };
             
             if (data.role === "Customer") {
               console.log("Fetching children list...");
 
               const childResponse = await fetch(
-                `https://vaccinesystem.azurewebsites.net/Child/get-child/${data.customerId}`,{
+                `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Child/get-child/${data.id}`,{
                   method: "GET",
           mode: "cors",
           headers: {
@@ -202,11 +202,16 @@ function SignIn() {
                 userData.children = childrenData; // ✅ Assign children
               }
             }
-
+            console.log("Final userData before saving:", userData);
           localStorage.setItem("user", JSON.stringify(userData));
           console.log("Saved to localStorage:", localStorage.getItem("user"));
+
             // Điều hướng đến trang dashboard hoặc trang chính
-            navigate("/userDashboard");
+            if (data.role === "Receptionist") {
+              navigate("/accept-appointments"); // Nếu là Staff, điều hướng đến /staff
+            } else {
+              navigate("/userDashboard"); // Nếu là Customer, điều hướng đến /userDashboard
+            }
         } else {
             toast.error(data.message || "Login failed. Please try again.", { autoClose: 2000 });
         }

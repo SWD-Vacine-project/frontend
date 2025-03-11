@@ -15,10 +15,17 @@ import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SchedulePage from "./Customer/Schedule";
 import UserProfile from "./Customer/User";
+import StaffCheckinPage from "./Staff/Checkin";
+import PaymentApprovalPage from "./Staff/ApprovePending";
+import ProtectedRoute from "./components/auth/ProtectdRoute";
+import Book from "./pages/booking/book";
+import { BookingProvider } from "./components/context/BookingContext";
+import ManageBookings from "./pages/booking/ManageBooking";
 
 const App: React.FC = () => {
   return (
     <Router>
+      <BookingProvider>
       <MainLayout />
       <ToastContainer
         transition={Slide}
@@ -28,6 +35,7 @@ const App: React.FC = () => {
         pauseOnFocusLoss={false}
         limit={5}
       />
+      </BookingProvider>
     </Router>
   );
 };
@@ -38,7 +46,7 @@ const MainLayout: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(location.pathname);
 
   // Danh sách trang full-page (không có header và footer)
-  const fullPageRoutes = ["/signIn"];
+  const fullPageRoutes = ["/signIn","/checkIn","/accept-appointments"];
   const isFullPage = fullPageRoutes.includes(location.pathname);
 
   useEffect(() => {
@@ -71,14 +79,18 @@ const MainLayout: React.FC = () => {
   transition: "padding-top 0.3s ease-in-out",
     } as React.CSSProperties,
     fullPage: {
-      flex: 1,
       display: "flex",
-      justifyContent: "center",
+      flexDirection: "column",
       alignItems: "center",
+      justifyContent: "flex-start", // Đảm bảo nội dung bắt đầu từ trên xuống
       background: "linear-gradient(135deg, #D8BFD8, #C3AED6)",
       minHeight: "100vh",
-      padding: "20px",
+      width: "100%",
+      padding: "40px 20px", // Điều chỉnh padding để không bị tràn lề
+      boxSizing: "border-box",
+      overflowY: "auto", // Cho phép cuộn nếu nội dung quá dài
     } as React.CSSProperties,
+    
   };
 
   return (
@@ -96,10 +108,50 @@ const MainLayout: React.FC = () => {
             <Route path="/vaccine" element={<VaccineComponent />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/userDashboard" element={<UserDashboard />} />
-            <Route path="/schedule" element={<SchedulePage />} />
-            <Route path="/user" element={<UserProfile />} />
-            
+
+            <Route 
+              path="/userDashboard" 
+              element={
+                <ProtectedRoute>
+                  <UserDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/schedule" 
+              element={
+                <ProtectedRoute>
+                  <SchedulePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/user" 
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              } 
+            />
+           <Route 
+              path="/checkIn" 
+              element={
+                <ProtectedRoute requiredRole="Receptionist">
+                  <StaffCheckinPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/accept-appointments" 
+              element={
+                <ProtectedRoute requiredRole="Receptionist">
+                  <PaymentApprovalPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/book/*" element={<Book />} />
+            <Route path="/manage-booking" element={<ManageBookings />} />
+          
           </Routes>
         )}
         {!isFullPage && <StickyContactBar currentPath={currentPath} />}
