@@ -15,6 +15,9 @@ import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SchedulePage from "./Customer/Schedule";
 import UserProfile from "./Customer/User";
+import ChildList from "./pages/child-info/childInfo";
+import DataEntry from "./staff/dataEntry/dataEntry";
+import Vaccine from "./staff/dataEntry/Vaccine/vaccineTable"
 
 const App: React.FC = () => {
   return (
@@ -38,7 +41,7 @@ const MainLayout: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(location.pathname);
 
   // Danh sách trang full-page (không có header và footer)
-  const fullPageRoutes = ["/signIn"];
+  const fullPageRoutes = ["/signIn","/checkIn","/accept-appointments","/dataEntry","/vaccineStaff"];
   const isFullPage = fullPageRoutes.includes(location.pathname);
 
   useEffect(() => {
@@ -66,19 +69,23 @@ const MainLayout: React.FC = () => {
       flex: 1,
   display: "block",  // ❌ Không dùng flex để tránh lỗi căn giữa toàn bộ
   height: "calc(100vh - 110px)", 
-  padding: "20px",
+  // padding: "20px",
   paddingTop: isFullPage ? "0px" : "110px",
   transition: "padding-top 0.3s ease-in-out",
     } as React.CSSProperties,
     fullPage: {
-      flex: 1,
       display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
+      flexDirection: "column",
+      // alignItems: "center",
+      justifyContent: "flex-start", // Đảm bảo nội dung bắt đầu từ trên xuống
       background: "linear-gradient(135deg, #D8BFD8, #C3AED6)",
       minHeight: "100vh",
-      padding: "20px",
+      width: "100%",
+      // padding: "40px 20px", // Điều chỉnh padding để không bị tràn lề
+      boxSizing: "border-box",
+      overflowY: "auto", // Cho phép cuộn nếu nội dung quá dài
     } as React.CSSProperties,
+    
   };
 
   return (
@@ -99,7 +106,10 @@ const MainLayout: React.FC = () => {
             <Route path="/userDashboard" element={<UserDashboard />} />
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/user" element={<UserProfile />} />
-            
+            <Route path="/children" element={<ChildList />} />
+            <Route path="/dataEntry" element={<DataEntry />} />
+            <Route path="/vaccineStaff" element={<Vaccine />} />
+
           </Routes>
         )}
         {!isFullPage && <StickyContactBar currentPath={currentPath} />}

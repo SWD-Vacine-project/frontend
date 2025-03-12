@@ -1,0 +1,82 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+body, html {
+    margin: 0;
+    padding: 0;
+}
+#root {
+    margin: 0;
+    padding: 0;
+}
+
+.ant-layout-header {
+    padding: 0;
+}
+
+.layout {
+    min-height: 100vh;
+  }
+  
+  .sider {
+    background-color: #001529;
+  }
+  
+  .title {
+    color: white;
+    padding: 20px;
+    font-size: 20px;
+    text-align: center;
+  }
+  
+  .header {
+    background: #f5f3f3;
+    padding: 20px;
+    font-size: 20px;
+    justify-content: center;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 5rem;
+  }
+  
+  .content {
+    margin: 20px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+  }
+  
+  .table {
+    margin-top: 20px;
+  }
+  
+  .editButton {
+    background-color: #1890ff;
+    color: white;
+    border: none;
+  }
+  
+  .editButton:hover {
+    background-color: #40a9ff;
+  }
+  
+  .selectBox {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  
+  .selectBox:hover {
+    border-color: #007bff;
+  }
+  
+  .selectBox:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+  

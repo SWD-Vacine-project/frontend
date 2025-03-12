@@ -1,6 +1,7 @@
 {
   "name": "my-react-app",
   "version": "0.1.0",
+  "proxy": "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -21,6 +22,9 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/reach__router": "^1.3.15",
+    "antd": "^5.24.3",
+    "axios": "^1.8.1",
+    "boxicons": "^2.1.4",
     "canvas-confetti": "^1.9.3",
     "framer-motion": "^12.4.1",
     "i": "^0.3.7",
@@ -33,8 +37,9 @@
     "react-lottie": "^1.2.10",
     "react-router-dom": "^7.1.5",
     "react-scripts": "5.0.1",
-    "react-toastify": "^11.0.3",
+    "react-toastify": "^11.0.5",
     "styled-components": "^6.1.15",
+    "swiper": "^11.2.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

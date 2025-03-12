@@ -1,0 +1,136 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+:root {
+    --bg-color: #ffffff;
+    --text-color: #333;
+    --header-color:  #D8BFD8;
+  }
+
+.swiper-pagination{
+    display: none;
+  }
+  
+  .swiper-wrapper{
+    margin: 2rem 5rem;
+  }
+
+  .childInfo {
+    background: linear-gradient(135deg, #FFD3E0, #C3AED6);
+    border-radius: 2rem;
+  }
+
+  .child_container .ava_img {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    padding-top: 2rem;
+  }
+
+  .child_container .ava_img img {
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    border: 5px solid #FFD3E0; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+    transition: transform 0.3s ease-in-out;
+    align-items: center;
+}
+
+  .child_container {
+    margin: 0 10rem;
+    position: relative; 
+    background-color: var(--bg-color);
+    z-index: 1; 
+    border-radius: 10px;
+    transition: 0.5s ease;
+    flex: 1;
+    min-height: 50rem;
+    margin-bottom: 3rem;
+    margin-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .child_container h3 {
+    /* position: block; */
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+  }
+
+  .child_container p {
+    /* position: block; */
+    margin-bottom: 2rem;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    font-size: 1.8rem;
+  }
+
+  .button {
+    display: flex;
+    justify-content: center; 
+    gap: 10px;
+  }
+  
+  
+.btn {
+    display: inline-block;
+    padding: 1.4rem 1.4rem;
+    background: var(--header-color);
+    border-radius: 50%;
+    box-shadow: 0 0.2rem 0.5rem var(--shadow-color);
+    font-size: 2rem;
+    color: var(--text-color);
+    letter-spacing: 0.1rem;
+    font-weight: 600;
+    border: 0.2rem solid transparent;
+    transition: 0.5s ease;
+    margin-top: 1.5rem;
+  }
+  
+  .btn:hover {
+    background: transparent;
+    color: #3f51b5;
+    border-color: #3f51b5;
+  }
+  
+  .child_container .button .btn i {
+    color: var(--text-color);
+    font-size: 3rem;
+  }
+
+  .child_container_plus {
+    margin: 0 10rem;
+    position: relative; 
+    background-color: white;
+    z-index: 1; 
+    border-radius: 10px;
+    transition: 0.5s ease;
+    flex: 1;
+    min-height: 50rem;
+    margin-bottom: 3rem;
+    margin-top: 2rem;
+    padding-bottom: 2rem;
+    opacity: 0.6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .child_container_plus:hover {
+    cursor: pointer;
+    opacity: 0.8; 
+}
+
+  .add_child {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
