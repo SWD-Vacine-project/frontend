@@ -1,22 +1,21 @@
 import { useState, useEffect } from "react";
 import { BeatLoader } from "react-spinners";
-import { FiRefreshCw, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { FiRefreshCw, FiCheckCircle, FiAlertCircle, FiCalendar, FiFileText, FiUser } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
-import { format } from 'date-fns';
-import { FiCalendar } from "react-icons/fi";
-import { FiFileText } from "react-icons/fi";
+import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import { FiSettings, FiUser } from "react-icons/fi";
-import { User } from "lucide-react";
 
 interface Appointment {
   appointmentId: number;
+  customerId: number;
+  childId: number;
   vaccineType: string;
   appointmentDate: string;
   status: string;
   notes: string;
 }
+
 interface User {
   customerId: number;
   name: string;
@@ -24,7 +23,6 @@ interface User {
   phone: string;
   address: string;
   role: string;
-
 }
 
 const ApprovePendingPage = () => {
@@ -35,32 +33,31 @@ const ApprovePendingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-  
   useEffect(() => {
     fetchPendingAppointments();
   }, []);
 
-
   useEffect(() => {
-    // Role verification check
+    // Kiểm tra user và vai trò
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
-      navigate("/login");
+      navigate("/signIn");
       return;
     }
 
     try {
       const parsedUser: User = JSON.parse(storedUser);
-      if (parsedUser.role !== "Receptionist") {
-        navigate("/login");
+      if (parsedUser.role !== "Staff") {
+        navigate("/signIn");
+      } else {
+        setUser(parsedUser);
       }
     } catch (error) {
       console.error("Error parsing user data:", error);
       localStorage.removeItem("user");
-      navigate("/login");
+      navigate("/signIn");
     }
   }, [navigate]);
-
 
   const fetchPendingAppointments = async () => {
     setIsLoading(true);
@@ -83,18 +80,19 @@ const ApprovePendingPage = () => {
       const response = await fetch(
         `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Appointment/Approved-status-appointment/${id}`,
         {
-          method: 'PUT',
+          method: "PUT",
         }
       );
       if (!response.ok) throw new Error("Failed to approve appointment");
-      // Remove the approved appointment from the list
-      setAppointments(appointments.filter(apt => apt.appointmentId !== id));
+      // Loại bỏ lịch đã phê duyệt khỏi danh sách
+      setAppointments(appointments.filter((apt) => apt.appointmentId !== id));
     } catch (err) {
       setError("Approval failed. Please try again.");
     }
   };
+
   const GlassNavbar = () => (
-    <motion.nav 
+    <motion.nav
       style={styles.glassNavbar}
       initial={{ y: -50 }}
       animate={{ y: 0 }}
@@ -107,8 +105,8 @@ const ApprovePendingPage = () => {
         >
           🔖 Check-in
         </motion.button>
-        
-        <motion.button 
+
+        <motion.button
           whileHover={{ scale: 1.05 }}
           style={styles.navButton}
           onClick={() => navigate("/accept-appointments")}
@@ -116,7 +114,7 @@ const ApprovePendingPage = () => {
           ✅ Appointments
         </motion.button>
       </div>
-  
+
       <div style={{ position: "relative" }}>
         <motion.div
           style={styles.avatarContainer}
@@ -131,76 +129,73 @@ const ApprovePendingPage = () => {
             <FaUserCircle size={32} />
           )}
         </motion.div>
-  
-        <AnimatePresence>
-          {isMenuOpen && <UserMenu />}
-        </AnimatePresence>
+
+        <AnimatePresence>{isMenuOpen && <UserMenu />}</AnimatePresence>
       </div>
     </motion.nav>
   );
 
-// Thêm component UserMenu
-const UserMenu = () => (
-  <motion.div
-    initial={{ opacity: 0, y: -10 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -10 }}
-    style={styles.userMenu}
-  >
-    <div style={styles.menuHeader}>
-      <FaUserCircle size={32} />
-      <div>
-        <h4 style={{ margin: 0 }}>{user?.name || "Receptionist"}</h4>
-        <p style={{ margin: 0, fontSize: "0.8em", color: "#666" }}>
-          {user?.email}
-        </p>
+  const UserMenu = () => (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      style={styles.userMenu}
+    >
+      <div style={styles.menuHeader}>
+        <FaUserCircle size={32} />
+        <div>
+          <h4 style={{ margin: 0 }}>{user?.name || "Receptionist"}</h4>
+          <p style={{ margin: 0, fontSize: "0.8em", color: "#666" }}>
+            {user?.email}
+          </p>
+        </div>
       </div>
-    </div>
-    
-    <div style={styles.menuItem} onClick={() => navigate("/profile")}>
-      <FiUser size={18} />
-      <span>Profile</span>
-    </div>
-    
-    <div style={styles.menuItem} onClick={handleLogout}>
-      <FaSignOutAlt size={18} />
-      <span>Logout</span>
-    </div>
-  </motion.div>
-);
 
-// Hàm xử lý logout
-const handleLogout = () => {
-  localStorage.removeItem("user");
-  navigate("/login");
-};
+      <div style={styles.menuItem} onClick={() => navigate("/profile")}>
+        <FiUser size={18} />
+        <span>Profile</span>
+      </div>
+
+      <div style={styles.menuItem} onClick={handleLogout}>
+        <FaSignOutAlt size={18} />
+        <span>Logout</span>
+      </div>
+    </motion.div>
+  );
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/signIn");
+  };
 
   const StatusPill = ({ status }: { status: string }) => {
     const colorMap: Record<string, string> = {
-      pending: '#ffd70033',
-      completed: '#00ff0033',
-      late: '#ff634733',
-      approved: '#2ecc7133',
+      pending: "#ffd70033",
+      completed: "#00ff0033",
+      late: "#ff634733",
+      approved: "#2ecc7133",
     };
-  
+
     const normalizedStatus = status.toLowerCase().trim();
 
     return (
-      <div style={{
-        ...styles.statusPill,
-        background: colorMap[normalizedStatus] || "#e0e0e0",
-        textTransform: 'capitalize'
-      }}>
+      <div
+        style={{
+          ...styles.statusPill,
+          background: colorMap[normalizedStatus] || "#e0e0e0",
+          textTransform: "capitalize",
+        }}
+      >
         {normalizedStatus}
       </div>
     );
   };
 
   return (
-
     <div style={styles.container}>
-         <GlassNavbar />
-      <motion.h1 
+      <GlassNavbar />
+      <motion.h1
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         style={styles.header}
@@ -221,19 +216,19 @@ const handleLogout = () => {
         )}
       </AnimatePresence>
 
-      <motion.button 
+      <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         style={styles.refreshButton}
         onClick={fetchPendingAppointments}
         disabled={isLoading}
       >
-        <FiRefreshCw 
-          size={20} 
-          style={{ 
+        <FiRefreshCw
+          size={20}
+          style={{
             transform: isLoading ? "rotate(360deg)" : "none",
-            transition: "transform 0.6s linear" 
-          }} 
+            transition: "transform 0.6s linear",
+          }}
         />
         {isLoading ? "Updating..." : "Refresh List"}
       </motion.button>
@@ -261,9 +256,11 @@ const handleLogout = () => {
             >
               <div style={styles.cardHeader}>
                 <span style={styles.vaccineTag}>
-                  💉 {apt.vaccineType?.trim() || 'Unknown Vaccine'}
+                  💉 {apt.vaccineType?.trim() || "Unknown Vaccine"}
                 </span>
-                <span style={styles.appointmentId}>ID: {apt.appointmentId}</span>
+                <span style={styles.appointmentId}>
+                  ID: {apt.appointmentId}
+                </span>
                 <StatusPill status={apt.status} />
               </div>
 
@@ -272,7 +269,17 @@ const handleLogout = () => {
                   <div style={styles.infoItem}>
                     <FiCalendar size={18} />
                     <span style={styles.infoText}>
-                      {format(new Date(apt.appointmentDate), "dd MMM yyyy, HH:mm")}
+                      {format(new Date(apt.appointmentDate), "dd/MM/yyyy HH:mm")}
+                    </span>
+                  </div>
+                  <div style={styles.infoItem}>
+                    <span style={styles.infoText}>
+                      Customer ID: {apt.customerId}
+                    </span>
+                  </div>
+                  <div style={styles.infoItem}>
+                    <span style={styles.infoText}>
+                      Child ID: {apt.childId}
                     </span>
                   </div>
                   <div style={styles.infoItem}>
@@ -301,10 +308,6 @@ const handleLogout = () => {
   );
 };
 
-
-
-  
-
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     maxWidth: "1200px",
@@ -330,7 +333,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     flexDirection: "column",
     gap: "12px",
-    minHeight: "200px"
+    minHeight: "200px",
   },
   vaccineTag: {
     background: "linear-gradient(135deg, #4a3aff, #6c5ce7)",
@@ -338,7 +341,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "8px 15px",
     borderRadius: "10px",
     fontWeight: "600",
-    maxWidth: "200px"
+    maxWidth: "200px",
   },
   cardBody: {
     display: "flex",
@@ -425,7 +428,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     flex: 1,
     lineHeight: 1.4,
   },
-  navButton: { // Đảm bảo có dấu phẩy phân cách
+  navButton: {
     background: "linear-gradient(135deg, #4a3aff, #6c5ce7)",
     color: "white",
     border: "none",
@@ -435,7 +438,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: "16px",
     fontWeight: "600",
     textDecoration: "none",
-  }, glassNavbar: {
+  },
+  glassNavbar: {
     display: "flex",
     justifyContent: "center",
     gap: "30px",
@@ -453,7 +457,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: "#f0f0ff",
     padding: "6px 10px",
     borderRadius: "8px",
-  }, avatarContainer: {
+  },
+  avatarContainer: {
     width: "40px",
     height: "40px",
     borderRadius: "50%",
@@ -464,6 +469,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: "pointer",
     color: "white",
     fontWeight: "bold",
+  },
+  avatarText: {
+    fontSize: "20px",
   },
   userMenu: {
     position: "absolute",
@@ -492,10 +500,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "8px",
     cursor: "pointer",
     transition: "background 0.2s",
-    
   },
-  
-  
 };
 
 export default ApprovePendingPage;

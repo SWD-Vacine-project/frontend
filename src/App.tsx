@@ -46,7 +46,7 @@ const MainLayout: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(location.pathname);
 
   // Danh sách trang full-page (không có header và footer)
-  const fullPageRoutes = ["/signIn","/checkIn","/accept-appointments"];
+  const fullPageRoutes = ["/signIn","/checkIn","/accept-appointments","/book/booking-confirm"];
   const isFullPage = fullPageRoutes.includes(location.pathname);
 
   useEffect(() => {
@@ -108,7 +108,9 @@ const MainLayout: React.FC = () => {
             <Route path="/vaccine" element={<VaccineComponent />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/services" element={<Services />} />
-
+            <Route path="/checkIn" element={<StaffCheckinPage />} />
+            <Route path="/accept-appointments" element={< PaymentApprovalPage />} />
+            
             <Route 
               path="/userDashboard" 
               element={
@@ -133,22 +135,9 @@ const MainLayout: React.FC = () => {
                 </ProtectedRoute>
               } 
             />
-           <Route 
-              path="/checkIn" 
-              element={
-                <ProtectedRoute requiredRole="Receptionist">
-                  <StaffCheckinPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/accept-appointments" 
-              element={
-                <ProtectedRoute requiredRole="Receptionist">
-                  <PaymentApprovalPage />
-                </ProtectedRoute>
-              } 
-            />
+        
+           
+            
             <Route path="/book/*" element={<Book />} />
             <Route path="/manage-booking" element={<ManageBookings />} />
           

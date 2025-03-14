@@ -156,55 +156,22 @@ const SelectDateTime = () => {
   const morningSlots = generateTimeSlots(600, 720, 15); // 10:00 AM to 11:45 AM
   const afternoonSlots = generateTimeSlots(720, 1080, 15); // 12:00 PM to 4:45 PM
   const location = useLocation();
+
+
+
   const handleNext = async () => {
-    if (date && selectedTime) {
-      // const serviceNames = selectedServices.map((service) => service.name);
-
-      // if (!selectedPet.name || serviceNames.length === 0) {
-      //   alert(
-      //     "Pet ID or Service Names are missing. Please check your selection."
-      //   );
-      //   return;
-      // }
-
-      try {
-        const newBookedSlot = {
-          date,
-          time: selectedTime,
-        };
-        setBookedSlots([...bookedSlots, newBookedSlot]);
-        setSelectedDateTime({
-          date,
-          time: selectedTime,
-        });
-
-        // Truyền dữ liệu qua state
-        navigate("/book/booking-confirm", {
-          state: {
-            date,
-            time: selectedTime,
-          },
-        });
-      } catch (error) {
-        console.error("Error processing booking:", error);
-        alert("There was an error processing your booking. Please try again.");
+  if (date && selectedTime) {
+    // Thêm cartItems từ location state hiện tại
+    navigate("/book/booking-confirm", {
+      state: {
+        ...location.state, // Giữ nguyên state từ VaccineComponent
+        date,
+        time: selectedTime
       }
-    } else {
-      alert("Please select a date and time.");
-    }
-  };
+    });
+  }
+};
 
-  const handleConfirm = () => {
-    if (date && selectedTime) {
-      navigate("/book/confirm", {
-        state: {
-          date: date, // Đổi selectedDate thành date
-          time: selectedTime,
-          cartItems: location.state?.cartItems, // Thêm cartItems vào state
-        }
-      });
-    }
-  };
   
   
 

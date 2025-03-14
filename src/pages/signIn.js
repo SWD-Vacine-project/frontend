@@ -207,7 +207,7 @@ function SignIn() {
           console.log("Saved to localStorage:", localStorage.getItem("user"));
 
             // Điều hướng đến trang dashboard hoặc trang chính
-            if (data.role === "Receptionist") {
+            if (data.role === "Staff") {
               navigate("/accept-appointments"); // Nếu là Staff, điều hướng đến /staff
             } else {
               navigate("/userDashboard"); // Nếu là Customer, điều hướng đến /userDashboard

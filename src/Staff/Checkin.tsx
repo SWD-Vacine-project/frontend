@@ -48,14 +48,27 @@ const AdminCheckinPage = () => {
       );
       if (!response.ok) throw new Error("Lỗi tải dữ liệu");
       const data = await response.json();
-      setAppointments(data);
+      console.log("Fetched appointments data:", data); // Debug: inspect the response structure
+  
+      // If data is an array, use it directly.
+      if (Array.isArray(data)) {
+        setAppointments(data);
+      } 
+      // Otherwise, if data has an "appointments" property and it's an array, use that.
+      else if (data.appointments && Array.isArray(data.appointments)) {
+        setAppointments(data.appointments);
+      } 
+      // Otherwise, throw an error or handle accordingly.
+      else {
+        throw new Error("Unexpected data format");
+      }
     } catch (err) {
       setError("Không thể tải danh sách lịch hẹn");
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   const handlers = useSwipeable({
     onSwipedLeft: () => setSwiped(true),
     onSwipedRight: () => setSwiped(false),
@@ -173,7 +186,7 @@ const AdminCheckinPage = () => {
   );
   const handleLogout = () => {
     localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/");
   };
 
   return (

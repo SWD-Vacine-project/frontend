@@ -33,9 +33,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/signIn" replace />;
   }
 
-  if (requiredRole && user.role !== requiredRole) {
+  if (requiredRole && user.role.toLowerCase() !== requiredRole.toLowerCase()) {
     return <Navigate to="/" replace />;
   }
+  
 
   return <>{children}</>;
 };

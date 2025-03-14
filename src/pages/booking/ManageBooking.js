@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Pagination } from "@mui/material";
-import { makeStyles } from "@mui/styles";
+import { makeStyles } from "@mui/styles"; // Import makeStyles từ @mui/styles
 import axios from "axios";
 import moment from "moment";
 import LoadingAnimation from "../../animation/loading-animation";
 
-// Define styles using makeStyles
+// Định nghĩa useStyles để tạo các lớp CSS sử dụng makeStyles
 const useStyles = makeStyles((theme) => ({
   manageBookingsPage: {
     height: "fit-content",
@@ -17,19 +17,13 @@ const useStyles = makeStyles((theme) => ({
     margin: "2rem auto",
     borderRadius: "8px",
     marginTop: "100px",
-    backgroundColor: "#f9f9f9", // Light background color
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Soft shadow
-    animation: "$fadeIn 0.5s ease-in-out", // Fade-in animation
+    backgroundColor: "#f9f9f9",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+    animation: "$fadeIn 0.5s ease-in-out",
   },
   "@keyframes fadeIn": {
-    "0%": {
-      opacity: 0,
-      transform: "translateY(20px)",
-    },
-    "100%": {
-      opacity: 1,
-      transform: "translateY(0)",
-    },
+    "0%": { opacity: 0, transform: "translateY(20px)" },
+    "100%": { opacity: 1, transform: "translateY(0)" },
   },
   bookingsSection: {
     display: "flex",
@@ -43,70 +37,64 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     fontSize: "2.5rem",
     marginBottom: "1rem",
-    color: "#4D9FEC", // Light Blue
+    color: "#4D9FEC",
     fontWeight: "bold",
-    animation: "$slideIn 0.5s ease-in-out", // Slide-in animation
+    animation: "$slideIn 0.5s ease-in-out",
   },
   "@keyframes slideIn": {
-    "0%": {
-      opacity: 0,
-      transform: "translateX(-20px)",
-    },
-    "100%": {
-      opacity: 1,
-      transform: "translateX(0)",
-    },
+    "0%": { opacity: 0, transform: "translateX(-20px)" },
+    "100%": { opacity: 1, transform: "translateX(0)" },
   },
   toggleButton: {
     display: "flex",
     justifyContent: "center",
     marginBottom: "1rem",
-    gap: "1rem", // Space between buttons
+    gap: "1rem",
   },
   button: {
     padding: "0.6rem 1.2rem",
     border: "none",
-    backgroundColor: "#4D9FEC", // Light Blue
+    backgroundColor: "#4D9FEC",
     color: "white",
     borderRadius: "25px",
     cursor: "pointer",
     fontSize: "1.5rem",
     transition: "background-color .3s, transform 0.2s ease, border .3s",
     "&:hover": {
-      backgroundColor: "#3B8ECB", // Darker shade of primary color
+      backgroundColor: "#3B8ECB",
       transform: "scale(1.05)",
     },
     "&.active": {
-      backgroundColor: "#8ACBFF", // Darker shade for active tab
+      backgroundColor: "#8ACBFF",
     },
   },
   table: {
     width: "100%",
     borderCollapse: "collapse",
     marginTop: "1.5rem",
-    animation: "$fadeIn 0.5s ease-in-out", // Fade-in animation
+    animation: "$fadeIn 0.5s ease-in-out",
   },
   th: {
-    border: "1px solid #F0F0F0", // Light Gray
+    border: "1px solid #F0F0F0",
     padding: "0.8rem",
     textAlign: "center",
     fontSize: "1.5rem",
-    backgroundColor: "#4D9FEC", // Light Blue
+    backgroundColor: "#4D9FEC",
     color: "white",
     fontWeight: "bold",
   },
   td: {
-    border: "1px solid #F0F0F0", // Light Gray
+    border: "1px solid #F0F0F0",
     padding: "0.8rem",
     textAlign: "center",
     fontSize: "1.5rem",
-    backgroundColor: "#FFFFFF", // White
-    color: "#333333", // Dark Gray
+    backgroundColor: "#FFFFFF",
+    color: "#333333",
     transition: "background-color 0.3s ease",
   },
   tr: {
     "&:hover": {
-      backgroundColor: "#E8F4FF", // Light shade of primary color on hover
+      backgroundColor: "#E8F4FF",
     },
   },
   statusCell: {
@@ -116,26 +104,26 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "4px",
   },
   statusPaid: {
-    color: "#5cb85c", // Green
-    backgroundColor: "#E1F3E5", // Light green background
+    color: "#5cb85c",
+    backgroundColor: "#E1F3E5",
   },
   statusUnpaid: {
-    color: "#f0ad4e", // Yellow
-    backgroundColor: "#FFF9E1", // Light yellow background
+    color: "#f0ad4e",
+    backgroundColor: "#FFF9E1",
   },
   pagination: {
     display: "flex",
     justifyContent: "center",
     marginTop: "1.5rem",
     "& .MuiPaginationItem-root": {
-      backgroundColor: "#4D9FEC", // Light Blue
+      backgroundColor: "#4D9FEC",
       color: "#fff",
       transition: "background-color 0.3s ease, transform 0.2s ease",
       "&:hover": {
-        backgroundColor: "#3B8ECB", // Darker shade of primary color on hover
+        backgroundColor: "#3B8ECB",
       },
       "&.Mui-selected": {
-        backgroundColor: "#8ACBFF", // Slightly different primary shade for selected
+        backgroundColor: "#8ACBFF",
         color: "#fff",
       },
     },
@@ -149,50 +137,98 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ManageBookings = () => {
-  const classes = useStyles();
+  const classes = useStyles(); // Sử dụng useStyles đã định nghĩa
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [bookingsPerPage] = useState(5);
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentTab, setCurrentTab] = useState("Paid");
 
-  // Fetch invoices from API
+  // Hiển thị thông báo nếu có thông tin appointment mới được chuyển qua state
   useEffect(() => {
-    const fetchInvoices = async () => {
+    if (location.state && location.state.appointmentIds && location.state.appointmentDate) {
+      toast.success(
+        `Appointment mới: ${location.state.appointmentIds.join(
+          ", "
+        )} - Ngày: ${moment(location.state.appointmentDate).format("DD/MM/YYYY HH:mm")}`
+      );
+    }
+  }, [location.state]);
+
+  // Fetch dữ liệu invoices, invoice-details và appointments
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
+        const invoicesResponse = await axios.get(
           "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Invoice/get-invoices"
         );
-        // Sort invoices by createdAt (newest first)
-        const sortedInvoices = response.data.sort(
+        const sortedInvoices = invoicesResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-        setInvoices(sortedInvoices);
+
+        const invoiceDetailsResponse = await axios.get(
+          "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/InvoiceDetail/get-invoice-details"
+        );
+        const sortedInvoiceDetails = invoiceDetailsResponse.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        const appointmentsResponse = await axios.get(
+          "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Appointment/get-appointments"
+        );
+        const sortedAppointments = appointmentsResponse.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        const combinedData = sortedInvoices.map((invoice) => {
+          const invoiceDetail = sortedInvoiceDetails.find(
+            (detail) => detail.invoiceId === invoice.invoiceId
+          );
+          let appointment;
+          if (invoiceDetail && invoiceDetail.appointmentId) {
+            appointment = sortedAppointments.find(
+              (app) => app.appointmentId === invoiceDetail.appointmentId
+            );
+          }
+          if (!appointment) {
+            appointment = sortedAppointments.find(
+              (app) => app.customerId === invoice.customerId
+            );
+          }
+          return {
+            ...invoice,
+            appointmentId: appointment ? appointment.appointmentId : "N/A",
+            appointmentDate:
+              appointment && appointment.appointmentDate
+                ? appointment.appointmentDate
+                : "N/A",
+          };
+        });
+
+        setInvoices(combinedData);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching invoices:", error);
-        toast.error("Failed to fetch invoices. Please try again.");
+        console.error("Error fetching data:", error);
+        toast.error("Failed to fetch data. Please try again.");
         setLoading(false);
       }
     };
 
-    fetchInvoices();
+    fetchData();
   }, []);
 
-  // Filter invoices based on current tab
   const getCurrentInvoices = () => {
-    switch (currentTab) {
-      case "Paid":
-        return invoices.filter((invoice) => invoice.status === "Paid");
-      case "Unpaid":
-        return invoices.filter((invoice) => invoice.status === "Unpaid");
-      default:
-        return invoices;
+    if (currentTab === "Paid") {
+      return invoices.filter((invoice) => invoice.status === "Paid");
+    } else if (currentTab === "Unpaid") {
+      return invoices.filter((invoice) => invoice.status === "Unpaid");
+    } else {
+      return invoices;
     }
   };
 
-  // Pagination logic
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
   const currentInvoices = getCurrentInvoices().slice(
@@ -204,10 +240,9 @@ const ManageBookings = () => {
     setCurrentPage(value);
   };
 
-  // Handle tab change
   const handleTabChange = (status) => {
     setCurrentTab(status);
-    setCurrentPage(1); // Reset to the first page when changing tabs
+    setCurrentPage(1);
   };
 
   return (
@@ -249,8 +284,8 @@ const ManageBookings = () => {
                   <th className={classes.th}>Status</th>
                   <th className={classes.th}>Type</th>
                   <th className={classes.th}>Created At</th>
-                  <th className={classes.th}>Appointment Date</th>{" "}
-                  {/* Thêm cột mới */}
+                  <th className={classes.th}>Appointment ID</th>
+                  <th className={classes.th}>Appointment Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -276,19 +311,25 @@ const ManageBookings = () => {
                       <td className={classes.td}>
                         {moment(invoice.createdAt).format("DD/MM/YYYY HH:mm")}
                       </td>
+                      <td className={classes.td}>{invoice.appointmentId}</td>
                       <td className={classes.td}>
-                        {invoice.appointmentDate
+                        {invoice.appointmentDate &&
+                        invoice.appointmentDate !== "N/A" &&
+                        moment(
+                          invoice.appointmentDate,
+                          moment.ISO_8601,
+                          true
+                        ).isValid()
                           ? moment(invoice.appointmentDate).format(
                               "DD/MM/YYYY HH:mm"
                             )
                           : "N/A"}
-                      </td>{" "}
-                      {/* Hiển thị ngày hẹn */}
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" className={classes.noData}>
+                    <td colSpan="9" className={classes.noData}>
                       No data available
                     </td>
                   </tr>
