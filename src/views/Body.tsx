@@ -2,9 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import Modal from '../components/Modal/VaccineModal';
 import ImageSlider from '../components/body/bodySlider';
-import Chatbot from '../Chatbot/Chat';
 import styled from "styled-components";
-
+import Chatbot1 from '../Chatbot/Chatbot';
 
 const scrollToTop = () => {
   window.scrollTo({
@@ -270,7 +269,7 @@ const Body: React.FC = () => {
   <button style={styles.chatbotButton} onClick={toggleChat}>
     {isChatOpen ? 'Close Chat' : 'Open Chat'}
   </button>
-  {isChatOpen && <Chatbot />}
+  {isChatOpen && <Chatbot1 />}
 </div>
 
         {/* Back to Top Button */}

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiMessageCircle } from 'react-icons/fi';
-
+import Chatbot1 from './Chatbot';
+// import Chatbot1 from './Chatbot';
 const Chatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ text: string; fromBot: boolean }[]>([
@@ -24,22 +25,7 @@ const Chatbot: React.FC = () => {
   };
 
   const handleBotResponse = (input: string) => {
-    let response = '';
-
-    // Handle basic greetings and vaccine details
-    if (input.toLowerCase().includes('hello') || input.toLowerCase().includes('hi')) {
-      response = 'Hello! How can I assist you today?';
-    } else if (input.toLowerCase().includes('vaccine') || input.toLowerCase().includes('vaccination')) {
-      response = 'Vaccines are important for preventing diseases. Do you need information about a specific vaccine?';
-    } else {
-      response = "I'm sorry, I didn't understand that. Can you please clarify?";
-    }
-
-    // Add bot's response
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: response, fromBot: true },
-    ]);
+    <Chatbot1/>
   };
 
   return (
@@ -178,3 +164,4 @@ const styles = {
 };
 
 export default Chatbot;
+

@@ -80,3 +80,13 @@ body, html {
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
   }
   
+  .toolbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .searchBox {
+    width: 350px;
+    }
