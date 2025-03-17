@@ -18,6 +18,7 @@ import UserProfile from "./Customer/User";
 import ChildList from "./pages/child-info/childInfo";
 import DataEntry from "./staff/dataEntry/dataEntry";
 import Vaccine from "./staff/dataEntry/Vaccine/vaccineTable"
+import DoctorNurseForm from "./staff/dataEntry/Doctor&Nurse/Doctor_Nurse";
 
 const App: React.FC = () => {
   return (
@@ -109,6 +110,7 @@ const MainLayout: React.FC = () => {
             <Route path="/children" element={<ChildList />} />
             <Route path="/dataEntry" element={<DataEntry />} />
             <Route path="/vaccineStaff" element={<Vaccine />} />
+            <Route path="/doctor&Nurse" element={<DoctorNurseForm />} />
 
           </Routes>
         )}

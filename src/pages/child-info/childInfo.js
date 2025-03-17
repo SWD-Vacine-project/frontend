@@ -21,28 +21,6 @@ const ChildList = () => {
   const getAvatar = (childName) =>
     `https://robohash.org/${encodeURIComponent(childName)}?set=set4`;
 
-  // const handleDelete = async (childId) => {
-  //   const confirmDelete = window.confirm(
-  //     "Are you sure you want to delete this child?"
-  //   );
-  //   if (!confirmDelete) return;
-
-  //   try {
-  //     await axios.delete(
-  //       `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Child/delete-child/${childId}`
-  //     );
-
-  //     setChildren((prevChildren) =>
-  //       prevChildren.filter((child) => child.childId !== childId)
-  //     );
-
-  //     alert("Child deleted successfully!");
-  //   } catch (error) {
-  //     console.error("Error deleting child:", error);
-  //     alert("Failed to delete child. Please try again.");
-  //   }
-  // };
-
   const handleDelete = async (childId) => {
     Modal.confirm({
       title: "Confirm Deletion",
@@ -52,7 +30,7 @@ const ChildList = () => {
       onOk: async () => {
         try {
           await axios.delete(
-            `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Child/delete-child/${childId}`
+            `https://vaccine-system1.azurewebsites.net/Child/delete-child/${childId}`
           );
 
           setChildren((prevChildren) =>

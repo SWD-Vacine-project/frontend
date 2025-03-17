@@ -63,7 +63,7 @@ const UpdateChild = ({ open, handleClose, selectedChild, setChildren }) => {
       console.log("Data sent to API:", updatedChildData);
 
       await axios.put(
-        `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Child/update-child/${childData.childId}`,
+        `https://vaccine-system1.azurewebsites.net/Child/update-child/${childData.childId}`,
         updatedChildData
       );
 

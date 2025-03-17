@@ -118,10 +118,6 @@ const VaccineComponent = () => {
       return [...prevCart, vaccine];
     });
   };
-
-
-
-  
     
   
     useEffect(() => {
