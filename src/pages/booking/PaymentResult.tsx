@@ -73,12 +73,13 @@ const PaymentResult: React.FC = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const paymentMethod = queryParams.get("method") || "cash";
+    const isVnpay = queryParams.has("vnp_TxnRef"); 
+    const paymentMethod = isVnpay ? "vnpay" : "cash";
     let details: PaymentDetails;
 
     if (paymentMethod === "vnpay") {
       details = {
-        method: "VNPay",
+        method: "vnpay",
         amount: queryParams.get("vnp_Amount") ? `${queryParams.get("vnp_Amount")} VND` : "N/A",
         bankCode: queryParams.get("vnp_BankCode") || "N/A",
         bankTranNo: queryParams.get("vnp_BankTranNo") || "N/A",
@@ -87,7 +88,7 @@ const PaymentResult: React.FC = () => {
         payDate: queryParams.get("vnp_PayDate") || "N/A",
         responseCode: queryParams.get("vnp_ResponseCode") || "99",
         txnRef: queryParams.get("vnp_TxnRef") || "N/A",
-        invoiceId: queryParams.get("invoiceId") || "N/A",
+        invoiceId: queryParams.get("vnp_invoiceId") || "N/A",
       };
       setIsSuccess(details.responseCode === "00");
     } else {
@@ -99,7 +100,7 @@ const PaymentResult: React.FC = () => {
       };
       setIsSuccess(true);
     }
-
+    console.log("Payment Method Determined:", paymentMethod);
     setPaymentDetails(details);
     setLoading(false);
   }, [location]);
@@ -119,19 +120,38 @@ const PaymentResult: React.FC = () => {
             <Typography variant="h3" className={isSuccess ? classes.success : classes.failed}>
               {isSuccess ? "🎉 Payment Successful! 🎉" : "❌ Payment Failed ❌"}
             </Typography>
-            <Typography variant="body1" className={classes.details}>
-              <strong style={{ fontSize: "15px" }}>Invoice ID:</strong> {paymentDetails.invoiceId}
-            </Typography>
+            {paymentDetails.method === "Cash" && (
+              <Typography variant="body1" className={classes.details}>
+                 <strong style={{ fontSize: "15px" }}>Invoice ID:</strong> {paymentDetails.invoiceId}
+              </Typography>
+            )}
             <Typography variant="body1" className={classes.details}>
               <strong style={{ fontSize: "15px" }}>Payment Method:</strong> {paymentDetails.method}
             </Typography>
             <Typography variant="body1" className={classes.details}>
               <strong style={{ fontSize: "15px" }}>Amount:</strong> {paymentDetails.amount}
             </Typography>
-            {paymentDetails.txnRef && (
-              <Typography variant="body1" className={classes.details}>
-                <strong>Transaction Reference:</strong> {paymentDetails.txnRef}
-              </Typography>
+            {paymentDetails.method === "vnpay" && (
+              <>
+                <Typography variant="body1" className={classes.details}>
+                  <strong style={{ fontSize: "15px" }}>Bank Code:</strong> {paymentDetails.bankCode}
+                </Typography>
+                <Typography variant="body1" className={classes.details}>
+                  <strong style={{ fontSize: "15px" }}>Bank Transaction No:</strong> {paymentDetails.bankTranNo}
+                </Typography>
+                <Typography variant="body1" className={classes.details}>
+                  <strong style={{ fontSize: "15px" }}>Card Type:</strong> {paymentDetails.cardType}
+                </Typography>
+                <Typography variant="body1" className={classes.details}>
+                  <strong style={{ fontSize: "15px" }}>Order Info:</strong> {paymentDetails.orderInfo}
+                </Typography>
+                <Typography variant="body1" className={classes.details}>
+                  <strong style={{ fontSize: "15px" }}>Pay Date:</strong> {paymentDetails.payDate}
+                </Typography>
+                <Typography variant="body1" className={classes.details}>
+                  <strong style={{ fontSize: "15px" }}>Transaction Reference:</strong> {paymentDetails.txnRef}
+                </Typography>
+              </>
             )}
             <Button
               className={classes.button}
