@@ -24,7 +24,7 @@ const Chatbot1: React.FC = () => {
         method: "POST",
         headers: {
           Authorization: 
-          "Bearer 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",
+          "Bearer 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",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -36,7 +36,7 @@ const Chatbot1: React.FC = () => {
       const data = await response.json();
       console.log("API Response:", data);
       const botReply =
-        data.choices?.[0]?.message?.content || "I'm sorry, I didn't understand that.";
+        data.choices?.[0]?.message?.content || "This information is quite important, please contact to us by hotline or come to our center to know more.";
       setMessages((prev) => [...prev, { text: botReply, fromBot: true }]);
     } catch (error) {
       console.error("Error fetching AI response:", error);
