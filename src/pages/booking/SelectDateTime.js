@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretLeft, faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import { makeStyles } from "@mui/styles";
 import styled from "styled-components";
-import { hover } from "framer-motion";
+import axios from "axios";
 
 // Tạo CSS với makeStyles
 export const useStyles = makeStyles((theme) => ({
@@ -151,9 +151,12 @@ const SelectDateTime = () => {
   const [selectedTime, setSelectedTime] = useState("");
   const navigate = useNavigate();
   const [bookedSlots, setBookedSlots] = useState([]);
+  const [appointmentId, setAppointmentId] = useState(null);
 
   const morningSlots = generateTimeSlots(600, 720, 15); // 10:00 AM to 11:45 AM
   const afternoonSlots = generateTimeSlots(720, 1080, 15); // 12:00 PM to 4:45 PM
+
+  const API_BASE_URL = "https://vaccine-system1.azurewebsites.net";
 
   const handleNext = async () => {
     if (date && selectedTime) {
@@ -165,12 +168,32 @@ const SelectDateTime = () => {
       //   );
       //   return;
       // }
+      const appointmentDateTime = new Date(date);
+      const [hours, minutes] = selectedTime.split(":").map(Number);
+      appointmentDateTime.setHours(hours, minutes, 0);
+      const requestBody = {
+        CustomerId: 10,
+        ChildId: 1,
+        StaffId: 1,
+        DoctorId: 1,
+        VaccineType: "Combo",
+        VaccineId: 1,
+        ComboId: 1,
+        AppointmentDate: appointmentDateTime.toISOString(),
+        Notes: "New appointment",
+        CreatedAt: new Date().toISOString(),
+      };
+      console.log("Request Body:", requestBody);
 
       try {
-        const newBookedSlot = {
-          date,
-          time: selectedTime,
-        };
+        const newBookedSlot = await axios.post(
+          `${API_BASE_URL}/Appointment/create-appointment`,
+          requestBody,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        setAppointmentId(newBookedSlot.data.appointmentId);
         setBookedSlots([...bookedSlots, newBookedSlot]);
         setSelectedDateTime({
           date,
@@ -182,11 +205,18 @@ const SelectDateTime = () => {
           state: {
             date,
             time: selectedTime,
+            appointmentId: newBookedSlot.data.appointmentId,
           },
         });
       } catch (error) {
-        console.error("Error processing booking:", error);
-        alert("There was an error processing your booking. Please try again.");
+        console.error(
+          "Error processing booking:",
+          error.response?.data || error
+        );
+        console.error(
+          "Error: " +
+            JSON.stringify(error.response?.data || "Unknown error", null, 2)
+        );
       }
     } else {
       alert("Please select a date and time.");

@@ -146,6 +146,30 @@ const useStyles = makeStyles((theme) => ({
     color: "#666",
     marginTop: "2rem",
   },
+  starRating: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "0.5rem",
+    fontSize: "1.5rem",
+  },
+  commentInput: {
+    padding: "0.5rem",
+    borderRadius: "4px",
+    border: "1px solid #ccc",
+    width: "100%",
+  },
+  submitButton: {
+    padding: "0.5rem 1rem",
+    backgroundColor: "#4D9FEC",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    transition: "background-color 0.3s ease",
+    "&:hover": {
+      backgroundColor: "#3B8ECB",
+    },
+  },
 }));
 
 const ManageBookings = () => {
@@ -154,60 +178,219 @@ const ManageBookings = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [bookingsPerPage] = useState(5);
-  const navigate = useNavigate();
+  const [appointments, setAppointments] = useState([]);
   const [currentTab, setCurrentTab] = useState("Paid");
+  const [ratings, setRatings] = useState({});
+  const [comments, setComments] = useState({});
 
-  // Fetch invoices from API
+  // Fetch invoices, invoice-details, and appointments from API
   useEffect(() => {
-    const fetchInvoices = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Invoice/get-invoices"
+        // Fetch invoices
+        const invoicesResponse = await axios.get(
+          "https://vaccine-system1.azurewebsites.net/api/Invoice/get-invoices"
         );
-        // Sort invoices by createdAt (newest first)
-        const sortedInvoices = response.data.sort(
+        const sortedInvoices = invoicesResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-        setInvoices(sortedInvoices);
+
+        // Fetch invoice-details
+        const invoiceDetailsResponse = await axios.get(
+          "https://vaccine-system1.azurewebsites.net/api/InvoiceDetail/get-invoice-details"
+        );
+        const sortedInvoiceDetails = invoiceDetailsResponse.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        // Fetch appointments
+        const appointmentsResponse = await axios.get(
+          "https://vaccine-system1.azurewebsites.net/Appointment/get-appointments"
+        );
+        const sortedAppointments = appointmentsResponse.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        // Combine data from invoices, invoice-details and appointments.
+        // First try to match using invoiceDetails; if not found, then try by customerId.
+        const combinedData = sortedInvoices.map((invoice) => {
+          const invoiceDetail = sortedInvoiceDetails.find(
+            (detail) => detail.invoiceId === invoice.invoiceId
+          );
+          let appointment;
+          if (invoiceDetail && invoiceDetail.appointmentId) {
+            appointment = sortedAppointments.find(
+              (app) => app.appointmentId === invoiceDetail.appointmentId
+            );
+          }
+          if (!appointment) {
+            // Fallback: match by customerId (if available)
+            appointment = sortedAppointments.find(
+              (app) => app.customerId === invoice.customerId
+            );
+          }
+          return {
+            ...invoice,
+            appointmentId: appointment ? appointment.appointmentId : "N/A",
+            appointmentDate:
+              appointment && appointment.appointmentDate
+                ? appointment.appointmentDate
+                : "N/A",
+          };
+        });
+
+        setInvoices(combinedData);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching invoices:", error);
-        toast.error("Failed to fetch invoices. Please try again.");
+        console.error("Error fetching data:", error);
+        toast.error("Failed to fetch data. Please try again.");
         setLoading(false);
       }
     };
 
-    fetchInvoices();
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch invoices
+        const invoicesResponse = await axios.get(
+          "https://vaccine-system1.azurewebsites.net/api/Invoice/get-invoices"
+        );
+        const sortedInvoices = invoicesResponse.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setInvoices(sortedInvoices);
+
+        // Fetch appointments
+        const appointmentsResponse = await axios.get(
+          "https://vaccine-system1.azurewebsites.net/Appointment/get-appointments"
+        );
+        const sortedAppointments = appointmentsResponse.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setAppointments(sortedAppointments);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to fetch data. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   // Filter invoices based on current tab
-  const getCurrentInvoices = () => {
-    switch (currentTab) {
-      case "Paid":
-        return invoices.filter((invoice) => invoice.status === "Paid");
-      case "Unpaid":
-        return invoices.filter((invoice) => invoice.status === "Unpaid");
-      default:
-        return invoices;
+  const getCurrentData = () => {
+    if (currentTab === "Paid") {
+      return invoices.filter((invoice) => invoice.status === "Paid");
+    } else if (currentTab === "Unpaid") {
+      return invoices.filter((invoice) => invoice.status === "Unpaid");
+    } else if (currentTab === "Rated") {
+      return appointments.filter(
+        (appointment) => appointment.status === "Success"
+      );
+    } else {
+      return [];
     }
   };
 
   // Pagination logic
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
-  const currentInvoices = getCurrentInvoices().slice(
+  const currentData = getCurrentData().slice(
     indexOfFirstBooking,
     indexOfLastBooking
   );
+
+  const handleRatingChange = (appointmentId, rating) => {
+    setRatings((prevRatings) => ({
+      ...prevRatings,
+      [appointmentId]: rating,
+    }));
+  };
+
+  const handleCommentChange = (appointmentId, comment) => {
+    setComments((prevComments) => ({
+      ...prevComments,
+      [appointmentId]: comment,
+    }));
+  };
+
+  const handleSubmitFeedback = async (appointmentId) => {
+    const rating = ratings[appointmentId];
+    const comment = comments[appointmentId];
+
+    if (!rating || !comment) {
+      toast.error("Please provide both rating and comment.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "https://vaccine-system1.azurewebsites.net/api/FeedBack/create-feedback",
+        {
+          CustomerId: appointments.find(
+            (appointment) => appointment.appointmentId === appointmentId
+          ).customerId,
+          DoctorId: 1, // Replace with actual doctor ID
+          StaffId: 1, // Replace with actual staff ID
+          VaccineId: 1, // Replace with actual vaccine ID
+          AppointmentId: appointmentId,
+          Rating: rating,
+          Comment: comment,
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Feedback submitted successfully!");
+        // Update the status of the appointment to "Rated"
+        setAppointments((prevAppointments) =>
+          prevAppointments.map((appointment) =>
+            appointment.appointmentId === appointmentId
+              ? { ...appointment, status: "Rated" }
+              : appointment
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      toast.error("Failed to submit feedback. Please try again.");
+    }
+  };
 
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
 
-  // Handle tab change
   const handleTabChange = (status) => {
     setCurrentTab(status);
-    setCurrentPage(1); // Reset to the first page when changing tabs
+    setCurrentPage(1);
+  };
+
+  const StarRating = ({ rating, onChange }) => {
+    return (
+      <div className={classes.starRating}>
+        {[...Array(5)].map((star, index) => {
+          index += 1;
+          return (
+            <span
+              key={index}
+              style={{
+                cursor: "pointer",
+                color: index <= rating ? "gold" : "gray",
+              }}
+              onClick={() => onChange(index)}
+            >
+              ★
+            </span>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -231,6 +414,14 @@ const ManageBookings = () => {
         >
           Unpaid
         </button>
+        <button
+          className={`${classes.button} ${
+            currentTab === "Rated" ? "active" : ""
+          }`}
+          onClick={() => handleTabChange("Rated")}
+        >
+          Rated
+        </button>
       </div>
 
       <div className={classes.bookingsSection}>
@@ -243,52 +434,124 @@ const ManageBookings = () => {
               <thead>
                 <tr>
                   <th className={classes.th}>#</th>
-                  <th className={classes.th}>Invoice ID</th>
-                  <th className={classes.th}>Customer ID</th>
-                  <th className={classes.th}>Total Amount</th>
-                  <th className={classes.th}>Status</th>
-                  <th className={classes.th}>Type</th>
-                  <th className={classes.th}>Created At</th>
-                  <th className={classes.th}>Appointment Date</th>{" "}
-                  {/* Thêm cột mới */}
+                  {currentTab === "Rated" ? (
+                    <>
+                      <th className={classes.th}>Customer ID</th>
+                      <th className={classes.th}>Status</th>
+                      <th className={classes.th}>Appointment ID</th>
+                      <th className={classes.th}>Appointment Date</th>
+                      <th className={classes.th}>Rating</th>
+                      <th className={classes.th}>Comment</th>
+                      <th className={classes.th}>Submit</th>
+                    </>
+                  ) : (
+                    <>
+                      <th className={classes.th}>Invoice ID</th>
+                      <th className={classes.th}>Customer ID</th>
+                      <th className={classes.th}>Total Amount</th>
+                      <th className={classes.th}>Status</th>
+                      <th className={classes.th}>Type</th>
+                      <th className={classes.th}>Created At</th>
+                      <th className={classes.th}>Appointment ID</th>
+                      <th className={classes.th}>Appointment Date</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
-                {currentInvoices.length > 0 ? (
-                  currentInvoices.map((invoice, index) => (
-                    <tr key={invoice.invoiceId} className={classes.tr}>
+                {currentData.length > 0 ? (
+                  currentData.map((item, index) => (
+                    <tr
+                      key={item.invoiceId || item.appointmentId}
+                      className={classes.tr}
+                    >
                       <td className={classes.td}>
                         {indexOfFirstBooking + index + 1}
                       </td>
-                      <td className={classes.td}>{invoice.invoiceId}</td>
-                      <td className={classes.td}>{invoice.customerId}</td>
-                      <td className={classes.td}>{invoice.totalAmount}</td>
-                      <td
-                        className={`${classes.statusCell} ${
-                          invoice.status === "Paid"
-                            ? classes.statusPaid
-                            : classes.statusUnpaid
-                        }`}
-                      >
-                        {invoice.status}
-                      </td>
-                      <td className={classes.td}>{invoice.type}</td>
-                      <td className={classes.td}>
-                        {moment(invoice.createdAt).format("DD/MM/YYYY HH:mm")}
-                      </td>
-                      <td className={classes.td}>
-                        {invoice.appointmentDate
-                          ? moment(invoice.appointmentDate).format(
+                      {currentTab === "Rated" ? (
+                        <>
+                          <td className={classes.td}>{item.customerId}</td>
+                          <td className={classes.td}>{item.status}</td>
+                          <td className={classes.td}>{item.appointmentId}</td>
+                          <td className={classes.td}>
+                            {moment(item.appointmentDate).format(
                               "DD/MM/YYYY HH:mm"
-                            )
-                          : "N/A"}
-                      </td>{" "}
-                      {/* Hiển thị ngày hẹn */}
+                            )}
+                          </td>
+                          <td className={classes.td}>
+                            <StarRating
+                              rating={ratings[item.appointmentId] || 0}
+                              onChange={(rating) =>
+                                handleRatingChange(item.appointmentId, rating)
+                              }
+                            />
+                          </td>
+                          <td className={classes.td}>
+                            <input
+                              type="text"
+                              value={comments[item.appointmentId] || ""}
+                              onChange={(e) =>
+                                handleCommentChange(
+                                  item.appointmentId,
+                                  e.target.value
+                                )
+                              }
+                              className={classes.commentInput}
+                            />
+                          </td>
+                          <td className={classes.td}>
+                            <button
+                              onClick={() =>
+                                handleSubmitFeedback(item.appointmentId)
+                              }
+                              className={classes.submitButton}
+                            >
+                              Submit
+                            </button>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className={classes.td}>{item.invoiceId}</td>
+                          <td className={classes.td}>{item.customerId}</td>
+                          <td className={classes.td}>{item.totalAmount}</td>
+                          <td
+                            className={`${classes.statusCell} ${
+                              item.status === "Paid"
+                                ? classes.statusPaid
+                                : classes.statusUnpaid
+                            }`}
+                          >
+                            {item.status}
+                          </td>
+                          <td className={classes.td}>{item.type}</td>
+                          <td className={classes.td}>
+                            {moment(item.createdAt).format("DD/MM/YYYY HH:mm")}
+                          </td>
+                          <td className={classes.td}>{item.appointmentId}</td>
+                          <td className={classes.td}>
+                            {item.appointmentDate &&
+                            item.appointmentDate !== "N/A" &&
+                            moment(
+                              item.appointmentDate,
+                              moment.ISO_8601,
+                              true
+                            ).isValid()
+                              ? moment(item.appointmentDate).format(
+                                  "DD/MM/YYYY HH:mm"
+                                )
+                              : "N/A"}
+                          </td>
+                        </>
+                      )}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" className={classes.noData}>
+                    <td
+                      colSpan={currentTab === "Rated" ? 8 : 9}
+                      className={classes.noData}
+                    >
                       No data available
                     </td>
                   </tr>
@@ -296,9 +559,9 @@ const ManageBookings = () => {
               </tbody>
             </table>
 
-            {getCurrentInvoices().length > bookingsPerPage && (
+            {getCurrentData().length > bookingsPerPage && (
               <Pagination
-                count={Math.ceil(getCurrentInvoices().length / bookingsPerPage)}
+                count={Math.ceil(getCurrentData().length / bookingsPerPage)}
                 page={currentPage}
                 onChange={handlePageChange}
                 color="primary"
@@ -316,5 +579,4 @@ const ManageBookings = () => {
     </div>
   );
 };
-
 export default ManageBookings;

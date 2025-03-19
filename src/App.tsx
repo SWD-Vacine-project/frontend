@@ -18,6 +18,8 @@ import UserProfile from "./Customer/User";
 import Book from "./pages/booking/book";
 import { BookingProvider } from "./components/context/BookingContext";
 import ManageBookings from "./pages/booking/ManageBooking";
+import VaccinationProgress from "./pages/Staff/Nurse/VaccinationProgress";
+import VaccinationReactions  from "./pages/Staff/Nurse/VaccinationReactions";
 
 const App: React.FC = () => {
   return (
@@ -106,6 +108,8 @@ const MainLayout: React.FC = () => {
             <Route path="/user" element={<UserProfile />} />
             <Route path="/book/*" element={<Book />} />
             <Route path="/manage-booking" element={<ManageBookings />} />
+            <Route path="/nurse/vaccination-progress" element={<VaccinationProgress />} />
+            <Route path="/nurse/vaccination-reactions" element={<VaccinationReactions />} />
           </Routes>
         )}
         {!isFullPage && <StickyContactBar currentPath={currentPath} />}

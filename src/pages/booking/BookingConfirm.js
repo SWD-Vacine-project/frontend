@@ -170,7 +170,7 @@ const CancelButton = styled.button`
 const BookingConfirm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { date, time } = location.state || {};
+  const { date, time, appointmentId } = location.state || {};
   const [showModal, setShowModal] = useState(false);
 
   const openModal = () => {
@@ -183,7 +183,14 @@ const BookingConfirm = () => {
 
   const confirmModal = () => {
     setShowModal(false);
-    navigate("/book/payment-form");
+    // Truyền appointmentId sang PaymentForm
+    navigate("/book/payment-form", {
+      state: {
+        date,
+        time,
+        appointmentId, // Truyền appointmentId
+      },
+    });
   };
 
   return (
