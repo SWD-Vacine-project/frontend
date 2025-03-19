@@ -1,155 +1,8 @@
-// import React, { useState, useEffect } from "react";
-// import axios from "axios";
-// import { Modal, Button, Table, Input } from "antd";
-// import style from "./VaccineTable_style.module.css";
-
-// const VaccineList = () => {
-//   const [vaccines, setVaccines] = useState([]);
-//   const [selectedBatches, setSelectedBatches] = useState([]);
-//   const [modalVisible, setModalVisible] = useState(false);
-//   const [noBatchModalVisible, setNoBatchModalVisible] = useState(false);
-//   const [searchText, setSearchText] = useState("");
-
-//   useEffect(() => {
-//     fetchVaccines();
-//   }, []);
-
-//   const fetchVaccines = async (name = "") => {
-//     try {
-//       const url = name
-//         ? `https://vaccine-system1.azurewebsites.net/api/Vaccine/get-vaccine-by-name?name=${name}`
-//         : "https://vaccine-system1.azurewebsites.net/api/Vaccine/get-vaccine-for-staff";
-
-//       const response = await axios.get(url);
-//       console.log("API Response:", response.data); // Debug dữ liệu trả về
-
-//       if (Array.isArray(response.data)) {
-//         // Chuẩn hóa dữ liệu
-//         const normalizedData = response.data.map((vaccine) => ({
-//           ...vaccine,
-//           vaccineName: vaccine.vaccineName || vaccine.name, // Chuyển name thành vaccineName
-//         }));
-
-//         setVaccines(normalizedData);
-//       } else {
-//         console.error("Unexpected API response format:", response.data);
-//         setVaccines([]);
-//       }
-//     } catch (error) {
-//       console.error("Error fetching data:", error);
-//       setVaccines([]);
-//     }
-//   };
-
-//   const showBatches = (batches) => {
-//     if (!batches || batches.length === 0) {
-//       setNoBatchModalVisible(true);
-//       return;
-//     }
-//     setSelectedBatches(batches);
-//     setModalVisible(true);
-//   };
-
-//   const handleSearch = (e) => {
-//     const value = e.target.value;
-//     setSearchText(value);
-//     fetchVaccines(value); // Gọi API tìm kiếm theo tên
-//   };
-
-//   return (
-//     <div>
-//       <h2>Vaccine List</h2>
-
-//       <div className={style.toolbar}>
-//         {/* Nút Add và Update Vaccine */}
-//         <div style={{ marginBottom: 16 }}>
-//           <Button type="primary" style={{ marginRight: 8 }}>
-//             Add Vaccine
-//           </Button>
-//           <Button type="default">Update Vaccine</Button>
-//         </div>
-
-//         {/* Thanh tìm kiếm */}
-//         <Input
-//           placeholder="Search by vaccine name..."
-//           value={searchText}
-//           onChange={handleSearch}
-//           style={{ marginBottom: 16, width: 300 }}
-//         />
-//       </div>
-
-//       {/* Bảng danh sách vaccine */}
-//       <Table dataSource={vaccines} rowKey="vaccineId" bordered>
-//         <Table.Column title="Vaccine Name" dataIndex="vaccineName" key="name" />
-//         <Table.Column title="Description" dataIndex="description" key="desc" />
-//         <Table.Column
-//           title="Actions"
-//           key="actions"
-//           render={(record) => (
-//             <Button onClick={() => showBatches(record.batches)}>
-//               View Batches
-//             </Button>
-//           )}
-//         />
-//       </Table>
-
-//       {/* Modal hiển thị danh sách Batches */}
-//       <Modal
-//         title="Vaccine Batches"
-//         open={modalVisible}
-//         onCancel={() => setModalVisible(false)}
-//         footer={null}
-//       >
-//         <Table dataSource={selectedBatches} rowKey="batchNumber" bordered>
-//           <Table.Column
-//             title="Batch Number"
-//             dataIndex="batchNumber"
-//             key="batchNumber"
-//           />
-//           <Table.Column
-//             title="Manufacturer"
-//             dataIndex="manufacturer"
-//             key="manufacturer"
-//           />
-//           <Table.Column
-//             title="Expiry Date"
-//             dataIndex="expiryDate"
-//             key="expiryDate"
-//           />
-//           <Table.Column title="Quantity" dataIndex="quantity" key="quantity" />
-//         </Table>
-//       </Modal>
-
-//       {/* Modal khi không có batch */}
-//       <Modal
-//         title="No Batches Available"
-//         open={noBatchModalVisible}
-//         onCancel={() => setNoBatchModalVisible(false)}
-//         footer={[
-//           <Button
-//             key="linkBatch"
-//             type="primary"
-//             onClick={() => setNoBatchModalVisible(false)}
-//           >
-//             Link to Batch
-//           </Button>,
-//           <Button key="close" onClick={() => setNoBatchModalVisible(false)}>
-//             Close
-//           </Button>,
-//         ]}
-//       >
-//         <p>This vaccine does not have any available batches.</p>
-//       </Modal>
-//     </div>
-//   );
-// };
-
-// export default VaccineList;
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Modal, Button, Table, Form, Input } from "antd";
+import { Modal, Button, Table, Input, Form } from "antd";
 import style from "./VaccineTable_style.module.css";
+import { SearchOutlined } from "@ant-design/icons";
 
 const VaccineList = () => {
   const [vaccines, setVaccines] = useState([]);
@@ -157,25 +10,33 @@ const VaccineList = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [noBatchModalVisible, setNoBatchModalVisible] = useState(false);
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
   const [selectedVaccine, setSelectedVaccine] = useState(null);
-  const [form] = Form.useForm();
 
   useEffect(() => {
     fetchVaccines();
   }, []);
 
-  const fetchVaccines = async () => {
+  const fetchVaccines = async (name = "") => {
     try {
-      const response = await axios.get(
-        "https://vaccine-system1.azurewebsites.net/api/Vaccine/get-vaccine-for-staff"
-      );
-      const normalizedData = response.data.map((vaccine) => ({
-        ...vaccine,
-        vaccineName: vaccine.vaccineName || vaccine.name,
-      }));
-      setVaccines(normalizedData);
+      const url = name
+        ? `https://vaccine-system1.azurewebsites.net/api/Vaccine/get-vaccine-by-name?name=${name}`
+        : "https://vaccine-system1.azurewebsites.net/api/Vaccine/get-vaccine-for-staff";
+
+      const response = await axios.get(url);
+      if (Array.isArray(response.data)) {
+        setVaccines(
+          response.data.map((vaccine) => ({
+            ...vaccine,
+            vaccineName: vaccine.vaccineName || vaccine.name,
+          }))
+        );
+      } else {
+        setVaccines([]);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
+      setVaccines([]);
     }
   };
 
@@ -188,31 +49,36 @@ const VaccineList = () => {
     setModalVisible(true);
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchText(value);
+    fetchVaccines(value);
+  };
+
   const handleRowClick = (record) => {
     setSelectedVaccine(record);
-    form.setFieldsValue({
-      vaccineName: record.vaccineName,
-      description: record.description,
-    });
     setUpdateModalVisible(true);
   };
 
-  const handleUpdate = async () => {
-    try {
-      const values = await form.validateFields();
-      console.log("Updating vaccine:", values);
-      // Gửi dữ liệu cập nhật lên API ở đây (hiện tại chỉ log ra console)
-      
-      setUpdateModalVisible(false);
-      fetchVaccines(); // Load lại danh sách vaccine sau khi cập nhật
-    } catch (error) {
-      console.error("Validation Failed:", error);
-    }
-  };
-
   return (
-    <div>
+    <div className={style.component}>
+      <div className={style.VaccineList}>
       <h2>Vaccine List</h2>
+      </div>
+
+      <div className={style.toolbar}>
+        {/* Thanh tìm kiếm */}
+        <Button type="primary" style={{ marginRight: 8 }}>
+          Add Vaccine
+        </Button>
+        <Input
+          placeholder="Search by vaccine name..."
+          value={searchText}
+          onChange={handleSearch}
+          style={{ marginBottom: 16, width: 300 }}
+          prefix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />}
+          />
+      </div>
 
       {/* Bảng danh sách vaccine */}
       <Table
@@ -220,8 +86,9 @@ const VaccineList = () => {
         rowKey="vaccineId"
         bordered
         onRow={(record) => ({
-          onClick: () => handleRowClick(record), // Khi click vào hàng, mở modal update
+          onClick: () => handleRowClick(record), // Click vào hàng mở modal update
         })}
+        rowClassName={style.rowHover} // Hiệu ứng hover
       >
         <Table.Column title="Vaccine Name" dataIndex="vaccineName" key="name" />
         <Table.Column title="Description" dataIndex="description" key="desc" />
@@ -229,7 +96,14 @@ const VaccineList = () => {
           title="Actions"
           key="actions"
           render={(record) => (
-            <Button onClick={() => showBatches(record.batches)}>View Batches</Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation(); // Ngăn chặn mở modal update khi bấm View Batches
+                showBatches(record.batches);
+              }}
+            >
+              View Batches
+            </Button>
           )}
         />
       </Table>
@@ -242,14 +116,23 @@ const VaccineList = () => {
         footer={null}
       >
         <Table dataSource={selectedBatches} rowKey="batchNumber" bordered>
-          <Table.Column title="Batch Number" dataIndex="batchNumber" key="batchNumber" />
-          <Table.Column title="Manufacturer" dataIndex="manufacturer" key="manufacturer" />
-          <Table.Column title="Expiry Date" dataIndex="expiryDate" key="expiryDate" />
+          <Table.Column
+            title="Batch Number"
+            dataIndex="batchNumber"
+            key="batchNumber"
+          />
+          <Table.Column
+            title="Manufacturer"
+            dataIndex="manufacturer"
+            key="manufacturer"
+          />
+          <Table.Column
+            title="Expiry Date"
+            dataIndex="expiryDate"
+            key="expiryDate"
+          />
           <Table.Column title="Quantity" dataIndex="quantity" key="quantity" />
         </Table>
-        <Button key="linkBatch" type="primary" onClick={() => setNoBatchModalVisible(false)}>
-          Link to Batch
-        </Button>
       </Modal>
 
       {/* Modal khi không có batch */}
@@ -258,7 +141,11 @@ const VaccineList = () => {
         open={noBatchModalVisible}
         onCancel={() => setNoBatchModalVisible(false)}
         footer={[
-          <Button key="linkBatch" type="primary" onClick={() => setNoBatchModalVisible(false)}>
+          <Button
+            key="linkBatch"
+            type="primary"
+            onClick={() => setNoBatchModalVisible(false)}
+          >
             Link to Batch
           </Button>,
           <Button key="close" onClick={() => setNoBatchModalVisible(false)}>
@@ -269,28 +156,24 @@ const VaccineList = () => {
         <p>This vaccine does not have any available batches.</p>
       </Modal>
 
-      {/* Modal cập nhật vaccine */}
+      {/* Modal Update Vaccine */}
       <Modal
         title="Update Vaccine"
         open={updateModalVisible}
         onCancel={() => setUpdateModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setUpdateModalVisible(false)}>
-            Cancel
-          </Button>,
-          <Button key="update" type="primary" onClick={handleUpdate}>
-            Update
-          </Button>,
-        ]}
+        footer={null}
       >
-        <Form form={form} layout="vertical">
-          <Form.Item name="vaccineName" label="Vaccine Name" rules={[{ required: true, message: "Please enter the vaccine name!" }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={4} />
-          </Form.Item>
-        </Form>
+        {selectedVaccine && (
+          <Form layout="vertical">
+            <Form.Item label="Vaccine Name">
+              <Input value={selectedVaccine.vaccineName} disabled />
+            </Form.Item>
+            <Form.Item label="Description">
+              <Input.TextArea value={selectedVaccine.description} />
+            </Form.Item>
+            <Button type="primary">Update</Button>
+          </Form>
+        )}
       </Modal>
     </div>
   );
