@@ -1,15 +1,13 @@
-/* Navbar tổng thể */
+/* Navbar */
 .navbar {
   background: linear-gradient(135deg, #ffffff, #f8f9fa);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 15px 40px;
+  padding-left: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 10px;
   transition: all 0.3s ease-in-out;
-
-  /* Fix navbar trên đầu trang */
   position: fixed;
   top: 0;
   left: 0;
@@ -17,16 +15,16 @@
   z-index: 1000;
 }
 
-/* Khi cuộn xuống, navbar đổi màu */
+/* Khi cuộn xuống */
 .navbar.scrolled {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Để tránh nội dung bị che mất */
 body {
   padding-top: 80px;
+  margin-bottom: 2rem;
 }
 
 /* Logo */
@@ -40,7 +38,7 @@ body {
 }
 
 .logo:hover {
-  cursor: none;;
+  cursor: none;
 }
 
 /* Danh sách menu */
@@ -99,23 +97,80 @@ body {
   left: 0;
 }
 
+/* 🎯 Dropdown */
+.dropdown {
+  position: relative;
+}
+
+/* Khi dropdown mở, icon xoay xuống */
+.dropdown.open .dropdown-icon {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+/* Danh sách mục con */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  list-style: none;
+  padding: 10px 0;
+  width: 200px;
+  border-radius: 5px;
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Hiển thị dropdown khi mở */
+.dropdown.open .dropdown-menu {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-menu li::after {
+  content: none;
+}
+
+/* Mục con trong dropdown */
+.dropdown-menu li {
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  color: #333;
+}
+
+/* Hover trên mục con */
+.dropdown-menu li:hover {
+  background: 0 0 5px rgba(209, 8, 182, 0.5);
+  /* color: white; */
+}
+
 /* Responsive */
 @media screen and (max-width: 768px) {
   .navbar {
-      flex-direction: column;
-      align-items: center;
-      padding: 15px;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
   }
 
   .nav-links {
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      margin-top: 10px;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
   }
 
   .nav-links li {
-      padding: 8px;
-      font-size: 16px;
+    padding: 8px;
+    font-size: 16px;
+  }
+
+  .dropdown-menu {
+    width: 150px;
   }
 }

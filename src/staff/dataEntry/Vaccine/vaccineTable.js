@@ -5,6 +5,8 @@ import style from "./VaccineTable_style.module.css";
 import { SearchOutlined } from "@ant-design/icons";
 import UpdateVaccine from "./updateVaccine";
 import AddVaccine from "./addVaccine";
+import { useNavigate } from "react-router-dom";
+import NavbarForStaff from "../../NavbarForStaff";
 
 const VaccineList = () => {
   const [vaccines, setVaccines] = useState([]);
@@ -15,6 +17,7 @@ const VaccineList = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedVaccine, setSelectedVaccine] = useState(null);
   const [addModalVisible, setAddModalVisible] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchVaccines();
@@ -64,147 +67,157 @@ const VaccineList = () => {
   };
 
   return (
-    <div className={style.component}>
-      <div className={style.VaccineList}>
-        <h2>Vaccine List</h2>
-      </div>
+    <div>
+      <NavbarForStaff />
+      <div className={style.component}>
+        <div className={style.VaccineList}>
+          <h2>Vaccine List</h2>
+        </div>
 
-      <div className={style.toolbar}>
-        {/* Thanh tìm kiếm */}
-        <Button
-          type="primary"
-          style={{ marginRight: 8 }}
-          onClick={() => setAddModalVisible(true)}
+        <div className={style.toolbar}>
+          {/* Thanh tìm kiếm */}
+          <Button
+            type="primary"
+            style={{ marginRight: 8 }}
+            onClick={() => setAddModalVisible(true)}
+          >
+            Add Vaccine
+          </Button>
+          <Button
+            type="default"
+            style={{ marginRight: 8 }}
+            onClick={() => navigate("/vaccine-batch")}
+          >
+            Manage Batch
+          </Button>
+          <Button
+            type="primary"
+            style={{ marginRight: 8 }}
+            onClick={() => navigate("/vaccine-combo")}
+          >
+            Vaccine Combo
+          </Button>
+          <Input
+            placeholder="Search by vaccine name..."
+            value={searchText}
+            onChange={handleSearch}
+            style={{ marginBottom: 16, width: 300 }}
+            prefix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />}
+          />
+        </div>
+
+        {/* Bảng danh sách vaccine */}
+        <Table
+          dataSource={vaccines}
+          rowKey="vaccineId"
+          bordered
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record), // Click vào hàng mở modal update
+          })}
+          rowClassName={style.rowHover} // Hiệu ứng hover
         >
-          Add Vaccine
-        </Button>
-        <Input
-          placeholder="Search by vaccine name..."
-          value={searchText}
-          onChange={handleSearch}
-          style={{ marginBottom: 16, width: 300 }}
-          prefix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />}
+          <Table.Column
+            title="Vaccine Name"
+            dataIndex="vaccineName"
+            key="name"
+          />
+          <Table.Column
+            title="Description"
+            dataIndex="description"
+            key="desc"
+          />
+          <Table.Column
+            title="Actions"
+            key="actions"
+            render={(record) => (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation(); // Ngăn chặn mở modal update khi bấm View Batches
+                  showBatches(record.batches);
+                }}
+              >
+                View Batches
+              </Button>
+            )}
+          />
+        </Table>
+
+        {/* Modal hiển thị danh sách Batches */}
+        <Modal
+          title="Vaccine Batches"
+          open={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          footer={[
+            <Button
+              key="linkBatch"
+              type="primary"
+              onClick={() => console.log("Link to batch")}
+            >
+              Link to Batch
+            </Button>,
+            <Button key="close" onClick={() => setModalVisible(false)}>
+              Close
+            </Button>,
+          ]}
+        >
+          <Table dataSource={selectedBatches} rowKey="batchNumber" bordered>
+            <Table.Column
+              title="Batch Number"
+              dataIndex="batchNumber"
+              key="batchNumber"
+            />
+            <Table.Column
+              title="Manufacturer"
+              dataIndex="manufacturer"
+              key="manufacturer"
+            />
+            <Table.Column
+              title="Expiry Date"
+              dataIndex="expiryDate"
+              key="expiryDate"
+            />
+            <Table.Column
+              title="Quantity"
+              dataIndex="quantity"
+              key="quantity"
+            />
+          </Table>
+        </Modal>
+
+        {/* Modal khi không có batch */}
+        <Modal
+          title="No Batches Available"
+          open={noBatchModalVisible}
+          onCancel={() => setNoBatchModalVisible(false)}
+          footer={[
+            <Button
+              key="linkBatch"
+              type="primary"
+              onClick={() => setNoBatchModalVisible(false)}
+            >
+              Link to Batch
+            </Button>,
+            <Button key="close" onClick={() => setNoBatchModalVisible(false)}>
+              Close
+            </Button>,
+          ]}
+        >
+          <p>This vaccine does not have any available batches.</p>
+        </Modal>
+
+        <UpdateVaccine
+          visible={updateModalVisible}
+          onClose={() => setUpdateModalVisible(false)}
+          vaccine={selectedVaccine}
+          onUpdateSuccess={fetchVaccines}
+        />
+
+        <AddVaccine
+          visible={addModalVisible}
+          onClose={() => setAddModalVisible(false)}
+          onAddSuccess={fetchVaccines} // Gọi lại API để cập nhật danh sách sau khi thêm thành công
         />
       </div>
-
-      {/* Bảng danh sách vaccine */}
-      <Table
-        dataSource={vaccines}
-        rowKey="vaccineId"
-        bordered
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record), // Click vào hàng mở modal update
-        })}
-        rowClassName={style.rowHover} // Hiệu ứng hover
-      >
-        <Table.Column title="Vaccine Name" dataIndex="vaccineName" key="name" />
-        <Table.Column title="Description" dataIndex="description" key="desc" />
-        <Table.Column
-          title="Actions"
-          key="actions"
-          render={(record) => (
-            <Button
-              onClick={(e) => {
-                e.stopPropagation(); // Ngăn chặn mở modal update khi bấm View Batches
-                showBatches(record.batches);
-              }}
-            >
-              View Batches
-            </Button>
-          )}
-        />
-      </Table>
-
-      {/* Modal hiển thị danh sách Batches */}
-      <Modal
-        title="Vaccine Batches"
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={[
-          <Button
-            key="linkBatch"
-            type="primary"
-            onClick={() => console.log("Link to batch")}
-          >
-            Link to Batch
-          </Button>,
-          <Button key="close" onClick={() => setModalVisible(false)}>
-            Close
-          </Button>,
-        ]}
-      >
-        <Table dataSource={selectedBatches} rowKey="batchNumber" bordered>
-          <Table.Column
-            title="Batch Number"
-            dataIndex="batchNumber"
-            key="batchNumber"
-          />
-          <Table.Column
-            title="Manufacturer"
-            dataIndex="manufacturer"
-            key="manufacturer"
-          />
-          <Table.Column
-            title="Expiry Date"
-            dataIndex="expiryDate"
-            key="expiryDate"
-          />
-          <Table.Column title="Quantity" dataIndex="quantity" key="quantity" />
-        </Table>
-      </Modal>
-
-      {/* Modal khi không có batch */}
-      <Modal
-        title="No Batches Available"
-        open={noBatchModalVisible}
-        onCancel={() => setNoBatchModalVisible(false)}
-        footer={[
-          <Button
-            key="linkBatch"
-            type="primary"
-            onClick={() => setNoBatchModalVisible(false)}
-          >
-            Link to Batch
-          </Button>,
-          <Button key="close" onClick={() => setNoBatchModalVisible(false)}>
-            Close
-          </Button>,
-        ]}
-      >
-        <p>This vaccine does not have any available batches.</p>
-      </Modal>
-
-      {/* Modal Update Vaccine */}
-      {/* <Modal
-        title="Update Vaccine"
-        open={updateModalVisible}
-        onCancel={() => setUpdateModalVisible(false)}
-        footer={null}
-      >
-        {selectedVaccine && (
-          <Form layout="vertical">
-            <Form.Item label="Vaccine Name">
-              <Input value={selectedVaccine.vaccineName} disabled />
-            </Form.Item>
-            <Form.Item label="Description">
-              <Input.TextArea value={selectedVaccine.description} />
-            </Form.Item>
-            <Button type="primary">Update</Button>
-          </Form>
-        )}
-      </Modal> */}
-      <UpdateVaccine
-        visible={updateModalVisible}
-        onClose={() => setUpdateModalVisible(false)}
-        vaccine={selectedVaccine}
-        onUpdateSuccess={fetchVaccines}
-      />
-
-      <AddVaccine
-        visible={addModalVisible}
-        onClose={() => setAddModalVisible(false)}
-        onAddSuccess={fetchVaccines} // Gọi lại API để cập nhật danh sách sau khi thêm thành công
-      />
     </div>
   );
 };

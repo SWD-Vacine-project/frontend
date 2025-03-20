@@ -4,11 +4,12 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin-top: 1rem;
 }
 
 .title {
   text-align: center;
-  font-size: 28px;
+  font-size: 3.5rem;
   font-weight: 600;
   color: #6a0dad; /* Dark purple */
   margin-bottom: 20px;
