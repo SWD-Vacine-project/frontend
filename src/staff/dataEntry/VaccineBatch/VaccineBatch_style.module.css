@@ -3,14 +3,12 @@
     background-color: #f7f3ff; /* Pastel purple background */
     border-radius: 8px;
     position: relative;
-    margin-top: 1rem;
   }
   
   h2 {
     margin-bottom: 16px;
     text-align: center;
     font-size: 3.5rem;
-
   }
   
   .backIcon {

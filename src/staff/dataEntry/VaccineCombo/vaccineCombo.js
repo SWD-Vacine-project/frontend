@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { ArrowLeftOutlined, SearchOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { SearchOutlined } from "@ant-design/icons";
 import style from "./VaccineCombo_style.module.css";
 import { Table, Input, Button } from "antd";
 import UpdateCombo from "./updateCombo";
@@ -15,8 +14,6 @@ const VaccineCombo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCombo, setSelectedCombo] = useState(null);
   const [addModalVisible, setAddModalVisible] = useState(false);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchVaccineCombos();

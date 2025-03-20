@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Modal, notification } from "antd";
+import { notification } from "antd";
 import ChildrenList from "./ChildrenCarousel";
 import style from "../Customer&Child/CustomerTable_style.module.css";
 import NavbarForStaff from "../../NavbarForStaff";
@@ -87,10 +87,10 @@ const CustomerTable = () => {
     }
   };
 
-  const handleOpenModal = (customerId) => {
-    setSelectedCustomerId(customerId);
-    setIsModalOpen(true);
-  };
+  // const handleOpenModal = (customerId) => {
+  //   setSelectedCustomerId(customerId);
+  //   setIsModalOpen(true);
+  // };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);

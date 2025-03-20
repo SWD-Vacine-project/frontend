@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Modal, Button, Table, Input, Form } from "antd";
+import { Modal, Button, Table, Input } from "antd";
 import style from "./VaccineTable_style.module.css";
 import { SearchOutlined } from "@ant-design/icons";
 import UpdateVaccine from "./updateVaccine";

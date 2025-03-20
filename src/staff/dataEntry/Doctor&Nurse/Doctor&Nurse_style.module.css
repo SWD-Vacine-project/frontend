@@ -4,7 +4,6 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin-top: 1rem;
 }
 
 .title {
@@ -30,4 +29,19 @@
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
+}
+
+.searchContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.searchInput {
+  width: 250px;
+}
+
+.addButton {
+  background-color: #1890ff;
+  color: white;
 }

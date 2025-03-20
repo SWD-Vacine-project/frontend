@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { ArrowLeftOutlined, SearchOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { SearchOutlined } from "@ant-design/icons";
 import style from "./VaccineBatch_style.module.css";
 import { Table, Input, Tag } from "antd";
 import NavbarForStaff from "../../NavbarForStaff";
@@ -10,8 +9,6 @@ const VaccineBatch = () => {
   const [batches, setBatches] = useState([]);
   const [filteredBatches, setFilteredBatches] = useState([]);
   const [searchText, setSearchText] = useState("");
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchVaccineBatches();
