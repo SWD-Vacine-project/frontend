@@ -3,6 +3,8 @@ import axios from "axios";
 import { Modal, Button, Table, Input, Form } from "antd";
 import style from "./VaccineTable_style.module.css";
 import { SearchOutlined } from "@ant-design/icons";
+import UpdateVaccine from "./updateVaccine";
+import AddVaccine from "./addVaccine";
 
 const VaccineList = () => {
   const [vaccines, setVaccines] = useState([]);
@@ -12,6 +14,7 @@ const VaccineList = () => {
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [selectedVaccine, setSelectedVaccine] = useState(null);
+  const [addModalVisible, setAddModalVisible] = useState(false);
 
   useEffect(() => {
     fetchVaccines();
@@ -63,12 +66,16 @@ const VaccineList = () => {
   return (
     <div className={style.component}>
       <div className={style.VaccineList}>
-      <h2>Vaccine List</h2>
+        <h2>Vaccine List</h2>
       </div>
 
       <div className={style.toolbar}>
         {/* Thanh tìm kiếm */}
-        <Button type="primary" style={{ marginRight: 8 }}>
+        <Button
+          type="primary"
+          style={{ marginRight: 8 }}
+          onClick={() => setAddModalVisible(true)}
+        >
           Add Vaccine
         </Button>
         <Input
@@ -77,7 +84,7 @@ const VaccineList = () => {
           onChange={handleSearch}
           style={{ marginBottom: 16, width: 300 }}
           prefix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />}
-          />
+        />
       </div>
 
       {/* Bảng danh sách vaccine */}
@@ -113,7 +120,18 @@ const VaccineList = () => {
         title="Vaccine Batches"
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
-        footer={null}
+        footer={[
+          <Button
+            key="linkBatch"
+            type="primary"
+            onClick={() => console.log("Link to batch")}
+          >
+            Link to Batch
+          </Button>,
+          <Button key="close" onClick={() => setModalVisible(false)}>
+            Close
+          </Button>,
+        ]}
       >
         <Table dataSource={selectedBatches} rowKey="batchNumber" bordered>
           <Table.Column
@@ -157,7 +175,7 @@ const VaccineList = () => {
       </Modal>
 
       {/* Modal Update Vaccine */}
-      <Modal
+      {/* <Modal
         title="Update Vaccine"
         open={updateModalVisible}
         onCancel={() => setUpdateModalVisible(false)}
@@ -174,7 +192,19 @@ const VaccineList = () => {
             <Button type="primary">Update</Button>
           </Form>
         )}
-      </Modal>
+      </Modal> */}
+      <UpdateVaccine
+        visible={updateModalVisible}
+        onClose={() => setUpdateModalVisible(false)}
+        vaccine={selectedVaccine}
+        onUpdateSuccess={fetchVaccines}
+      />
+
+      <AddVaccine
+        visible={addModalVisible}
+        onClose={() => setAddModalVisible(false)}
+        onAddSuccess={fetchVaccines} // Gọi lại API để cập nhật danh sách sau khi thêm thành công
+      />
     </div>
   );
 };
