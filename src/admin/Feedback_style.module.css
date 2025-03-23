@@ -6,11 +6,6 @@
   --border-radius: 15px;
   --shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
 }
-/* 
-body {
-    margin: 0;
-    padding: 0;
-  } */
 
 .feedback_container {
   margin-top: 0;
@@ -19,11 +14,12 @@ body {
   padding: 30px;
   background: linear-gradient(to right, #f7f2ff, #efe9ff);
   min-height: 100vh;
+  overflow: hidden;
 }
 
 .feedback_list {
   width: 40%;
-  max-height: 500px; 
+  height: 90vh; 
   overflow-y: auto; 
   background: linear-gradient(135deg, var(--pastel-purple), white);
   padding: 25px;
@@ -68,6 +64,7 @@ body {
 
 .feedback_detail {
   width: 60%;
+  height: 90vh; 
   background: white;
   padding: 25px;
   border-radius: var(--border-radius);
@@ -117,8 +114,7 @@ body {
     margin: 10px 0;
 }
 
-/* Xóa hover trên insights */
-.insights:hover {
+    .insights:hover {
     background: var(--pastel-purple);
     transform: none;
 }
@@ -131,14 +127,14 @@ body {
     padding: 8px 12px;
     margin: 5px;
     border: none;
-    background-color: #ddd;
+    background-color: white;
     cursor: pointer;
     border-radius: 5px;
     transition: 0.3s;
   }
   
   .filter_buttons button:hover {
-    background-color: #bbb;
+    background-color: white;
   }
   
   .filter_buttons button.active {
@@ -147,14 +143,56 @@ body {
     font-weight: bold;
   }
 
-@media (max-width: 768px) {
-  .feedback_container {
-    flex-direction: column;
-    padding: 20px;
-  }
-
-  .feedback_list,
-  .feedback_detail {
-    width: 100%;
-  }
+.insights_card {
+    background-color: var(--pastel-purple);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    text-align: center;
+    justify-content: center;
+    height: 90vh;
 }
+  
+  .insights_title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+  
+  .average_rating {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--primary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .rating_stats {
+    margin-top: 10px;
+  }
+  
+  .rating_row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  
+  .progress_bar {
+    flex: 1;
+    height: 8px;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .progress_fill {
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+  }
+  

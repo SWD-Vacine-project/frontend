@@ -2,13 +2,19 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { SearchOutlined } from "@ant-design/icons";
 import style from "./VaccineBatch_style.module.css";
-import { Table, Input, Tag } from "antd";
+import { Table, Input, Tag, Button } from "antd";
 import NavbarForStaff from "../../NavbarForStaff";
+import dayjs from "dayjs";
+import UpdateVaccineBatch from "./updateVaccineBatch";
+import AddVaccineBatch from "./addVaccineBatch";
 
 const VaccineBatch = () => {
   const [batches, setBatches] = useState([]);
   const [filteredBatches, setFilteredBatches] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState(null);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [addModalVisible, setAddModalVisible] = useState(false);
 
   useEffect(() => {
     fetchVaccineBatches();
@@ -26,28 +32,43 @@ const VaccineBatch = () => {
     }
   };
 
-  // Xử lý tìm kiếm theo Batch Number
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchText(value);
-
     const filtered = batches.filter((batch) =>
       batch.batchNumber?.toLowerCase().includes(value)
     );
-
     setFilteredBatches(filtered);
   };
 
-  // Lấy danh sách quốc gia duy nhất để tạo bộ lọc
+  const handleRowClick = (record) => {
+    setSelectedBatch(record);
+    setUpdateModalVisible(true);
+  };
+
+  // Lấy danh sách các quốc gia duy nhất từ dữ liệu
   const uniqueCountries = [...new Set(batches.map((batch) => batch.country))];
+
+  // Danh sách các trạng thái cố định
+  const statusFilters = [
+    { text: "Available", value: "Available" },
+    { text: "Out of Stock", value: "Out of Stock" },
+    { text: "Expired", value: "Expired" },
+  ];
 
   return (
     <div>
       <NavbarForStaff />
       <div className={style.container}>
         <h2>Vaccine Batch List</h2>
-
         <div className={style.toolbar}>
+          <Button
+            type="primary"
+            style={{ marginRight: 8 }}
+            onClick={() => setAddModalVisible(true)}
+          >
+            Add Vaccine Batch
+          </Button>
           <Input
             placeholder="Search by Batch Number..."
             value={searchText}
@@ -56,34 +77,29 @@ const VaccineBatch = () => {
             prefix={<SearchOutlined style={{ color: "rgba(0,0,0,0.45)" }} />}
           />
         </div>
-
-        <Table dataSource={filteredBatches} rowKey="batchNumber" bordered>
+        <Table
+          dataSource={filteredBatches}
+          rowKey="batchNumber"
+          bordered
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record),
+          })}
+        >
+          <Table.Column title="Batch Number" dataIndex="batchNumber" />
+          <Table.Column title="Manufacturer" dataIndex="manufacturer" />
           <Table.Column
-            title="Batch Number"
-            dataIndex="batchNumber"
-            key="batchNumber"
-          />
-          <Table.Column
-            title="Manufacturer"
-            dataIndex="manufacturer"
-            key="manufacturer"
-          />
-          <Table.Column
-            title="Manufucturer Date"
-            dataIndex="manufacturerDate"
-            key="manufacturerDate"
-            render={(date) => new Date(date).toLocaleDateString()}
+            title="Manufacture Date"
+            dataIndex="manufactureDate"
+            render={(date) => dayjs(date).format("YYYY-MM-DD")}
           />
           <Table.Column
             title="Expiry Date"
             dataIndex="expiryDate"
-            key="expiryDate"
-            render={(date) => new Date(date).toLocaleDateString()}
+            render={(date) => dayjs(date).format("YYYY-MM-DD")}
           />
           <Table.Column
             title="Country"
             dataIndex="country"
-            key="country"
             filters={uniqueCountries.map((country) => ({
               text: country,
               value: country,
@@ -93,12 +109,7 @@ const VaccineBatch = () => {
           <Table.Column
             title="Status"
             dataIndex="status"
-            key="status"
-            filters={[
-              { text: "Available", value: "Available" },
-              { text: "Out of Stock", value: "Out of Stock" },
-              { text: "Expired", value: "Expired" },
-            ]}
+            filters={statusFilters}
             onFilter={(value, record) => record.status === value}
             render={(status) => {
               let color =
@@ -112,6 +123,19 @@ const VaccineBatch = () => {
           />
         </Table>
       </div>
+
+      <UpdateVaccineBatch
+        visible={updateModalVisible}
+        onClose={() => setUpdateModalVisible(false)}
+        batch={selectedBatch}
+        onUpdateSuccess={fetchVaccineBatches}
+      />
+
+      <AddVaccineBatch
+        visible={addModalVisible}
+        onClose={() => setAddModalVisible(false)}
+        onAddSuccess={fetchVaccineBatches}
+      />
     </div>
   );
 };

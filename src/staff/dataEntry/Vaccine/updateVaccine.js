@@ -7,6 +7,7 @@ const UpdateVaccine = ({ visible, onClose, vaccine, onUpdateSuccess }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log("Vaccine data hehe:", vaccine);
     if (vaccine && visible) {
       form.setFieldsValue({
         name: vaccine.vaccineName || "",

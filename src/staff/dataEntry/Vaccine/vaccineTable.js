@@ -7,6 +7,7 @@ import UpdateVaccine from "./updateVaccine";
 import AddVaccine from "./addVaccine";
 import { useNavigate } from "react-router-dom";
 import NavbarForStaff from "../../NavbarForStaff";
+import LinkVaccineBatch from "./linkToBatch";
 
 const VaccineList = () => {
   const [vaccines, setVaccines] = useState([]);
@@ -17,6 +18,7 @@ const VaccineList = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedVaccine, setSelectedVaccine] = useState(null);
   const [addModalVisible, setAddModalVisible] = useState(false);
+  const [linkBatchModalVisible, setLinkBatchModalVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,11 +48,13 @@ const VaccineList = () => {
     }
   };
 
-  const showBatches = (batches) => {
+  const showBatches = (batches, record) => {
     if (!batches || batches.length === 0) {
+      setSelectedVaccine(record); // Cập nhật vaccine được chọn
       setNoBatchModalVisible(true);
       return;
     }
+    setSelectedVaccine(record); // Cập nhật vaccine được chọn
     setSelectedBatches(batches);
     setModalVisible(true);
   };
@@ -119,7 +123,8 @@ const VaccineList = () => {
               <Button
                 onClick={(e) => {
                   e.stopPropagation(); // Ngăn chặn mở modal update khi bấm View Batches
-                  showBatches(record.batches);
+                  showBatches(record.batches, record); // Truyền record vào hàm
+                  // showBatches(record.batches);
                 }}
               >
                 View Batches
@@ -137,7 +142,11 @@ const VaccineList = () => {
             <Button
               key="linkBatch"
               type="primary"
-              onClick={() => console.log("Link to batch")}
+              onClick={() => {
+                console.log("Selected vaccine link to batch:", selectedVaccine);
+                setLinkBatchModalVisible(true);
+                setModalVisible(false);
+              }}
             >
               Link to Batch
             </Button>,
@@ -179,7 +188,11 @@ const VaccineList = () => {
             <Button
               key="linkBatch"
               type="primary"
-              onClick={() => setNoBatchModalVisible(false)}
+              onClick={() => {
+                console.log("Selected vaccine link to batch:", selectedVaccine);
+                setLinkBatchModalVisible(true);
+                setModalVisible(false);
+              }}
             >
               Link to Batch
             </Button>,
@@ -202,6 +215,13 @@ const VaccineList = () => {
           visible={addModalVisible}
           onClose={() => setAddModalVisible(false)}
           onAddSuccess={fetchVaccines} // Gọi lại API để cập nhật danh sách sau khi thêm thành công
+        />
+
+        <LinkVaccineBatch
+          visible={linkBatchModalVisible}
+          onClose={() => setLinkBatchModalVisible(false)}
+          vaccine={selectedVaccine}
+          onLinkSuccess={() => fetchVaccines()}
         />
       </div>
     </div>

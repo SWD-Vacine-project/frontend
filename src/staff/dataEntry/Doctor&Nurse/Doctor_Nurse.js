@@ -11,7 +11,7 @@ const DoctorNurseCRUD = () => {
   const [dataSource, setDataSource] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const searchInput = useRef(null);
+  // const searchInput = useRef(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);

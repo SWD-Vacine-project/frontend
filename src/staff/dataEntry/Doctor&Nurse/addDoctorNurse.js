@@ -58,7 +58,7 @@ const AddDoctorNurse = ({ visible, onClose, reloadData }) => {
           ...formattedData,
           userName: userName.replace("ST_", ""), // Bỏ "ST-" khi gửi API
           role: "Nurse",
-          userName: userName,
+          // userName: userName,
           password: "password",
         };
 
