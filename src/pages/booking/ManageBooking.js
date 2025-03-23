@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Pagination } from "@mui/material";
-import { makeStyles } from "@mui/styles"; // Import makeStyles từ @mui/styles
+import { makeStyles } from "@mui/styles";
 import axios from "axios";
 import moment from "moment";
 import LoadingAnimation from "../../animation/loading-animation";
@@ -137,7 +137,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ManageBookings = () => {
-  const classes = useStyles(); // Sử dụng useStyles đã định nghĩa
+  const classes = useStyles();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -148,11 +148,17 @@ const ManageBookings = () => {
 
   // Hiển thị thông báo nếu có thông tin appointment mới được chuyển qua state
   useEffect(() => {
-    if (location.state && location.state.appointmentIds && location.state.appointmentDate) {
+    if (
+      location.state &&
+      location.state.appointmentIds &&
+      location.state.appointmentDate
+    ) {
       toast.success(
         `Appointment mới: ${location.state.appointmentIds.join(
           ", "
-        )} - Ngày: ${moment(location.state.appointmentDate).format("DD/MM/YYYY HH:mm")}`
+        )} - Ngày: ${moment(location.state.appointmentDate).format(
+          "DD/MM/YYYY HH:mm"
+        )}`
       );
     }
   }, [location.state]);
@@ -161,49 +167,62 @@ const ManageBookings = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // 1. Lấy invoices
         const invoicesResponse = await axios.get(
-          "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Invoice/get-invoices"
+          "https://vaccine-system1.azurewebsites.net/api/Invoice/get-invoices"
         );
         const sortedInvoices = invoicesResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
 
+        // 2. Lấy invoiceDetails
         const invoiceDetailsResponse = await axios.get(
-          "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/InvoiceDetail/get-invoice-details"
+          "https://vaccine-system1.azurewebsites.net/api/InvoiceDetail/get-invoice-details"
         );
         const sortedInvoiceDetails = invoiceDetailsResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
 
+        // 3. Lấy appointments
         const appointmentsResponse = await axios.get(
-          "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Appointment/get-appointments"
+          "https://vaccine-system1.azurewebsites.net/Appointment/get-appointments"
         );
         const sortedAppointments = appointmentsResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
 
+        // Kết hợp dữ liệu
         const combinedData = sortedInvoices.map((invoice) => {
-          const invoiceDetail = sortedInvoiceDetails.find(
+          // Lọc ra tất cả invoiceDetail của invoice này
+          const invoiceDetailsOfInvoice = sortedInvoiceDetails.filter(
             (detail) => detail.invoiceId === invoice.invoiceId
           );
-          let appointment;
-          if (invoiceDetail && invoiceDetail.appointmentId) {
-            appointment = sortedAppointments.find(
-              (app) => app.appointmentId === invoiceDetail.appointmentId
+
+          // Tìm appointment tương ứng cho mỗi invoiceDetail
+          const appointmentsOfInvoice = invoiceDetailsOfInvoice.map((detail) => {
+            if (!detail.appointmentId) return null;
+            return sortedAppointments.find(
+              (app) => app.appointmentId === detail.appointmentId
             );
-          }
-          if (!appointment) {
-            appointment = sortedAppointments.find(
-              (app) => app.customerId === invoice.customerId
-            );
-          }
+          });
+
+          // Loại bỏ các null (nếu có detail không có appointmentId)
+          const validAppointments = appointmentsOfInvoice.filter(Boolean);
+
+          // Tạo mảng appointmentId
+          const appointmentIds = validAppointments.map(
+            (app) => app.appointmentId
+          );
+          // Tạo mảng appointmentDate
+          const appointmentDates = validAppointments.map(
+            (app) => app.appointmentDate
+          );
+
           return {
             ...invoice,
-            appointmentId: appointment ? appointment.appointmentId : "N/A",
-            appointmentDate:
-              appointment && appointment.appointmentDate
-                ? appointment.appointmentDate
-                : "N/A",
+            // Thay vì lưu 1 appointmentId/Date, ta lưu mảng
+            appointmentIds,
+            appointmentDates,
           };
         });
 
@@ -219,6 +238,7 @@ const ManageBookings = () => {
     fetchData();
   }, []);
 
+  // Lọc invoices theo tab Paid/Unpaid
   const getCurrentInvoices = () => {
     if (currentTab === "Paid") {
       return invoices.filter((invoice) => invoice.status === "Paid");
@@ -229,6 +249,7 @@ const ManageBookings = () => {
     }
   };
 
+  // Tính toán phân trang
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
   const currentInvoices = getCurrentInvoices().slice(
@@ -284,49 +305,64 @@ const ManageBookings = () => {
                   <th className={classes.th}>Status</th>
                   <th className={classes.th}>Type</th>
                   <th className={classes.th}>Created At</th>
-                  <th className={classes.th}>Appointment ID</th>
-                  <th className={classes.th}>Appointment Date</th>
+                  {/* Cột Appointment IDs */}
+                  <th className={classes.th}>Appointment IDs</th>
+                  {/* Cột Appointment Dates */}
+                  <th className={classes.th}>Appointment Dates</th>
                 </tr>
               </thead>
               <tbody>
                 {currentInvoices.length > 0 ? (
-                  currentInvoices.map((invoice, index) => (
-                    <tr key={invoice.invoiceId} className={classes.tr}>
-                      <td className={classes.td}>
-                        {indexOfFirstBooking + index + 1}
-                      </td>
-                      <td className={classes.td}>{invoice.invoiceId}</td>
-                      <td className={classes.td}>{invoice.customerId}</td>
-                      <td className={classes.td}>{invoice.totalAmount}</td>
-                      <td
-                        className={`${classes.statusCell} ${
-                          invoice.status === "Paid"
-                            ? classes.statusPaid
-                            : classes.statusUnpaid
-                        }`}
-                      >
-                        {invoice.status}
-                      </td>
-                      <td className={classes.td}>{invoice.type}</td>
-                      <td className={classes.td}>
-                        {moment(invoice.createdAt).format("DD/MM/YYYY HH:mm")}
-                      </td>
-                      <td className={classes.td}>{invoice.appointmentId}</td>
-                      <td className={classes.td}>
-                        {invoice.appointmentDate &&
-                        invoice.appointmentDate !== "N/A" &&
-                        moment(
-                          invoice.appointmentDate,
-                          moment.ISO_8601,
-                          true
-                        ).isValid()
-                          ? moment(invoice.appointmentDate).format(
-                              "DD/MM/YYYY HH:mm"
+                  currentInvoices.map((invoice, index) => {
+                    // Mảng ID
+                    const { appointmentIds, appointmentDates } = invoice;
+
+                    // Chuyển ID thành chuỗi
+                    const appointmentIdsString =
+                      appointmentIds && appointmentIds.length > 0
+                        ? appointmentIds.join(", ")
+                        : "N/A";
+
+                    // Chuyển Date thành chuỗi
+                    const appointmentDatesString =
+                      appointmentDates && appointmentDates.length > 0
+                        ? appointmentDates
+                            .map((date) =>
+                              date && moment(date, moment.ISO_8601, true).isValid()
+                                ? moment(date).format("DD/MM/YYYY HH:mm")
+                                : "N/A"
                             )
-                          : "N/A"}
-                      </td>
-                    </tr>
-                  ))
+                            .join(", ")
+                        : "N/A";
+
+                    return (
+                      <tr key={invoice.invoiceId} className={classes.tr}>
+                        <td className={classes.td}>
+                          {indexOfFirstBooking + index + 1}
+                        </td>
+                        <td className={classes.td}>{invoice.invoiceId}</td>
+                        <td className={classes.td}>{invoice.customerId}</td>
+                        <td className={classes.td}>{invoice.totalAmount}</td>
+                        <td
+                          className={`${classes.statusCell} ${
+                            invoice.status === "Paid"
+                              ? classes.statusPaid
+                              : classes.statusUnpaid
+                          }`}
+                        >
+                          {invoice.status}
+                        </td>
+                        <td className={classes.td}>{invoice.type}</td>
+                        <td className={classes.td}>
+                          {moment(invoice.createdAt).format("DD/MM/YYYY HH:mm")}
+                        </td>
+                        {/* Hiển thị ID dưới dạng chuỗi */}
+                        <td className={classes.td}>{appointmentIdsString}</td>
+                        {/* Hiển thị Date dưới dạng chuỗi */}
+                        <td className={classes.td}>{appointmentDatesString}</td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td colSpan="9" className={classes.noData}>

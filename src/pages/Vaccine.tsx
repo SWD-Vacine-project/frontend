@@ -81,7 +81,7 @@ const VaccineComponent = () => {
   // Lock the selected child until the current purchase is complete.
   const [lockedChildId, setLockedChildId] = useState<number | null>(null);
   
-  const userData = localStorage.getItem("user");
+  const userData = sessionStorage.getItem("user");
   const user: User | null = userData ? JSON.parse(userData) : null;
   const customerId: number | undefined = user?.id;
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -92,7 +92,7 @@ const VaccineComponent = () => {
   const fetchSingleVaccines = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine", {
+      const response = await fetch("https://vaccine-system1.azurewebsites.net/api/Vaccine", {
         method: "GET",
         mode: "cors",
         headers: {
@@ -118,7 +118,7 @@ const VaccineComponent = () => {
   const fetchComboVaccines = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine/get-vaccine-combo", {
+      const response = await fetch("https://vaccine-system1.azurewebsites.net/api/Vaccine/get-vaccine-combo", {
         method: "GET",
         mode: "cors",
         headers: {
@@ -261,7 +261,7 @@ const VaccineComponent = () => {
   async function fetchLatestChildren(customerId: number): Promise<Child[]> {
     try {
       const response = await fetch(
-        `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Child/get-child/${customerId}`,
+        `https://vaccine-system1.azurewebsites.net/Child/get-child/${customerId}`,
         { method: "GET", headers: { "Content-Type": "application/json" } }
       );
       if (!response.ok) throw new Error(`Failed to fetch children: ${response.statusText}`);
@@ -555,7 +555,7 @@ const VaccineComponent = () => {
                   <span>{calculateTotal().toLocaleString()} VND</span>
                 </div>
                 <button onClick={() => {
-                  const user = localStorage.getItem("user");
+                  const user = sessionStorage.getItem("user");
                   if (!user) {
                     setShowLoginPopup(true);
                     setShowCart(false);

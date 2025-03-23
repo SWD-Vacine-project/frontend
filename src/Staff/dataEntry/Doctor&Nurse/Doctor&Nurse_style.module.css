@@ -1,0 +1,32 @@
+.container {
+    padding: 20px;
+    background-color: #f7f3ff; /* Pastel purple background */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    color: #6a0dad; /* Dark purple */
+    margin-bottom: 20px;
+  }
+  
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .searchBox {
+    width: 300px;
+  }
+  
+  .table {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+  }

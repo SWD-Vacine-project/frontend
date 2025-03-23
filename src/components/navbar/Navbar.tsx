@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
+    const userData = sessionStorage.getItem("user");
     if (userData) {
       try {
         const parsedUser = JSON.parse(userData);
@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
           setUserName(parsedUser.name);
         }
       } catch (error) {
-        console.error("Error parsing localStorage data:", error);
+        console.error("Error parsing Storage data:", error);
       }
     }
   }, []);
@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
     setUserName(null);
     window.location.href = "/";
   };
@@ -57,8 +57,8 @@ const Navbar: React.FC = () => {
   
 
   const menuItems = userName 
-    ? ['Schedule', 'Register for Vaccination', 'Children', 'Vaccine']
-    : ['About', 'Vaccine', 'Contact', 'Services'];
+    ? ['Schedule', 'Children', 'Vaccine','Contact']
+    : ['About', 'Vaccine', 'Register for Vaccination', 'Services'];
 
   return (
     <div style={styles.navbar}>

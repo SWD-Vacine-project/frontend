@@ -44,10 +44,10 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser = sessionStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-      console.log("User từ LocalStorage:", JSON.parse(storedUser));
+      console.log("User từ sessionStorage:", JSON.parse(storedUser));
     }
   }, []);
 
@@ -59,7 +59,7 @@ const UserProfile = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://vaccinesystem.azurewebsites.net/api/user/update",
+        "https://vaccine-system1.azurewebsites.net/Customer/update-customer/",
         {
           method: "PUT",
           headers: {
@@ -72,7 +72,7 @@ const UserProfile = () => {
       const data = await response.json();
       if (response.ok) {
         setUser(data); // Cập nhật UI với dữ liệu mới từ server
-        localStorage.setItem("user", JSON.stringify(data)); // Lưu lại vào localStorage
+        sessionStorage.setItem("user", JSON.stringify(data)); // Lưu lại vào sessionStorage
         toast.success("Profile updated successfully!");
       }
        else {

@@ -15,12 +15,22 @@ import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SchedulePage from "./Customer/Schedule";
 import UserProfile from "./Customer/User";
-import StaffCheckinPage from "./Staff/Checkin";
-import PaymentApprovalPage from "./Staff/ApprovePending";
+import StaffCheckinPage from "./Staff/Receptionist/Checkin";
+import PaymentApprovalPage from "./Staff/Receptionist/ApprovePending";
 import ProtectedRoute from "./components/auth/ProtectdRoute";
 import Book from "./pages/booking/book";
 import { BookingProvider } from "./components/context/BookingContext";
 import ManageBookings from "./pages/booking/ManageBooking";
+import ChildList from "./pages/child-info/childInfo";
+import RoleManagement from "./Admin/RoleManagement";
+import DataEntry from "./Staff/dataEntry/dataEntry";
+import VaccineList from "./Staff/dataEntry/Vaccine/vaccineTable";
+import DoctorNurseCRUD from "./Staff/dataEntry/Doctor&Nurse/Doctor_Nurse";
+import VaccinationProgress from "./Staff/Nurse/VaccinationProgress";
+import VaccinationReactions from "./Staff/Nurse/VaccinationReactions";
+
+
+
 
 const App: React.FC = () => {
   return (
@@ -46,7 +56,7 @@ const MainLayout: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(location.pathname);
 
   // Danh sách trang full-page (không có header và footer)
-  const fullPageRoutes = ["/signIn","/checkIn","/accept-appointments","/book/booking-confirm"];
+  const fullPageRoutes = ["/signIn","/checkIn","/accept-appointments","/book/booking-confirm","/roleManagement"];
   const isFullPage = fullPageRoutes.includes(location.pathname);
 
   useEffect(() => {
@@ -108,9 +118,24 @@ const MainLayout: React.FC = () => {
             <Route path="/vaccine" element={<VaccineComponent />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/services" element={<Services />} />
+
+            
             <Route path="/checkIn" element={<StaffCheckinPage />} />
             <Route path="/accept-appointments" element={< PaymentApprovalPage />} />
-            
+            <Route path="/children" element={<ChildList />} />
+
+            <Route path="/roleManagement" element={<RoleManagement />} />
+
+
+            <Route path="/dataEntry" element={<DataEntry />} />
+            <Route path="/vaccineStaff" element={<VaccineList />} />
+            <Route path="/doctor&Nurse" element={<DoctorNurseCRUD />} />
+
+
+            <Route path="/nurse/vaccination-progress" element={<VaccinationProgress />} /> 
+            <Route path="/nurse/vaccination-reactions" element={<VaccinationReactions />} />
+
+
             <Route 
               path="/userDashboard" 
               element={

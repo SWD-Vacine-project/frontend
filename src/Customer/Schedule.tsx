@@ -47,8 +47,8 @@ interface User {
   children: Child[];
 }
 
-const getUserFromLocalStorage = () => {
-  const userData = localStorage.getItem("user");
+const getUserFromsessionStorage = () => {
+  const userData = sessionStorage.getItem("user");
   return userData ? JSON.parse(userData) : null;
 };
 
@@ -59,7 +59,7 @@ const SchedulePage = () => {
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChild, setSelectedChild] = useState<number | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
-  const user = getUserFromLocalStorage();
+  const user = getUserFromsessionStorage();
   const calendarRef = useRef<FullCalendar>(null);
   const navigate = useNavigate();
 
@@ -67,7 +67,7 @@ const SchedulePage = () => {
     if (!user) return;
 
     // Fetch danh sách trẻ của user
-    fetch(`https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Child/get-child/${user.id}`)
+    fetch(`https://vaccine-system1.azurewebsites.net/Child/get-child/${user.id}`)
       .then(res => res.json())
       .then(setChildren)
       .catch(console.error);
@@ -75,7 +75,7 @@ const SchedulePage = () => {
 
   useEffect(() => {
     if (selectedChild) {
-      fetch(`https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Appointment/get-appointment-by-childid/${selectedChild}`)
+      fetch(`https://vaccine-system1.azurewebsites.net/Appointment/get-appointment-by-childid/${selectedChild}`)
         .then(res => {
           if (!res.ok) throw new Error('Lỗi tải lịch hẹn');
           return res.json();
@@ -151,7 +151,7 @@ const SchedulePage = () => {
   
     try {
       const response = await fetch(
-        `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Appointment/update-appointment-date/${selectedAppointment.appointmentId}`, 
+        `https://vaccine-system1.azurewebsites.net/Appointment/update-appointment-date/${selectedAppointment.appointmentId}`, 
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },

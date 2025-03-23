@@ -123,7 +123,7 @@ function SignIn() {
     
       const userEmail = email;
       setUserEmail(userEmail);
-      localStorage.setItem("email", userEmail);
+      sessionStorage.setItem("email", userEmail);
   
       toast.success("Login successfully. Wish you enjoy our best experience!", {
         autoClose: 2000,
@@ -156,7 +156,7 @@ function SignIn() {
     try {
         setLoading(true); // Hiển thị spinner
 
-        const response = await fetch("https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/auth/login", {
+        const response = await fetch("https://vaccine-system1.azurewebsites.net/api/auth/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -186,7 +186,7 @@ function SignIn() {
               console.log("Fetching children list...");
 
               const childResponse = await fetch(
-                `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Child/get-child/${data.id}`,{
+                `https://vaccine-system1.azurewebsites.net/Child/get-child/${data.id}`,{
                   method: "GET",
           mode: "cors",
           headers: {
@@ -203,8 +203,8 @@ function SignIn() {
               }
             }
             console.log("Final userData before saving:", userData);
-          localStorage.setItem("user", JSON.stringify(userData));
-          console.log("Saved to localStorage:", localStorage.getItem("user"));
+            sessionStorage.setItem("user", JSON.stringify(userData));
+          console.log("Saved to localStorage:", sessionStorage.getItem("user"));
 
             // Điều hướng đến trang dashboard hoặc trang chính
             if (data.role === "Staff") {

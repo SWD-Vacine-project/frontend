@@ -1,11 +1,20 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { makeStyles } from "@mui/styles";
-import { TextField, Button, Typography, Paper, Link, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
-import { BookingContext } from "../../components/context/BookingContext";
+import {
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Link,
+  MenuItem,
+  Select,
+  FormControl,
+} from "@mui/material";
+import { useLocation } from "react-router-dom";
+import moment from "moment";
 
-// Tạo styles với makeStyles
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles<any>(() => ({
   root: {
     display: "flex",
     justifyContent: "center",
@@ -53,72 +62,118 @@ const useStyles = makeStyles(() => ({
 
 const PaymentForm: React.FC = () => {
   const classes = useStyles();
-  const { selectedServices, selectedDateTime } = useContext(BookingContext); // Lấy thông tin từ context
-  const [paymentMethod, setPaymentMethod] = useState<string>("cash"); // Mặc định là tiền mặt
+  const location = useLocation();
+
+  // Lấy dữ liệu từ state (BookingConfirm phải truyền appointmentId, không phải appointmentIds)
+  const {
+    appointmentDate,
+    appointmentIds, // Nếu Combo
+    appointmentId,  // Nếu Single
+    totalAmount,
+    customerId,
+    type,
+    cartItems
+  } = location.state || {};
+
+  // Mặc định chọn tiền mặt
+  const [paymentMethod, setPaymentMethod] = useState<string>("cash");
   const [paymentUrl, setPaymentUrl] = useState<string>("");
 
-  const API_BASE_URL = "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net";
+  const API_BASE_URL =
+    "https://vaccine-system1.azurewebsites.net";
 
-  // Tính toán TotalAmount từ selectedServices
-  const totalAmount = "13975";
+  // Nếu không truyền totalAmount thì fallback là "0"
+  const finalTotalAmount = totalAmount || "0";
 
-  // Lấy thông tin CustomerId từ context hoặc localStorage
-  const customerId = 22; // Thay bằng giá trị thực tế
-
-  // Xác định Type dựa trên logic của bạn
-  const type = selectedServices.length > 1 ? "Combo" : "Single";
-
-  // Tạo CreatedAt và UpdatedAt
+  // Tạo thời gian theo giờ Việt Nam (UTC+7)
   const createdAt = new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString();
   const updatedAt = new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString();
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
     try {
-      // Tạo invoice với trạng thái phù hợp
+      // Xác định invoiceStatus dựa vào paymentMethod (nếu server cần)
       const invoiceStatus = paymentMethod === "cash" ? "Unpaid" : "Pending";
-  
+
+      // 1. Tạo Invoice
       const invoiceResponse = await axios.post(`${API_BASE_URL}/api/Invoice/create-invoice`, {
-        CustomerId: customerId,
-        TotalAmount: totalAmount,
-        Type: type,
-        Status: invoiceStatus,
-        CreatedAt: createdAt,
-        UpdatedAt: updatedAt,
+        customerId: customerId,
+        totalAmount: finalTotalAmount,
+        type: type,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        // Nếu server yêu cầu status, thêm: status: invoiceStatus,
       });
-  
+
       if (invoiceResponse.status === 200) {
         const createdInvoice = invoiceResponse.data;
-        const invoiceId = createdInvoice.invoiceId; // Lấy invoiceId từ phản hồi
-  
+        const invoiceId = createdInvoice.invoiceId;
+        console.log("Created invoiceId:", invoiceId);
+
+        // 2. Tạo InvoiceDetail (liên kết invoiceId với appointmentId)
+       // Sau khi tạo Invoice thành công (và có invoiceId):
+if (cartItems && cartItems.length > 0) {
+  for (const item of cartItems) {
+    // Nếu đây là vaccine đơn
+    if ("vaccineId" in item.vaccine && item.vaccine.vaccineId) {
+      // Sử dụng appointmentId duy nhất (được truyền từ BookingConfirm)
+      if (appointmentId) {
+        await axios.post(`${API_BASE_URL}/api/InvoiceDetail/create-invoice-detail`, {
+          invoiceId: invoiceId,
+          appointmentId: appointmentId,  // appointmentId duy nhất cho vaccine đơn
+          vaccineId: item.vaccine.vaccineId,
+          comboId: null,  // hoặc để 0/null nếu không áp dụng
+          quantity: item.selectedChildren.length, // số lượng trẻ (hoặc số lượng đặt lịch)
+          price: item.vaccine.price,
+        });
+      }
+    } 
+    // Nếu đây là combo vaccine
+    else if ("comboId" in item.vaccine && item.vaccine.comboId) {
+      // Nếu có mảng appointmentIds được truyền (cho combo)
+      if (appointmentIds && appointmentIds.length > 0) {
+        // Lặp qua từng appointmentId và tạo InvoiceDetail cho mỗi cái
+        for (const appId of appointmentIds) {
+          await axios.post(`${API_BASE_URL}/api/InvoiceDetail/create-invoice-detail`, {
+            invoiceId: invoiceId,
+            appointmentId: appId,
+            vaccineId: null,  // hoặc 0/null nếu không áp dụng
+            comboId: item.vaccine.comboId,
+            quantity: item.selectedChildren.length,
+            price: item.vaccine.price,
+          });
+        }
+      }
+    }
+  }
+}
+
+
+        // 3. Xử lý thanh toán
         if (paymentMethod === "vnpay") {
-          // Nếu chọn VNPay, tạo URL thanh toán
-          const paymentResponse = await axios.get(`${API_BASE_URL}/VnPay/CreatePaymentUrl`, {
+          const paymentResponse = await axios.get(`https://vaccine-system1.azurewebsites.net/VnPay/CreatePaymentUrl`, {
             params: {
-              moneyToPay: totalAmount,
+              moneyToPay: finalTotalAmount,
               description: `Payment for invoice ${invoiceId}`,
               invoiceId,
-              returnUrl: `http://localhost:3000/book/payment-result`, // URL để VNPay chuyển hướng sau khi thanh toán
+              returnUrl: `http://localhost:3000/book/payment-result`,
             },
           });
           console.log("VNPay response:", paymentResponse.data);
-  
+
           if (paymentResponse.status === 201) {
             setPaymentUrl(paymentResponse.data);
-            window.location.href = paymentResponse.data; // Chuyển hướng đến URL thanh toán
+            window.location.href = paymentResponse.data;
           }
         } else {
-          // Nếu chọn tiền mặt, hiển thị thông báo thành công
-          alert(`Invoice created successfully. Invoice ID: ${invoiceId}. Payment method: Cash.`);
-          const redirectUrl = `http://localhost:3000/book/payment-result?method=cash&amount=${totalAmount}&invoiceId=${invoiceId}`;
+          alert(`Invoice created successfully. ID: ${invoiceId}, Payment method: Cash.`);
+          const redirectUrl = `http://localhost:3000/book/payment-result?method=cash&amount=${finalTotalAmount}&invoiceId=${invoiceId}`;
           window.location.href = redirectUrl;
         }
       }
     } catch (error) {
-      console.error("Error creating payment URL:", error);
-      alert("Failed to create payment URL. Please try again.");
+      console.error("Error creating invoice or invoice detail:", error);
+      alert("Failed to create invoice. Please check console for details.");
     }
   };
 
@@ -131,19 +186,40 @@ const PaymentForm: React.FC = () => {
         <form onSubmit={handleSubmit} className={classes.form}>
           <TextField
             label="Customer ID"
-            value={customerId}
+            value={customerId || ""}
             className={`${classes.input} ${classes.disabledInput}`}
             disabled
           />
           <TextField
             label="Total Amount (VND)"
-            value={totalAmount}
+            value={finalTotalAmount}
             className={`${classes.input} ${classes.disabledInput}`}
             disabled
           />
           <TextField
             label="Type"
-            value={type}
+            value={type || ""}
+            className={`${classes.input} ${classes.disabledInput}`}
+            disabled
+          />
+          {/* Hiển thị Appointment ID duy nhất */}
+          <TextField
+  label="Appointment ID"
+  value={
+    appointmentIds && appointmentIds.length > 0
+      ? appointmentIds.join(", ")
+      : appointmentId ? appointmentId.toString() : "N/A"
+  }
+  className={`${classes.input} ${classes.disabledInput}`}
+  disabled
+/>
+          <TextField
+            label="Appointment Date"
+            value={
+              appointmentDate
+                ? moment(appointmentDate).format("DD/MM/YYYY HH:mm")
+                : "N/A"
+            }
             className={`${classes.input} ${classes.disabledInput}`}
             disabled
           />
@@ -160,7 +236,9 @@ const PaymentForm: React.FC = () => {
             disabled
           />
           <FormControl>
-            <h1 style={{ fontSize: "14px", textAlign: "center" }}>Payment Method</h1>
+            <Typography style={{ fontSize: "14px", textAlign: "center" }}>
+              Payment Method
+            </Typography>
             <Select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value as string)}

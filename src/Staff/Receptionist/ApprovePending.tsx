@@ -11,6 +11,7 @@ interface Appointment {
   customerId: number;
   childId: number;
   vaccineType: string;
+  vaccineId: number;
   appointmentDate: string;
   status: string;
   notes: string;
@@ -32,19 +33,23 @@ const ApprovePendingPage = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  
+  // State for modal and batch data
+  const [modalOpen, setModalOpen] = useState(false);
+  const [batchData, setBatchData] = useState<any>(null);
+  const [isLoadingBatch, setIsLoadingBatch] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
     fetchPendingAppointments();
   }, []);
 
   useEffect(() => {
-    // Kiểm tra user và vai trò
-    const storedUser = localStorage.getItem("user");
+    const storedUser = sessionStorage.getItem("user");
     if (!storedUser) {
       navigate("/signIn");
       return;
     }
-
     try {
       const parsedUser: User = JSON.parse(storedUser);
       if (parsedUser.role !== "Staff") {
@@ -54,7 +59,7 @@ const ApprovePendingPage = () => {
       }
     } catch (error) {
       console.error("Error parsing user data:", error);
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
       navigate("/signIn");
     }
   }, [navigate]);
@@ -63,7 +68,7 @@ const ApprovePendingPage = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Appointment/get-appointment-pending"
+        "https://vaccine-system1.azurewebsites.net/Appointment/get-appointment-pending"
       );
       if (!response.ok) throw new Error("Failed to load pending appointments");
       const data = await response.json();
@@ -75,61 +80,63 @@ const ApprovePendingPage = () => {
     }
   };
 
-  const handleApprove = async (id: number) => {
+  // When clicking Confirm, open the modal (centered) and call API to get batch data
+  const handleConfirmClick = async (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setModalOpen(true);
+    setIsLoadingBatch(true);
+    try {
+      const url = `https://vaccine-system1.azurewebsites.net/VaccineBatch/get-batch-by-vaccineID/${appointment.vaccineId}/${appointment.appointmentDate}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to load vaccine batch data");
+      const data = await response.json();
+      setBatchData(data);
+    } catch (err) {
+      setBatchData(null);
+    } finally {
+      setIsLoadingBatch(false);
+    }
+  };
+
+  // Approve the appointment
+  const handleApproval = async (id: number, batchNumber: number) => {
     try {
       const response = await fetch(
-        `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Appointment/Approved-status-appointment/${id}`,
-        {
-          method: "PUT",
-        }
+        `https://vaccine-system1.azurewebsites.net/Appointment/Approved-status-appointment/${id}/${batchNumber}`,
+        { method: "PUT" }
       );
       if (!response.ok) throw new Error("Failed to approve appointment");
-      // Loại bỏ lịch đã phê duyệt khỏi danh sách
       setAppointments(appointments.filter((apt) => apt.appointmentId !== id));
+      setModalOpen(false);
     } catch (err) {
       setError("Approval failed. Please try again.");
     }
   };
 
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setBatchData(null);
+    setSelectedAppointment(null);
+  };
+
   const GlassNavbar = () => (
-    <motion.nav
-      style={styles.glassNavbar}
-      initial={{ y: -50 }}
-      animate={{ y: 0 }}
-    >
+    <motion.nav style={styles.glassNavbar} initial={{ y: -50 }} animate={{ y: 0 }}>
       <div style={{ display: "flex", gap: "20px" }}>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          style={styles.navButton}
-          onClick={() => navigate("/checkIn")}
-        >
+        <motion.button whileHover={{ scale: 1.05 }} style={styles.navButton} onClick={() => navigate("/checkIn")}>
           🔖 Check-in
         </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          style={styles.navButton}
-          onClick={() => navigate("/accept-appointments")}
-        >
+        <motion.button whileHover={{ scale: 1.05 }} style={styles.navButton} onClick={() => navigate("/accept-appointments")}>
           ✅ Appointments
         </motion.button>
       </div>
-
       <div style={{ position: "relative" }}>
-        <motion.div
-          style={styles.avatarContainer}
-          whileHover={{ scale: 1.05 }}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
+        <motion.div style={styles.avatarContainer} whileHover={{ scale: 1.05 }} onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {user?.name ? (
-            <div style={styles.avatarText}>
-              {user.name.charAt(0).toUpperCase()}
-            </div>
+            <div style={styles.avatarText}>{user.name.charAt(0).toUpperCase()}</div>
           ) : (
             <FaUserCircle size={32} />
           )}
         </motion.div>
-
         <AnimatePresence>{isMenuOpen && <UserMenu />}</AnimatePresence>
       </div>
     </motion.nav>
@@ -146,17 +153,13 @@ const ApprovePendingPage = () => {
         <FaUserCircle size={32} />
         <div>
           <h4 style={{ margin: 0 }}>{user?.name || "Receptionist"}</h4>
-          <p style={{ margin: 0, fontSize: "0.8em", color: "#666" }}>
-            {user?.email}
-          </p>
+          <p style={{ margin: 0, fontSize: "0.8em", color: "#666" }}>{user?.email}</p>
         </div>
       </div>
-
       <div style={styles.menuItem} onClick={() => navigate("/profile")}>
         <FiUser size={18} />
         <span>Profile</span>
       </div>
-
       <div style={styles.menuItem} onClick={handleLogout}>
         <FaSignOutAlt size={18} />
         <span>Logout</span>
@@ -165,7 +168,7 @@ const ApprovePendingPage = () => {
   );
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
     navigate("/signIn");
   };
 
@@ -176,9 +179,7 @@ const ApprovePendingPage = () => {
       late: "#ff634733",
       approved: "#2ecc7133",
     };
-
     const normalizedStatus = status.toLowerCase().trim();
-
     return (
       <div
         style={{
@@ -195,27 +196,16 @@ const ApprovePendingPage = () => {
   return (
     <div style={styles.container}>
       <GlassNavbar />
-      <motion.h1
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        style={styles.header}
-      >
+      <motion.h1 initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} style={styles.header}>
         🚀 Pending Approvals
       </motion.h1>
-
       <AnimatePresence>
         {error && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            style={styles.error}
-          >
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} style={styles.error}>
             <FiAlertCircle /> {error}
           </motion.div>
         )}
       </AnimatePresence>
-
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -225,76 +215,47 @@ const ApprovePendingPage = () => {
       >
         <FiRefreshCw
           size={20}
-          style={{
-            transform: isLoading ? "rotate(360deg)" : "none",
-            transition: "transform 0.6s linear",
-          }}
+          style={{ transform: isLoading ? "rotate(360deg)" : "none", transition: "transform 0.6s linear" }}
         />
         {isLoading ? "Updating..." : "Refresh List"}
       </motion.button>
-
       {isLoading ? (
         <div style={styles.skeletonGrid}>
           {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0.5 }}
-              animate={{ opacity: 1 }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              style={styles.skeletonCard}
-            />
+            <motion.div key={i} initial={{ opacity: 0.5 }} animate={{ opacity: 1 }} transition={{ repeat: Infinity, duration: 1.5 }} style={styles.skeletonCard} />
           ))}
         </div>
       ) : (
         <div style={styles.cardContainer}>
           {appointments.map((apt) => (
-            <motion.div
-              key={apt.appointmentId}
-              style={styles.card}
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
+            <motion.div key={apt.appointmentId} style={styles.card} whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 300 }}>
               <div style={styles.cardHeader}>
-                <span style={styles.vaccineTag}>
-                  💉 {apt.vaccineType?.trim() || "Unknown Vaccine"}
-                </span>
-                <span style={styles.appointmentId}>
-                  ID: {apt.appointmentId}
-                </span>
+                <span style={styles.vaccineTag}>💉 {apt.vaccineType?.trim() || "Unknown Vaccine"}</span>
+                <span style={styles.appointmentId}>ID: {apt.appointmentId}</span>
                 <StatusPill status={apt.status} />
               </div>
-
               <div style={styles.cardBody}>
                 <div style={styles.infoGroup}>
                   <div style={styles.infoItem}>
                     <FiCalendar size={18} />
-                    <span style={styles.infoText}>
-                      {format(new Date(apt.appointmentDate), "dd/MM/yyyy HH:mm")}
-                    </span>
+                    <span style={styles.infoText}>{format(new Date(apt.appointmentDate), "dd/MM/yyyy HH:mm")}</span>
                   </div>
                   <div style={styles.infoItem}>
-                    <span style={styles.infoText}>
-                      Customer ID: {apt.customerId}
-                    </span>
+                    <span style={styles.infoText}>Customer ID: {apt.customerId}</span>
                   </div>
                   <div style={styles.infoItem}>
-                    <span style={styles.infoText}>
-                      Child ID: {apt.childId}
-                    </span>
+                    <span style={styles.infoText}>Child ID: {apt.childId}</span>
                   </div>
                   <div style={styles.infoItem}>
                     <FiFileText size={18} />
-                    <span style={styles.infoText}>
-                      {apt.notes?.trim() || "No additional notes"}
-                    </span>
+                    <span style={styles.infoText}>{apt.notes?.trim() || "No additional notes"}</span>
                   </div>
                 </div>
-
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   style={styles.checkInButton}
-                  onClick={() => handleApprove(apt.appointmentId)}
+                  onClick={() => handleConfirmClick(apt)}
                 >
                   <FiCheckCircle size={18} />
                   <span>Confirm</span>
@@ -304,6 +265,91 @@ const ApprovePendingPage = () => {
           ))}
         </div>
       )}
+      {/* Modal with dark overlay and centered modal */}
+      <AnimatePresence>
+        {modalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={styles.modalOverlay}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              style={styles.modalContent}
+            >
+              <div style={styles.modalHeaderContainer}>
+                <h2 style={styles.modalHeader}>Vaccine Batch Information</h2>
+                <button style={styles.modalCloseButton} onClick={handleModalClose}>
+                  &times;
+                </button>
+              </div>
+              <div style={styles.modalBody}>
+                {isLoadingBatch ? (
+                  <div style={styles.loaderContainer}>
+                    <BeatLoader color="#4a3aff" />
+                  </div>
+                ) : batchData && batchData.length > 0 ? (
+                  <div style={styles.detailsContainer}>
+                    {batchData.map((batch: any, index: number) => (
+                      <div key={index} style={styles.detailCard}>
+                        <div style={styles.detailRow}>
+                          <span style={styles.detailLabel}>Batch Number:</span>
+                          <span style={styles.detailValue}>{batch.batchNumber}</span>
+                        </div>
+                        <div style={styles.detailRow}>
+                          <span style={styles.detailLabel}>Vaccine Name:</span>
+                          <span style={styles.detailValue}>{batch.vaccineName}</span>
+                        </div>
+                        <div style={styles.detailRow}>
+                          <span style={styles.detailLabel}>Description:</span>
+                          <span style={styles.detailValue}>{batch.description}</span>
+                        </div>
+                        <div style={styles.detailRow}>
+                          <span style={styles.detailLabel}>Price:</span>
+                          <span style={styles.detailValue}>{batch.price}</span>
+                        </div>
+                        <div style={styles.detailRow}>
+                          <span style={styles.detailLabel}>Quantity:</span>
+                          <span style={styles.detailValue}>{batch.quantity}</span>
+                        </div>
+                        <div style={styles.detailRow}>
+                          <span style={styles.detailLabel}>Pre-order Quantity:</span>
+                          <span style={styles.detailValue}>{batch.preOrderQuantity}</span>
+                        </div>
+                        <div style={styles.detailRow}>
+                          <span style={styles.detailLabel}>Expiry Date:</span>
+                          <span style={styles.detailValue}>{batch.expiryDate}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={styles.modalText}>No data available.</p>
+                )}
+              </div>
+              <div style={styles.modalActions}>
+                <button style={styles.cancelButton} onClick={handleModalClose}>
+                  Cancel
+                </button>
+                {selectedAppointment && batchData && batchData.length > 0 && (
+                  <button
+                    style={styles.approveButton}
+                    onClick={() =>
+                      handleApproval(selectedAppointment.appointmentId, batchData[0].batchNumber)
+                    }
+                  >
+                    Approve
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -500,6 +546,111 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "8px",
     cursor: "pointer",
     transition: "background 0.2s",
+  },
+  // Modal overlay darkens the background
+  modalOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    zIndex: 200,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "20px",
+  },
+  modalContent: {
+    background: "#fff",
+    borderRadius: "12px",
+    width: "90%",
+    maxWidth: "600px",
+    padding: "30px",
+    boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+  },
+  modalHeaderContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottom: "1px solid #ddd",
+    paddingBottom: "15px",
+    marginBottom: "20px",
+  },
+  modalHeader: {
+    margin: 0,
+    fontSize: "24px",
+    color: "#4a3aff",
+  },
+  modalCloseButton: {
+    background: "transparent",
+    border: "none",
+    fontSize: "28px",
+    lineHeight: "1",
+    cursor: "pointer",
+    color: "#999",
+  },
+  modalBody: {
+    marginBottom: "20px",
+  },
+  loaderContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "100px",
+  },
+  detailsContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  },
+  detailCard: {
+    background: "#f9f9f9",
+    padding: "15px",
+    borderRadius: "8px",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+  },
+  detailRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: "8px",
+  },
+  detailLabel: {
+    fontWeight: "bold",
+    color: "#555",
+  },
+  detailValue: {
+    color: "#333",
+  },
+  modalText: {
+    fontSize: "16px",
+    color: "#555",
+    textAlign: "center",
+  },
+  modalActions: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "15px",
+  },
+  cancelButton: {
+    backgroundColor: "#ccc",
+    color: "#333",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "background 0.3s",
+  },
+  approveButton: {
+    backgroundColor: "#4a3aff",
+    color: "#fff",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "background 0.3s",
   },
 };
 

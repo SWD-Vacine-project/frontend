@@ -19,14 +19,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole, 
   children 
 }) => {
-  const storedUser = localStorage.getItem("user");
+  const storedUser = sessionStorage.getItem("user");
   let user: User | null = null;
 
   try {
     user = storedUser ? JSON.parse(storedUser) : null;
   } catch (error) {
     console.error("Error parsing user data:", error);
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
   }
 
   if (!user) {

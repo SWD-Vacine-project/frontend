@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -165,8 +165,8 @@ const CancelButton = styled.button`
 // Interfaces
 interface CartItem {
   vaccine: {
-    vaccineId?: number; // Dành cho single vaccine
-    comboId?: number; // Dành cho combo vaccine
+    vaccineId?: number; // For single vaccine
+    comboId?: number; // For combo vaccine
     name?: string;
     comboName?: string;
     price: number;
@@ -199,8 +199,30 @@ const BookingConfirm = () => {
   const [showModal, setShowModal] = useState(false);
   const state = location.state as BookingConfirmState;
   const { date, time, cartItems } = state || {};
+  const [appointmentDateISO, setAppointmentDateISO] = useState<string>("");
+
+
+  useEffect(() => {
+    if (date && time) {
+      const d = new Date(date);
+      const [hours, minutes] = time.split(":");
+      d.setHours(Number(hours), Number(minutes), 0, 0);
   
-  // Mở và đóng modal
+      // Tính localTime
+      const localTime = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  
+      // Bỏ phần mili-giây và 'Z'
+      const isoString = localTime.toISOString().slice(0, 19);
+  
+      setAppointmentDateISO(isoString);
+    } else {
+      // Không có date/time thì để trống
+      setAppointmentDateISO("");
+    }
+  }, [date, time]);
+  
+
+  // Open and close modal
   const openModal = () => {
     setShowModal(true);
   };
@@ -211,34 +233,37 @@ const BookingConfirm = () => {
   const confirmModal = async () => {
     setShowModal(false);
     if (!cartItems || cartItems.length === 0) return;
-    
-    const storedUser = localStorage.getItem("user");
+  
+    const storedUser = sessionStorage.getItem("user");
     if (!storedUser) {
       toast.error("Bạn cần đăng nhập!");
       return;
     }
     const user = JSON.parse(storedUser);
     const customerId = user.id;
-    
-    // Tính toán appointmentDate theo định dạng ISO
-    let appointmentDateISO;
+  
+    // Tính appointmentDate theo định dạng ISO
+    let appointmentDateISO: string;
     if (date && time) {
       const d = new Date(date);
       const [hours, minutes] = time.split(":");
       d.setHours(Number(hours), Number(minutes), 0, 0);
-      appointmentDateISO = d.toISOString();
+      const localTime = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      appointmentDateISO = localTime.toISOString().slice(0, 19);
     } else {
-      appointmentDateISO = new Date().toISOString();
+      const now = new Date();
+      const localTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+      appointmentDateISO = localTime.toISOString().slice(0, 19);
     }
-    
-    // Tạo danh sách promise cho từng appointment (một cartItem có thể chứa nhiều trẻ)
+  
+    // Tạo danh sách Promise cho mỗi appointment
     const promises = [];
     for (const item of cartItems) {
       for (const child of item.selectedChildren) {
         let payload;
         let endpoint;
         if (item.vaccine.vaccineId !== undefined) {
-          // Single vaccine
+          // Vaccine đơn
           payload = {
             customerId,
             childId: child.childId,
@@ -247,9 +272,9 @@ const BookingConfirm = () => {
             notes: "Đặt lịch từ hệ thống",
           };
           endpoint =
-            "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Appointment/create-appointment";
+            "https://vaccine-system1.azurewebsites.net/Appointment/create-appointment";
         } else if (item.vaccine.comboId !== undefined) {
-          // Combo vaccine
+          // Vaccine combo
           payload = {
             customerId,
             childId: child.childId,
@@ -258,51 +283,128 @@ const BookingConfirm = () => {
             notes: "Đặt lịch từ hệ thống",
           };
           endpoint =
-            "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Appointment/create-appointment-combo";
-          console.log("Combo payload:", payload);
+            "https://vaccine-system1.azurewebsites.net/Appointment/create-appointment-combo";
         } else {
           continue;
         }
+  
         if (endpoint) {
+          // Mỗi fetch được bọc trong một Promise xử lý riêng
           promises.push(
             fetch(endpoint, {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload),
             })
           );
         }
       }
     }
-    
+  
     try {
-      const responses = await Promise.all(promises);
-      // Kiểm tra từng response và phân tích dữ liệu JSON trả về
+      // Dùng Promise.allSettled để thu thập kết quả tất cả request
+      const results = await Promise.allSettled(promises);
+  
+      // Với mỗi request, nếu "fulfilled" thì kiểm tra res.ok
       const responsesData = await Promise.all(
-        responses.map(async (res) => {
-          if (!res.ok) {
-            throw new Error(`Lỗi: ${res.status}`);
+        results.map(async (result) => {
+          if (result.status === "fulfilled") {
+            const res = result.value;
+            if (!res.ok) {
+              // Nếu res không ok, đọc text để debug
+              const errorText = await res.text();
+              console.error("Error from server:", errorText);
+              return { error: `Lỗi HTTP ${res.status}: ${errorText}` };
+            }
+            return await res.json();
+          } else {
+            // Request bị lỗi (kết nối, v.v.)
+            return { error: result.reason };
           }
-          return res.json();
         })
       );
-      // Giả sử mỗi API trả về đối tượng có field appointmentId
-      const appointmentIds = responsesData.map((data) => data.appointmentId);
-      
+  
+      console.log("responsesData:", responsesData);
+  
+      // Kiểm tra có lỗi trong responsesData hay không
+      const errors = responsesData.filter((data) => data && data.error);
+      if (errors.length > 0) {
+        console.warn("Một số request không thành công:", errors);
+        toast.error("Một số appointment không được tạo thành công. Vui lòng kiểm tra lại.");
+      }
+  
+      // Lấy các response thành công
+      const successResponses = responsesData.filter((data) => !data.error);
+      if (!successResponses || successResponses.length === 0) {
+        return;
+      }
+  
+      // Kiểm tra message từ API thay vì status
+      // Nếu có message chứa "chờ xác nhận" thì thông báo và không tiến hành thanh toán
+      const pendingResponses = successResponses.filter(
+        (response) => response.message && response.message.includes("chờ xác nhận")
+      );
+      if (pendingResponses.length > 0) {
+        toast.info(
+          "Một số lịch hẹn đang chờ xác nhận từ nhân viên. Vui lòng đợi xác nhận trước khi tiến hành thanh toán."
+        );
+        return;
+      }
+  
+      // Nếu không có message nào báo "chờ xác nhận", tiến hành xử lý theo Combo hay Single
+      if (cartItems && cartItems[0]?.vaccine?.comboId) {
+        // Lấy tất cả appointmentId từ response combo
+        const allAppointments = successResponses.flatMap((item: any) => item.appointments || []);
+        const appointmentIds = allAppointments.map((app: any) => app.appointmentId);
+        console.log("Combo appointmentIds:", appointmentIds);
+  
+        // Chuyển hướng sang PaymentForm
+        navigate("/book/payment-form", {
+          state: {
+            appointmentDate: appointmentDateISO,
+            appointmentIds,
+            totalAmount: calculateTotal(),
+            customerId,
+            type: "Combo",
+            cartItems,
+          },
+        });
+      } else {
+        // Trường hợp Single (mỗi response có 'appointment')
+        const firstSuccess = successResponses.find((item: any) => item.appointment);
+        if (!firstSuccess) {
+          return;
+        }
+        const appointmentId = firstSuccess.appointment.appointmentId;
+        console.log("Single appointmentId:", appointmentId);
+  
+        // Chuyển hướng sang PaymentForm
+        navigate("/book/payment-form", {
+          state: {
+            appointmentDate: appointmentDateISO,
+            appointmentId,
+            totalAmount: calculateTotal(),
+            customerId,
+            type: "Single",
+            cartItems,
+          },
+        });
+      }
+  
       toast.success(`Tạo appointment thành công! Ngày giờ: ${appointmentDateISO}`);
-      // Truyền thêm appointmentIds qua state
-      navigate("/book/payment-form", { state: { appointmentDate: appointmentDateISO, appointmentIds } });
     } catch (error) {
       console.error("Lỗi tạo appointment:", error);
-      toast.error("Lịch sẽ được staff duyệt vì không đủ vaccine trong kho");
+      toast.error("Đã xảy ra lỗi, vui lòng thử lại sau.");
     }
   };
   
-  
+    
+    
+
   
 
+
+  
   const calculateAge = (dob: string) => {
     const birthDate = new Date(dob);
     const diff = Date.now() - birthDate.getTime();
@@ -328,7 +430,7 @@ const BookingConfirm = () => {
         ) : (
           <>
             <ContentRow>
-              {/* Thông tin trẻ em */}
+              {/* Child Information */}
               <Section>
                 <Title>👶 Thông tin Trẻ em</Title>
                 {cartItems?.map((item: CartItem, index: number) => (
@@ -359,7 +461,7 @@ const BookingConfirm = () => {
                 ))}
               </Section>
 
-              {/* Thông tin vaccine và thanh toán */}
+              {/* Vaccine and Payment Information */}
               <Section>
                 <Title>💊 Thông tin Đặt lịch</Title>
                 <div
@@ -369,24 +471,26 @@ const BookingConfirm = () => {
                     borderRadius: "10px",
                   }}
                 >
-                  <Text>
-                    📅 Ngày tiêm:{" "}
-                    {date ? moment(date).format("DD/MM/YYYY") : "N/A"}
-                  </Text>
-                  <Text>⏰ Giờ tiêm: {time || "N/A"}</Text>
+                  <Text> 📅/⏰  Ngày Giờ tiêm: 
+  {appointmentDateISO 
+    ? moment(appointmentDateISO).format("DD/MM/YYYY HH:mm") 
+    : "N/A"
+  }
+</Text>
+
                   <Text>💰 Tổng số vaccine: {cartItems?.length || 0}</Text>
                   <Text style={{ color: "#4CAF50", fontSize: "1.4rem" }}>
                     💵 Tổng tiền: {calculateTotal().toLocaleString()} VND
                   </Text>
                 </div>
 
-                {/* Thông tin chi tiết vaccine */}
+                {/* Detailed Vaccine Information */}
                 {cartItems?.map((item: CartItem, index: number) => (
                   <div
                     key={index}
                     style={{
                       marginTop: "20px",
-                      borderLeft: `4px solid #6a0dad`,
+                      borderLeft: "4px solid #6a0dad",
                       paddingLeft: "15px",
                     }}
                   >
@@ -405,7 +509,7 @@ const BookingConfirm = () => {
               </Section>
             </ContentRow>
 
-            {/* Nút điều hướng */}
+            {/* Navigation Buttons */}
             <div
               style={{
                 display: "flex",
@@ -420,7 +524,7 @@ const BookingConfirm = () => {
               <Button onClick={openModal}>Xác nhận đặt lịch</Button>
             </div>
 
-            {/* Modal xác nhận */}
+            {/* Confirmation Modal */}
             {showModal && (
               <ModalOverlay onClick={closeModal}>
                 <ModalContent onClick={(e) => e.stopPropagation()}>

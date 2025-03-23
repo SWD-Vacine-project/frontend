@@ -44,7 +44,7 @@ const AdminCheckinPage = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Appointment/get-appointment-checkin"
+        "https://vaccine-system1.azurewebsites.net/Appointment/get-appointment-checkin"
       );
       if (!response.ok) throw new Error("Lỗi tải dữ liệu");
       const data = await response.json();
@@ -80,14 +80,28 @@ const AdminCheckinPage = () => {
 
   const handleCheckIn = async (id: number) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setCheckedInIds([...checkedInIds, id]);
+      const url = `https://vaccine-system1.azurewebsites.net/Appointment/set-appointment-inprogress/${id}`;
+  
+      // Sử dụng phương thức PATCH theo cURL của bạn
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          "accept": "*/*",
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Check-in failed");
+      }
+  
+      // Nếu thành công, cập nhật danh sách checkedInIds
+      setCheckedInIds((prev) => [...prev, id]);
     } catch (err) {
+      console.error(err);
       setError("Check-in failed. Please try again.");
     }
   };
-
+  
 
   const StatusPill = ({ status }: { status: string }) => {
     const colorMap: Record<string, string> = {
@@ -185,7 +199,7 @@ const AdminCheckinPage = () => {
     </motion.nav>
   );
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
     navigate("/");
   };
 
@@ -282,21 +296,22 @@ const AdminCheckinPage = () => {
               </div>
 
               {!checkedInIds.includes(apt.appointmentId) ? (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  style={styles.checkInButton}
-                  onClick={() => handleCheckIn(apt.appointmentId)}
-                >
-                  <FiCheckCircle size={18} />
-                  <span>Confirm</span>
-                </motion.button>
-              ) : (
-                <div style={styles.confirmedBadge}>
-                  <FiCheckCircle size={18} />
-                  <span>Checked</span>
-                </div>
-              )}
+  <motion.button
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    style={styles.checkInButton}
+    onClick={() => handleCheckIn(apt.appointmentId)}
+  >
+    <FiCheckCircle size={18} />
+    <span>Confirm</span>
+  </motion.button>
+) : (
+  <div style={styles.confirmedBadge}>
+    <FiCheckCircle size={18} />
+    <span>Checked</span>
+  </div>
+)}
+
             </div>
           </motion.div>
           ))}
