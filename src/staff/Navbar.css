@@ -22,11 +22,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-body {
-  padding-top: 80px;
-  margin-bottom: 2rem;
-}
-
 /* Logo */
 .logo {
   font-size: 26px;

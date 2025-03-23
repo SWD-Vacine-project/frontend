@@ -69,9 +69,9 @@ const VaccineBatch = () => {
             key="manufacturer"
           />
           <Table.Column
-            title="Manufacture Date"
-            dataIndex="manufactureDate"
-            key="manufactureDate"
+            title="Manufucturer Date"
+            dataIndex="manufacturerDate"
+            key="manufacturerDate"
             render={(date) => new Date(date).toLocaleDateString()}
           />
           <Table.Column

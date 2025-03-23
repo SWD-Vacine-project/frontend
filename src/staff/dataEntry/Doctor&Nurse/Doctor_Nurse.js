@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Table, Input, Button, Space } from "antd";
+import { Table, Input, Button, Space, Spin } from "antd";
 import { SearchOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import NavbarForStaff from "../../NavbarForStaff";
@@ -15,17 +15,15 @@ const DoctorNurseCRUD = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Lấy dữ liệu từ API
   const fetchData = async () => {
+    setLoading(true);
     try {
       const [doctorRes, nurseRes] = await Promise.all([
-        axios.get(
-          "https://vaccine-system1.azurewebsites.net/Doctor/get-doctors"
-        ),
-        axios.get(
-          "https://vaccine-system1.azurewebsites.net/Staff/get-all-nurse"
-        ),
+        axios.get("https://vaccine-system1.azurewebsites.net/Doctor/get-doctors"),
+        axios.get("https://vaccine-system1.azurewebsites.net/Staff/get-all-nurse"),
       ]);
 
       const doctors = doctorRes.data.map((doc) => ({
@@ -48,13 +46,12 @@ const DoctorNurseCRUD = () => {
         experienceYears: nurse.experienceYears,
       }));
 
-      const mergedData = [...doctors, ...nurses];
-
-      setDataSource(mergedData);
-      setFilteredData(mergedData);
+      setDataSource([...doctors, ...nurses]);
+      setFilteredData([...doctors, ...nurses]);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -75,13 +72,12 @@ const DoctorNurseCRUD = () => {
     const value = e.target.value.toLowerCase();
     setSearchText(value);
     const filtered = dataSource.filter(
-      (item) =>
-        item.name.toLowerCase().includes(value) || item.phone.includes(value)
+      (item) => item.name.toLowerCase().includes(value) || item.phone.includes(value)
     );
     setFilteredData(filtered);
   };
 
-  // Cấu trúc bảng với bộ lọc trên cột "Role" và "Gender"
+  // Cấu trúc bảng
   const columns = [
     {
       title: "Name",
@@ -128,11 +124,7 @@ const DoctorNurseCRUD = () => {
       key: "action",
       render: (_, record) => (
         <Space>
-          <Button
-            icon={<EditOutlined />}
-            type="primary"
-            onClick={() => handleEdit(record)}
-          >
+          <Button icon={<EditOutlined />} type="primary" onClick={() => handleEdit(record)}>
             Edit
           </Button>
         </Space>
@@ -146,50 +138,50 @@ const DoctorNurseCRUD = () => {
       <div className={styles.container}>
         <h2 className={styles.title}>Manage Doctors & Nurses</h2>
 
-        {/* Thanh tìm kiếm */}
-        <div className={styles.searchContainer}>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAdd}
-            className={styles.addButton}
-          >
-            Add
-          </Button>
+        {loading ? (
+          <div className={styles.loading_container}>
+            <Spin size="large" />
+            <p>Loading data...</p>
+          </div>
+        ) : (
+          <>
+            {/* Thanh tìm kiếm */}
+            <div className={styles.searchContainer}>
+              <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} className={styles.addButton}>
+                Add
+              </Button>
 
-          <Input
-            placeholder="Search by Name or Phone"
-            value={searchText}
-            onChange={handleSearch}
-            prefix={<SearchOutlined />}
-            className={styles.searchInput}
-          />
-        </div>
+              <Input
+                placeholder="Search by Name or Phone"
+                value={searchText}
+                onChange={handleSearch}
+                prefix={<SearchOutlined />}
+                className={styles.searchInput}
+              />
+            </div>
 
-        {/* Bảng danh sách */}
-        <Table
-          dataSource={filteredData}
-          columns={columns}
-          rowKey="id"
-          className={styles.table}
-        />
-      </div>
+            {/* Bảng danh sách */}
+            <Table dataSource={filteredData} columns={columns} rowKey="id" className={styles.table} />
+          </>
+        )}
 
-      <AddDoctorNurse
-        visible={isAddModalVisible}
-        onClose={() => setIsAddModalVisible(false)}
-        reloadData={fetchData}
-      />
-
-      {/* Modal Update */}
-      {selectedUser && (
-        <UpdateDoctorNurse
-          visible={isModalVisible}
-          onClose={() => setIsModalVisible(false)}
-          user={selectedUser}
+        {/* Modal thêm mới */}
+        <AddDoctorNurse
+          visible={isAddModalVisible}
+          onClose={() => setIsAddModalVisible(false)}
           reloadData={fetchData}
         />
-      )}
+
+        {/* Modal cập nhật */}
+        {selectedUser && (
+          <UpdateDoctorNurse
+            visible={isModalVisible}
+            onClose={() => setIsModalVisible(false)}
+            user={selectedUser}
+            reloadData={fetchData}
+          />
+        )}
+      </div>
     </div>
   );
 };

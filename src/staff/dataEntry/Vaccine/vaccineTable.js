@@ -83,20 +83,6 @@ const VaccineList = () => {
           >
             Add Vaccine
           </Button>
-          <Button
-            type="default"
-            style={{ marginRight: 8 }}
-            onClick={() => navigate("/vaccine-batch")}
-          >
-            Manage Batch
-          </Button>
-          <Button
-            type="primary"
-            style={{ marginRight: 8 }}
-            onClick={() => navigate("/vaccine-combo")}
-          >
-            Vaccine Combo
-          </Button>
           <Input
             placeholder="Search by vaccine name..."
             value={searchText}

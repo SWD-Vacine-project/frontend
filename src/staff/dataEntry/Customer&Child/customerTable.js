@@ -4,6 +4,8 @@ import { notification } from "antd";
 import ChildrenList from "./ChildrenCarousel";
 import style from "../Customer&Child/CustomerTable_style.module.css";
 import NavbarForStaff from "../../NavbarForStaff";
+import { Spin } from "antd";
+
 
 const CustomerTable = () => {
   const [customers, setCustomers] = useState([]);
@@ -102,8 +104,13 @@ const CustomerTable = () => {
     setIsModalOpen(true);
   };
 
-  if (loading) return <p className="loading">Loading customer data...</p>;
-  if (error) return <p className="error">Failed to load data.</p>;
+  if (loading)
+    return (
+      <div className={style.loading_container}>/
+        <Spin size="large" />
+        <p>Loading customer data...</p>
+      </div>
+    );  if (error) return <p className="error">Failed to load data.</p>;
   if (customers.length === 0)
     return <p className="error">No customer data available.</p>;
 
