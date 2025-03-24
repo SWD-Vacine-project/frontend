@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ModalReview from "../pages/feedback/feedback";
 
 const styles = {
   fullPage: {
@@ -91,7 +92,9 @@ const UserDashboard = () => {
   const initials = userName.charAt(0).toUpperCase();
 
   return (
+    
     <div style={styles.fullPage}>
+      <ModalReview /> 
       <div style={styles.cardContainer}>
         {/* Avatar */}
         <div style={styles.avatar}>{initials}</div>

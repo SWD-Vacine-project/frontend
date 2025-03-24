@@ -196,7 +196,7 @@ const UserProfile = () => {
 
 
 
-            {/* Hiển thị danh sách trẻ em */}
+{/* Hiển thị danh sách trẻ em */}
 <div style={styles.childrenContainer}>
   <h3 style={styles.childrenTitle}>Children</h3>
   {user.children && user.children.length > 0 ? (

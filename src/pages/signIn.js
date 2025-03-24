@@ -156,7 +156,7 @@ function SignIn() {
     try {
         setLoading(true); // Hiển thị spinner
 
-        const response = await fetch("https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/auth/login", {
+        const response = await fetch("https://vaccine-system1.azurewebsites.net/api/auth/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -186,7 +186,7 @@ function SignIn() {
               console.log("Fetching children list...");
 
               const childResponse = await fetch(
-                `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Child/get-child/${data.id}`,{
+                `https://vaccine-system1.azurewebsites.net/Child/get-child/${data.id}`,{
                   method: "GET",
           mode: "cors",
           headers: {

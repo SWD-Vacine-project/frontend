@@ -102,7 +102,8 @@ const ModalReview = () => {
   const [visible, setVisible] = useState(false);
   const [stars, setStars] = useState(0);
   const navigate = useNavigate();
-  const user = JSON.parse(sessionStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user"));
+  console.log(JSON.parse(localStorage.getItem("user")));
 
   useEffect(() => {
     if (user?.id) {
@@ -116,6 +117,7 @@ const ModalReview = () => {
         .catch((error) => console.error("Error fetching appointments:", error));
     }
   }, [user?.id]);
+
 
   useEffect(() => {
     const interval = setInterval(() => {
