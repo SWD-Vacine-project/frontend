@@ -23,6 +23,9 @@ import VaccineBatch from "./staff/dataEntry/VaccineBatch/vaccineBatch";
 import VaccineCombo from "./staff/dataEntry/VaccineCombo/vaccineCombo";
 import CustomerTable from "./staff/dataEntry/Customer&Child/customerTable";
 import ViewFeedback from "./admin/feedback";
+import ModalReview from "./pages/feedback/feedback";
+import ProvideFeedback from "./pages/feedback/provideFeedback";
+
 
 const App: React.FC = () => {
   return (
@@ -46,7 +49,7 @@ const MainLayout: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(location.pathname);
 
   // Danh sách trang full-page (không có header và footer)
-  const fullPageRoutes = ["/signIn","/checkIn","/accept-appointments","/dataEntry","/vaccineStaff","/vaccine-batch","/vaccine-combo", "/doctor&Nurse" ,"/customer-children", "/doctor&nurse", "/admin-feedback" ];
+  const fullPageRoutes = ["/signIn","/checkIn","/accept-appointments","/dataEntry","/vaccineStaff","/vaccine-batch","/vaccine-combo", "/doctor&Nurse" ,"/customer-children", "/doctor&nurse", "/admin-feedback", "/provideFeedback" ];
   const isFullPage = fullPageRoutes.includes(location.pathname);
 
   useEffect(() => {
@@ -119,6 +122,8 @@ const MainLayout: React.FC = () => {
             <Route path="/vaccine-combo" element={<VaccineCombo />} />
             <Route path="/customer-children" element={<CustomerTable />} />
             <Route path="/admin-feedback" element={<ViewFeedback />} />
+            <Route path="/customer-feedback" element={<ModalReview />} />
+            <Route path="/provideFeedback" element={<ProvideFeedback />} />
 
           </Routes>
         )}

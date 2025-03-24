@@ -1,5 +1,5 @@
 :root {
-  --primary-color: #7b5dfa; 
+  --primary-color: #7b5dfa;
   --pastel-purple: #e9ddff;
   --text-color: #333;
   --background-light: #f9f6ff;
@@ -19,8 +19,8 @@
 
 .feedback_list {
   width: 40%;
-  height: 90vh; 
-  overflow-y: auto; 
+  height: 90vh;
+  overflow-y: auto;
   background: linear-gradient(135deg, var(--pastel-purple), white);
   padding: 25px;
   border-radius: var(--border-radius);
@@ -30,8 +30,13 @@
 .feedback_list h2 {
   text-align: center;
   color: var(--primary-color);
-  font-size: 1.8rem;
+  font-size: 2.5rem;
   font-weight: bold;
+}
+
+.feedback_list p {
+  font-size: 1.2rem;
+  color: var(--text-color);
 }
 
 .feedback_item {
@@ -64,7 +69,7 @@
 
 .feedback_detail {
   width: 60%;
-  height: 90vh; 
+  height: 90vh;
   background: white;
   padding: 25px;
   border-radius: var(--border-radius);
@@ -74,13 +79,13 @@
 .feedback_detail h2 {
   color: var(--primary-color);
   text-align: center;
-  font-size: 1.8rem;
+  font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 15px;
 }
 
 .feedback_detail p {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: var(--text-color);
   margin: 12px 0;
   line-height: 1.5;
@@ -92,107 +97,106 @@
 }
 
 .insights {
-    background: var(--pastel-purple);
-    padding: 20px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease-in-out;
+  background: var(--pastel-purple);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease-in-out;
 }
 
 .insights h3 {
-    color: var(--primary-color);
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-align: center;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 .insights p {
-    font-size: 1rem;
-    color: var(--text-color);
-    line-height: 1.5;
-    margin: 10px 0;
+  font-size: 1rem;
+  color: var(--text-color);
+  line-height: 1.5;
+  margin: 10px 0;
 }
 
-    .insights:hover {
-    background: var(--pastel-purple);
-    transform: none;
+.insights:hover {
+  background: var(--pastel-purple);
+  transform: none;
 }
 
 .filter_buttons {
-    margin: 10px 0;
-  }
+  margin: 10px 0;
+}
 
 .filter_buttons button {
-    padding: 8px 12px;
-    margin: 5px;
-    border: none;
-    background-color: white;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: 0.3s;
-  }
-  
-  .filter_buttons button:hover {
-    background-color: white;
-  }
-  
-  .filter_buttons button.active {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: bold;
-  }
+  padding: 8px 12px;
+  margin: 5px;
+  border: none;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+
+.filter_buttons button:hover {
+  background-color: white;
+}
+
+.filter_buttons button.active {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: bold;
+}
 
 .insights_card {
-    background-color: var(--pastel-purple);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    text-align: center;
-    justify-content: center;
-    height: 90vh;
+  background-color: var(--pastel-purple);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  text-align: center;
+  justify-content: center;
+  height: 90vh;
 }
-  
-  .insights_title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
+
+.insights_title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
-  
-  .average_rating {
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--primary-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .rating_stats {
-    margin-top: 10px;
-  }
-  
-  .rating_row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 6px;
-  }
-  
-  .progress_bar {
-    flex: 1;
-    height: 8px;
-    background: white;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  
-  .progress_fill {
-    height: 100%;
-    background: var(--primary-color);
-    transition: width 0.3s ease;
-  }
-  
+
+.average_rating {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--primary-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating_stats {
+  margin-top: 10px;
+}
+
+.rating_row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.progress_bar {
+  flex: 1;
+  height: 8px;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress_fill {
+  height: 100%;
+  background: var(--primary-color);
+  transition: width 0.3s ease;
+}

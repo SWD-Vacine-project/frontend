@@ -7,7 +7,7 @@ const LinkVaccineBatch = ({ visible, onClose, vaccine, onLinkSuccess }) => {
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [customBatch, setCustomBatch] = useState("");
   const [quantity, setQuantity] = useState("");
-  
+
   useEffect(() => {
     if (visible) {
       fetchBatches();
@@ -78,6 +78,10 @@ const LinkVaccineBatch = ({ visible, onClose, vaccine, onLinkSuccess }) => {
         placeholder="Select existing batch"
         onChange={setSelectedBatch}
         allowClear
+        showSearch
+        filterOption={(input, option) =>
+          option.children.toLowerCase().includes(input.toLowerCase())
+        }
       >
         {batches.map((batch) => (
           <Select.Option key={batch.batchNumber} value={batch.batchNumber}>
