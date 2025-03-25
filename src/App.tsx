@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import SignIn from "./pages/signIn";
 import Header from "./views/Header";
 import Body from "./views/Body";
@@ -19,21 +24,23 @@ import Book from "./pages/booking/book";
 import { BookingProvider } from "./components/context/BookingContext";
 import ManageBookings from "./pages/booking/ManageBooking";
 import VaccinationProgress from "./pages/Staff/Nurse/VaccinationProgress";
-import VaccinationReactions  from "./pages/Staff/Nurse/VaccinationReactions";
+import VaccinationReactions from "./pages/Staff/Nurse/VaccinationReactions";
+import RoleManagement from "./Admin/RoleManagement";
+import Dashboard from "./Admin/dashboard/index";
 
 const App: React.FC = () => {
   return (
     <Router>
       <BookingProvider>
-      <MainLayout />
-      <ToastContainer
-        transition={Slide}
-        autoClose={1500}
-        newestOnTop={true}
-        pauseOnHover={true}
-        pauseOnFocusLoss={false}
-        limit={5}
-      />
+        <MainLayout />
+        <ToastContainer
+          transition={Slide}
+          autoClose={1500}
+          newestOnTop={true}
+          pauseOnHover={true}
+          pauseOnFocusLoss={false}
+          limit={5}
+        />
       </BookingProvider>
     </Router>
   );
@@ -43,9 +50,15 @@ const MainLayout: React.FC = () => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [currentPath, setCurrentPath] = useState(location.pathname);
+  const fullPageRoutes = [
+    "/signIn",
+    "/checkIn",
+    "/accept-appointments",
+    "/book/booking-confirm",
+    "/roleManagement",
+  ];
 
   // Danh sách trang full-page (không có header và footer)
-  const fullPageRoutes = ["/signIn"];
   const isFullPage = fullPageRoutes.includes(location.pathname);
 
   useEffect(() => {
@@ -53,7 +66,13 @@ const MainLayout: React.FC = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const loadingPaths = ["/about", "/signIn", "/contact", "/services","/vaccine"];
+    const loadingPaths = [
+      "/about",
+      "/signIn",
+      "/contact",
+      "/services",
+      "/vaccine",
+    ];
     if (loadingPaths.includes(location.pathname)) {
       setIsLoading(true);
       setTimeout(() => {
@@ -71,11 +90,11 @@ const MainLayout: React.FC = () => {
     } as React.CSSProperties,
     mainContent: {
       flex: 1,
-  display: "block",  // ❌ Không dùng flex để tránh lỗi căn giữa toàn bộ
-  height: "calc(100vh - 110px)", 
-  padding: "20px",
-  paddingTop: isFullPage ? "0px" : "110px",
-  transition: "padding-top 0.3s ease-in-out",
+      display: "block", // ❌ Không dùng flex để tránh lỗi căn giữa toàn bộ
+      height: "calc(100vh - 110px)",
+      padding: "20px",
+      paddingTop: isFullPage ? "0px" : "110px",
+      transition: "padding-top 0.3s ease-in-out",
     } as React.CSSProperties,
     fullPage: {
       flex: 1,
@@ -91,7 +110,7 @@ const MainLayout: React.FC = () => {
   return (
     <div style={isFullPage ? styles.fullPage : styles.appContainer}>
       {!isFullPage && <Header />}
-      
+
       <main style={styles.mainContent}>
         {isLoading ? (
           <LoadingAnimation />
@@ -108,8 +127,16 @@ const MainLayout: React.FC = () => {
             <Route path="/user" element={<UserProfile />} />
             <Route path="/book/*" element={<Book />} />
             <Route path="/manage-booking" element={<ManageBookings />} />
-            <Route path="/nurse/vaccination-progress" element={<VaccinationProgress />} />
-            <Route path="/nurse/vaccination-reactions" element={<VaccinationReactions />} />
+            <Route
+              path="/nurse/vaccination-progress"
+              element={<VaccinationProgress />}
+            />
+            <Route
+              path="/vaccination-reactions"
+              element={<VaccinationReactions />}
+            />
+            <Route path="/roleManagement" element={<RoleManagement />} />
+            <Route path="/admin/dashboard" element={<Dashboard />} />
           </Routes>
         )}
         {!isFullPage && <StickyContactBar currentPath={currentPath} />}

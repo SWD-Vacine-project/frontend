@@ -73,7 +73,8 @@ const VaccinationReactions = () => {
         const savedRecordIds = JSON.parse(
           localStorage.getItem("recordIds") || "[]"
         );
-        console.log(savedRecordIds);
+        console.log("Saved record IDs:", savedRecordIds);
+
         // Fetch từng health record dựa trên recordId
         const records = await Promise.all(
           savedRecordIds.map(async (recordId: number) => {
@@ -84,9 +85,11 @@ const VaccinationReactions = () => {
           })
         );
 
+        const validRecords = records.filter((record) => record !== null);
+
         // Lọc các health records có trạng thái "Success"
-        const successfulRecords = records.filter(
-          (record) => record.appointment?.status === "Approved"
+        const successfulRecords = validRecords.filter(
+          (record) => record.appointment?.status === "Success"
         );
 
         setHealthRecords(successfulRecords);
