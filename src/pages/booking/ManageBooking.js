@@ -331,19 +331,26 @@ const ManageBookings = () => {
 
     try {
       const response = await axios.post(
-        "https://vaccine-system1.azurewebsites.net/api/FeedBack/create-feedback",
+        "https://vaccine-system1.azurewebsites.net/FeedBack/create-feedback",
         {
           CustomerId: appointments.find(
             (appointment) => appointment.appointmentId === appointmentId
           ).customerId,
-          DoctorId: 1, // Replace with actual doctor ID
-          StaffId: 1, // Replace with actual staff ID
-          VaccineId: 1, // Replace with actual vaccine ID
+          DoctorId: appointments.find(
+            (appointment) => appointment.appointmentId === appointmentId
+          ).doctorId, // Replace with actual doctor ID
+          StaffId: appointments.find(
+            (appointment) => appointment.appointmentId === appointmentId
+          ).staffId, // Replace with actual staff ID
+          VaccineId: appointments.find(
+            (appointment) => appointment.appointmentId === appointmentId
+          ).vaccineId, // Replace with actual vaccine ID
           AppointmentId: appointmentId,
           Rating: rating,
           Comment: comment,
         }
       );
+      console.log(response.data);
 
       if (response.status === 200) {
         toast.success("Feedback submitted successfully!");
