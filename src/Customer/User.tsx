@@ -4,9 +4,6 @@ import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import { FaUser, FaEnvelope, FaPhone, FaMapMarker, FaSave, FaHome, FaShieldAlt } from "react-icons/fa";
 import { ImSpinner8 } from "react-icons/im";
-import { FaChild, FaBirthdayCake, FaVenusMars } from "react-icons/fa";
-
-
 
 interface Child {
     childId: number;
@@ -16,7 +13,6 @@ interface Child {
     gender: string;
     bloodType: string;
     appointments: any[];
-    
   }
   
   interface User {
@@ -44,10 +40,10 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem("user");
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-      console.log("User từ sessionStorage:", JSON.parse(storedUser));
+      console.log("User từ LocalStorage:", JSON.parse(storedUser));
     }
   }, []);
 
@@ -59,7 +55,7 @@ const UserProfile = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://vaccine-system1.azurewebsites.net/Customer/update-customer/",
+        "https://vaccinesystem.azurewebsites.net/api/user/update",
         {
           method: "PUT",
           headers: {
@@ -72,7 +68,7 @@ const UserProfile = () => {
       const data = await response.json();
       if (response.ok) {
         setUser(data); // Cập nhật UI với dữ liệu mới từ server
-        sessionStorage.setItem("user", JSON.stringify(data)); // Lưu lại vào sessionStorage
+        localStorage.setItem("user", JSON.stringify(data)); // Lưu lại vào localStorage
         toast.success("Profile updated successfully!");
       }
        else {
@@ -200,67 +196,23 @@ const UserProfile = () => {
 
 
 
-            {/* Hiển thị danh sách trẻ em */}
+{/* Hiển thị danh sách trẻ em */}
 <div style={styles.childrenContainer}>
-  <h3 style={styles.childrenTitle}>
-    <FaChild style={{ marginRight: 8 }} /> Danh sách trẻ em ({user.children?.length || 0})
-  </h3>
+  <h3 style={styles.childrenTitle}>Children</h3>
   {user.children && user.children.length > 0 ? (
-    <div style={styles.childrenGrid}>
-      {user.children.map((child) => (
-        <motion.div 
-          key={child.childId}
-          style={styles.childCard}
-          whileHover={{ y: -5 }}
-          transition={{ duration: 0.2 }}
-        >
-          <div style={styles.childHeader}>
-            <span style={styles.childName}>{child.name}</span>
-            <span style={{
-              ...styles.bloodType,
-              backgroundColor: child.bloodType ? '#f0fdf4' : '#fef2f2',
-              color: child.bloodType ? '#166534' : '#dc2626'
-            }}>
-              {child.bloodType || 'Chưa có'}
-            </span>
-          </div>
-          
-          <div style={styles.childDetail}>
-            <FaBirthdayCake style={styles.childIcon} />
-            <span>
-              {new Date(child.dob).toLocaleDateString('vi-VN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-              })}
-            </span>
-          </div>
-          
-          <div style={styles.childDetail}>
-            <FaVenusMars style={styles.childIcon} />
-            <span style={{
-              color: child.gender === 'M' ? '#2563eb' : '#db2777',
-              fontWeight: 500
-            }}>
-              {child.gender === 'M' ? 'Nam' : 'Nữ'}
-            </span>
-          </div>
-
-          {child.appointments?.length > 0 && (
-            <div style={styles.appointmentBadge}>
-              {child.appointments.length} lịch hẹn
-            </div>
-          )}
-        </motion.div>
-      ))}
-    </div>
+   <ul style={styles.childrenList}>
+   {user.children.map((child, index) => (
+  <li key={index} style={styles.childItem}>
+    Tên Trẻ {child.name} - Ngày Sinh {child.dob} ({child.gender === "M" ? "Nam" : "Nữ"}) - Nhóm máu : {child.bloodType}
+  </li>
+))}
+ </ul>
+ 
   ) : (
-    <div style={styles.emptyState}>
-      <FaChild style={styles.emptyIcon} />
-      <p style={styles.emptyText}>Chưa có thông tin trẻ em nào được đăng ký</p>
-    </div>
+    <p style={styles.noChildrenText}>Không có dữ liệu trẻ em</p>
   )}
 </div>
+
           </div>
         </div>
       </div>
@@ -383,106 +335,39 @@ const styles = {
     marginRight: "8px",
   }as React.CSSProperties,
   childrenContainer: {
-    marginTop: "30px",
-    padding: "20px",
-    background: "#f8fafc",
-    borderRadius: "12px",
-    boxShadow: "0px 2px 8px rgba(0,0,0,0.05)",
-  } as React.CSSProperties,
-
-  childrenTitle: {
-    display: "flex",
-    alignItems: "center",
-    fontSize: "20px",
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: "20px",
-    paddingBottom: "10px",
-    borderBottom: "2px solid #e2e8f0",
-  } as React.CSSProperties,
-
-  childrenGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-    gap: "16px",
-  } as React.CSSProperties,
-
-  childCard: {
-    position: "relative",
-    background: "#fff",
+    marginTop: "20px",
+    padding: "15px",
+    background: "#f9fafb",
     borderRadius: "10px",
-    padding: "16px",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.08)",
-    border: "1px solid #f1f5f9",
+    boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
   } as React.CSSProperties,
-
-  childHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "12px",
+  
+  childrenTitle: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    marginBottom: "10px",
+    color: "#333",
   } as React.CSSProperties,
-
-  childName: {
+  
+  childrenList: {
+    listStyle: "none",
+    padding: "0",
+    margin: "0",
+  } as React.CSSProperties,
+  
+  childItem: {
+    background: "#e0f2fe",
+    padding: "8px 12px",
+    borderRadius: "6px",
+    marginBottom: "5px",
     fontSize: "16px",
-    fontWeight: "600",
-    color: "#1e293b",
+    color: "#0369a1",
   } as React.CSSProperties,
-
-  bloodType: {
-    fontSize: "12px",
-    fontWeight: "700",
-    padding: "4px 8px",
-    borderRadius: "20px",
-    textTransform: "uppercase",
+  
+  noChildrenText: {
+    fontSize: "16px",
+    color: "#6b7280",
   } as React.CSSProperties,
-
-  childDetail: {
-    display: "flex",
-    alignItems: "center",
-    margin: "8px 0",
-    fontSize: "14px",
-    color: "#64748b",
-  } as React.CSSProperties,
-
-  childIcon: {
-    marginRight: "8px",
-    color: "#94a3b8",
-    fontSize: "14px",
-  } as React.CSSProperties,
-
-  appointmentBadge: {
-    position: "absolute",
-    top: "-8px",
-    right: "-8px",
-    background: "#3b82f6",
-    color: "white",
-    fontSize: "12px",
-    padding: "4px 10px",
-    borderRadius: "20px",
-    boxShadow: "0 2px 4px rgba(59,130,246,0.2)",
-  } as React.CSSProperties,
-
-  emptyState: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: "30px 20px",
-    textAlign: "center",
-  } as React.CSSProperties,
-
-  emptyIcon: {
-    fontSize: "48px",
-    color: "#cbd5e1",
-    marginBottom: "16px",
-  } as React.CSSProperties,
-
-  emptyText: {
-    color: "#64748b",
-    fontSize: "14px",
-    margin: 0,
-  } as React.CSSProperties,
-
   
 };
 

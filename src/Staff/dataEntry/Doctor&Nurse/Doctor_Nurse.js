@@ -1,93 +1,89 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Table, Input, Button, Space, notification, Modal, Form, Select } from "antd";
-import { SearchOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import Highlighter from "react-highlight-words";
+import { Table, Input, Button, Space, Spin } from "antd";
+import { SearchOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import axios from "axios";
+import NavbarForStaff from "../../NavbarForStaff";
+import UpdateDoctorNurse from "./UpdateDoctorNurse";
 import styles from "./Doctor&Nurse_style.module.css";
-import { motion } from "framer-motion";
-
-const { Option } = Select;
-
-const mockData = [
-  { id: 1, name: "Dr. John Doe", role: "Doctor", specialization: "Cardiology" },
-  { id: 2, name: "Nurse Jane Smith", role: "Nurse", department: "Pediatrics" },
-  { id: 3, name: "Dr. Alice Brown", role: "Doctor", specialization: "Neurology" },
-  { id: 4, name: "Nurse Emily White", role: "Nurse", department: "Emergency" },
-  { id: 5, name: "Dr. John Doe", role: "Doctor", specialization: "Cardiology" },
-  { id: 6, name: "Nurse Jane Smith", role: "Nurse", department: "Pediatrics" },
-  { id: 7, name: "Dr. Alice Brown", role: "Doctor", specialization: "Neurology" },
-  { id: 88, name: "Nurse Emily White", role: "Nurse", department: "Emergency" },
-];
+import AddDoctorNurse from "./addDoctorNurse";
 
 const DoctorNurseCRUD = () => {
   const [dataSource, setDataSource] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [searchedColumn, setSearchedColumn] = useState("");
-  const searchInput = useRef(null);
+  // const searchInput = useRef(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [form] = Form.useForm();
-  const [shake, setShake] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Lấy dữ liệu từ API
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [doctorRes, nurseRes] = await Promise.all([
+        axios.get("https://vaccine-system1.azurewebsites.net/Doctor/get-doctors"),
+        axios.get("https://vaccine-system1.azurewebsites.net/Staff/get-all-nurse"),
+      ]);
+
+      const doctors = doctorRes.data.map((doc) => ({
+        id: doc.doctorId,
+        name: doc.name,
+        role: "Doctor",
+        gender: doc.gender === "M" ? "Male" : "Female",
+        phone: doc.phone,
+        degree: doc.degree,
+        experienceYears: doc.experienceYears,
+      }));
+
+      const nurses = nurseRes.data.map((nurse) => ({
+        id: nurse.staffId,
+        name: nurse.name,
+        role: "Nurse",
+        gender: nurse.gender === "M" ? "Male" : "Female",
+        phone: nurse.phone,
+        degree: nurse.degree,
+        experienceYears: nurse.experienceYears,
+      }));
+
+      setDataSource([...doctors, ...nurses]);
+      setFilteredData([...doctors, ...nurses]);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    setDataSource(mockData);
+    fetchData();
   }, []);
 
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button type="primary" onClick={() => handleSearch(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>Search</Button>
-          <Button onClick={() => handleReset(clearFilters)} size="small" style={{ width: 90 }}>Reset</Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: (filtered) => (<SearchOutlined style={{ color: filtered ? "#6A0DAD" : "#aaa" }} />),
-    onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
-    render: (text) => searchedColumn === dataIndex ? (
-      <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text ? text.toString() : ""} />
-    ) : text,
-  });
-
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0] || "");
-    setSearchedColumn(dataIndex);
-  };
-
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    setSearchText("");
-  };
-
-  const showModal = () => setIsModalVisible(true);
-  const handleCancel = () => setIsModalVisible(false);
-
   const handleAdd = () => {
-    form.validateFields().then(values => {
-      setDataSource([...dataSource, { id: dataSource.length + 1, ...values }]);
-      form.resetFields();
-      setIsModalVisible(false);
-    });
+    setIsAddModalVisible(true);
   };
 
-  const handleDelete = (id) => {
-    setShake(id);
-    setTimeout(() => {
-      setDataSource(dataSource.filter(item => item.id !== id));
-      setShake(null);
-    }, 500);
+  const handleEdit = (record) => {
+    setSelectedUser(record);
+    setIsModalVisible(true);
   };
 
+  // Tìm kiếm theo tên hoặc số điện thoại
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchText(value);
+    const filtered = dataSource.filter(
+      (item) => item.name.toLowerCase().includes(value) || item.phone.includes(value)
+    );
+    setFilteredData(filtered);
+  };
+
+  // Cấu trúc bảng
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 50 },
-    { title: "Name", dataIndex: "name", key: "name", ...getColumnSearchProps("name") },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
     {
       title: "Role",
       dataIndex: "role",
@@ -96,53 +92,97 @@ const DoctorNurseCRUD = () => {
         { text: "Doctor", value: "Doctor" },
         { text: "Nurse", value: "Nurse" },
       ],
-      onFilter: (value, record) => record.role.indexOf(value) === 0,
+      onFilter: (value, record) => record.role === value,
     },
     {
-      title: "Specialization / Department",
-      dataIndex: "specialization",
-      key: "specialization",
-      render: (text, record) => record.role === "Doctor" ? text : record.department,
+      title: "Gender",
+      dataIndex: "gender",
+      key: "gender",
+      filters: [
+        { text: "Male", value: "Male" },
+        { text: "Female", value: "Female" },
+      ],
+      onFilter: (value, record) => record.gender === value,
+    },
+    {
+      title: "Phone",
+      dataIndex: "phone",
+      key: "phone",
+    },
+    {
+      title: "Degree",
+      dataIndex: "degree",
+      key: "degree",
+    },
+    {
+      title: "Experience (Years)",
+      dataIndex: "experienceYears",
+      key: "experienceYears",
     },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space>
-          <Button icon={<EditOutlined />} type="primary">Edit</Button>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            className="delete-btn"
-            onClick={() => handleDelete(record.id)}
-            animate={shake === record.id ? { x: [-5, 5, -5, 5, 0] } : {}}
-          >
-            <DeleteOutlined style={{ color: "red" }} />
-          </motion.button>
+          <Button icon={<EditOutlined />} type="primary" onClick={() => handleEdit(record)}>
+            Edit
+          </Button>
         </Space>
       ),
     },
   ];
 
   return (
-    <motion.div className={styles.container} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      <h2 className={styles.title}>Manage Doctors & Nurses</h2>
-      <div className={styles.toolbar}>
-        <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>Add</Button>
-        <Input placeholder="Search..." prefix={<SearchOutlined />} value={searchText} onChange={(e) => setSearchText(e.target.value)} className={styles.searchBox} />
+    <div>
+      <NavbarForStaff />
+      <div className={styles.container}>
+        <h2 className={styles.title}>Manage Doctors & Nurses</h2>
+
+        {loading ? (
+          <div className={styles.loading_container}>
+            <Spin size="large" />
+            <p>Loading data...</p>
+          </div>
+        ) : (
+          <>
+            {/* Thanh tìm kiếm */}
+            <div className={styles.searchContainer}>
+              <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} className={styles.addButton}>
+                Add
+              </Button>
+
+              <Input
+                placeholder="Search by Name or Phone"
+                value={searchText}
+                onChange={handleSearch}
+                prefix={<SearchOutlined />}
+                className={styles.searchInput}
+              />
+            </div>
+
+            {/* Bảng danh sách */}
+            <Table dataSource={filteredData} columns={columns} rowKey="id" className={styles.table} />
+          </>
+        )}
+
+        {/* Modal thêm mới */}
+        <AddDoctorNurse
+          visible={isAddModalVisible}
+          onClose={() => setIsAddModalVisible(false)}
+          reloadData={fetchData}
+        />
+
+        {/* Modal cập nhật */}
+        {selectedUser && (
+          <UpdateDoctorNurse
+            visible={isModalVisible}
+            onClose={() => setIsModalVisible(false)}
+            user={selectedUser}
+            reloadData={fetchData}
+          />
+        )}
       </div>
-      <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
-        <Table dataSource={dataSource} columns={columns} rowKey="id" className={styles.table} />
-      </motion.div>
-      <Modal title="Add New" visible={isModalVisible} onCancel={handleCancel} onOk={handleAdd}>
-        <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true, message: "Please enter a name" }]}> <Input /> </Form.Item>
-          <Form.Item name="role" label="Role" rules={[{ required: true, message: "Please select a role" }]}> 
-            <Select> <Option value="Doctor">Doctor</Option> <Option value="Nurse">Nurse</Option> </Select> 
-          </Form.Item>
-          <Form.Item name="specialization" label="Specialization / Department"> <Input /> </Form.Item>
-        </Form>
-      </Modal>
-    </motion.div>
+    </div>
   );
 };
 

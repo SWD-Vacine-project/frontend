@@ -8,7 +8,6 @@ import axios from "axios";
 import moment from "moment";
 import LoadingAnimation from "../../animation/loading-animation";
 
-// Định nghĩa useStyles để tạo các lớp CSS sử dụng makeStyles
 const useStyles = makeStyles((theme) => ({
   manageBookingsPage: {
     height: "fit-content",
@@ -167,11 +166,24 @@ const ManageBookings = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Lấy user từ sessionStorage
+        const storedUser = sessionStorage.getItem("user");
+        const userId = storedUser ? JSON.parse(storedUser).id : null;
+        if (!userId) {
+          toast.error("Không tìm thấy thông tin user");
+          setLoading(false);
+          return;
+        }
+
         // 1. Lấy invoices
         const invoicesResponse = await axios.get(
           "https://vaccine-system1.azurewebsites.net/api/Invoice/get-invoices"
         );
-        const sortedInvoices = invoicesResponse.data.sort(
+        // Lọc invoices theo customerId của user hiện tại
+        const userInvoices = invoicesResponse.data.filter(
+          (invoice) => invoice.customerId === userId
+        );
+        const sortedInvoices = userInvoices.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
 
@@ -209,18 +221,16 @@ const ManageBookings = () => {
           // Loại bỏ các null (nếu có detail không có appointmentId)
           const validAppointments = appointmentsOfInvoice.filter(Boolean);
 
-          // Tạo mảng appointmentId
+          // Tạo mảng appointmentId và appointmentDate
           const appointmentIds = validAppointments.map(
             (app) => app.appointmentId
           );
-          // Tạo mảng appointmentDate
           const appointmentDates = validAppointments.map(
             (app) => app.appointmentDate
           );
 
           return {
             ...invoice,
-            // Thay vì lưu 1 appointmentId/Date, ta lưu mảng
             appointmentIds,
             appointmentDates,
           };
@@ -238,6 +248,11 @@ const ManageBookings = () => {
     fetchData();
   }, []);
 
+  // Thay đổi hành vi nút Pay: chuyển hướng sang PaymentForm với dữ liệu invoice
+  const handlePay = (invoice) => {
+    navigate("/payment-form", { state: { invoice } });
+  };
+
   // Lọc invoices theo tab Paid/Unpaid
   const getCurrentInvoices = () => {
     if (currentTab === "Paid") {
@@ -249,7 +264,7 @@ const ManageBookings = () => {
     }
   };
 
-  // Tính toán phân trang
+  // Phân trang
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
   const currentInvoices = getCurrentInvoices().slice(
@@ -305,25 +320,19 @@ const ManageBookings = () => {
                   <th className={classes.th}>Status</th>
                   <th className={classes.th}>Type</th>
                   <th className={classes.th}>Created At</th>
-                  {/* Cột Appointment IDs */}
                   <th className={classes.th}>Appointment IDs</th>
-                  {/* Cột Appointment Dates */}
                   <th className={classes.th}>Appointment Dates</th>
+                  <th className={classes.th}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {currentInvoices.length > 0 ? (
                   currentInvoices.map((invoice, index) => {
-                    // Mảng ID
                     const { appointmentIds, appointmentDates } = invoice;
-
-                    // Chuyển ID thành chuỗi
                     const appointmentIdsString =
                       appointmentIds && appointmentIds.length > 0
                         ? appointmentIds.join(", ")
                         : "N/A";
-
-                    // Chuyển Date thành chuỗi
                     const appointmentDatesString =
                       appointmentDates && appointmentDates.length > 0
                         ? appointmentDates
@@ -334,7 +343,6 @@ const ManageBookings = () => {
                             )
                             .join(", ")
                         : "N/A";
-
                     return (
                       <tr key={invoice.invoiceId} className={classes.tr}>
                         <td className={classes.td}>
@@ -356,16 +364,26 @@ const ManageBookings = () => {
                         <td className={classes.td}>
                           {moment(invoice.createdAt).format("DD/MM/YYYY HH:mm")}
                         </td>
-                        {/* Hiển thị ID dưới dạng chuỗi */}
                         <td className={classes.td}>{appointmentIdsString}</td>
-                        {/* Hiển thị Date dưới dạng chuỗi */}
                         <td className={classes.td}>{appointmentDatesString}</td>
+                        <td className={classes.td}>
+                          {invoice.status === "Unpaid" ? (
+                            <button
+                              className={classes.button}
+                              onClick={() => handlePay(invoice)}
+                            >
+                              Pay
+                            </button>
+                          ) : (
+                            "N/A"
+                          )}
+                        </td>
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
-                    <td colSpan="9" className={classes.noData}>
+                    <td colSpan="10" className={classes.noData}>
                       No data available
                     </td>
                   </tr>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ModalReview from "../pages/feedback/feedback";
 
 const styles = {
   fullPage: {
@@ -72,7 +73,7 @@ const UserDashboard = () => {
   const [user, setUser] = useState<{ name?: string; email?: string; joinDate?: string } | null>(null);
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem("user");
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
@@ -80,7 +81,7 @@ const UserDashboard = () => {
           setUser(parsedUser);
         }
       } catch (error) {
-        console.error("Error parsing sessionStorage data:", error);
+        console.error("Error parsing localStorage data:", error);
       }
     }
   }, []);
@@ -91,7 +92,9 @@ const UserDashboard = () => {
   const initials = userName.charAt(0).toUpperCase();
 
   return (
+    
     <div style={styles.fullPage}>
+      <ModalReview /> 
       <div style={styles.cardContainer}>
         {/* Avatar */}
         <div style={styles.avatar}>{initials}</div>

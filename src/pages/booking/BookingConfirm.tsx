@@ -346,8 +346,9 @@ const BookingConfirm = () => {
       );
       if (pendingResponses.length > 0) {
         toast.info(
-          "Một số lịch hẹn đang chờ xác nhận từ nhân viên. Vui lòng đợi xác nhận trước khi tiến hành thanh toán."
+          "Yêu cầu của bạn đang được duyệt bởi nhân viên . Vui lòng chờ ở trang schedule để xem thông tin lịch tiêm"
         );
+       
         return;
       }
   

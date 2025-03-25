@@ -24,10 +24,22 @@ import ManageBookings from "./pages/booking/ManageBooking";
 import ChildList from "./pages/child-info/childInfo";
 import RoleManagement from "./Admin/RoleManagement";
 import DataEntry from "./Staff/dataEntry/dataEntry";
-import VaccineList from "./Staff/dataEntry/Vaccine/vaccineTable";
+// import Vaccine from "./staff/dataEntry/Vaccine/vaccineTable"
+// import DoctorNurseForm from "./staff/dataEntry/Doctor&Nurse/Doctor_Nurse";
+// import VaccineBatch from "./staff/dataEntry/VaccineBatch/vaccineBatch";
+// import VaccineCombo from "./staff/dataEntry/VaccineCombo/vaccineCombo";
+// import CustomerTable from "./staff/dataEntry/Customer&Child/customerTable";
+// import ViewFeedback from "./admin/feedback";
+// import ModalReview from "./pages/feedback/feedback";
+// import ProvideFeedback from "./pages/feedback/provideFeedback";
+ import VaccineList from "./Staff/dataEntry/Vaccine/vaccineTable";
 import DoctorNurseCRUD from "./Staff/dataEntry/Doctor&Nurse/Doctor_Nurse";
 import VaccinationProgress from "./Staff/Nurse/VaccinationProgress";
 import VaccinationReactions from "./Staff/Nurse/VaccinationReactions";
+import PaymentForm from "./pages/booking/PaymentFormforUnpaid";
+import PaymentResult from "./pages/booking/PaymentResultforUnpaid";
+
+
 
 
 
@@ -130,7 +142,8 @@ const MainLayout: React.FC = () => {
             <Route path="/dataEntry" element={<DataEntry />} />
             <Route path="/vaccineStaff" element={<VaccineList />} />
             <Route path="/doctor&Nurse" element={<DoctorNurseCRUD />} />
-
+            <Route path="/payment-form" element={<PaymentForm />} />
+            <Route path="/payment-result" element={<PaymentResult />} />
 
             <Route path="/nurse/vaccination-progress" element={<VaccinationProgress />} /> 
             <Route path="/nurse/vaccination-reactions" element={<VaccinationReactions />} />

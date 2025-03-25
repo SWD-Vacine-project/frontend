@@ -207,8 +207,12 @@ function SignIn() {
           console.log("Saved to localStorage:", sessionStorage.getItem("user"));
 
             // Điều hướng đến trang dashboard hoặc trang chính
-            if (data.role === "Staff") {
-              navigate("/accept-appointments"); // Nếu là Staff, điều hướng đến /staff
+            if (data.role === "Data Entry") {
+              navigate("/data-entry-dashboard");
+            } else if (data.role === "Receptionist") {
+              navigate("/accept-appointments");
+            } else if (data.role === "Nurse") {
+              navigate("/nurse-dashboard");
             } else {
               navigate("/userDashboard"); // Nếu là Customer, điều hướng đến /userDashboard
             }

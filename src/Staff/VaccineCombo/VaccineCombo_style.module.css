@@ -1,0 +1,29 @@
+.container {
+    padding: 20px;
+    background-color: #f7f3ff;
+    border-radius: 8px;
+    position: relative;
+    margin-top: 6rem;
+  }
+
+.backIcon {
+    font-size: 20px;
+    color: #010a11;
+    cursor: pointer;
+    position: absolute;
+    top: 3rem;
+    left: 3rem;
+  }
+  
+  .backIcon:hover {
+    color: #40a9ff;
+  }
+
+    
+  .toolbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
