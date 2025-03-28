@@ -18,7 +18,7 @@ const LinkVaccineBatch = ({ visible, onClose, vaccine, onLinkSuccess }) => {
   const fetchBatches = async () => {
     try {
       const response = await axios.get(
-        "https://vaccine-system1.azurewebsites.net/VaccineBatch/get-vaccine-batch"
+        "https://vaccine-system2.azurewebsites.net/VaccineBatch/get-vaccine-batch"
       );
       setBatches(response.data);
     } catch (error) {
@@ -46,7 +46,7 @@ const LinkVaccineBatch = ({ visible, onClose, vaccine, onLinkSuccess }) => {
 
     try {
       await axios.post(
-        "https://vaccine-system1.azurewebsites.net/VaccineBatch/link-vaccine-to-batch",
+        "https://vaccine-system2.azurewebsites.net/VaccineBatch/link-vaccine-to-batch",
         payload
       );
       message.success("Vaccine successfully linked to batch.");

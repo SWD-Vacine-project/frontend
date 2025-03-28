@@ -74,10 +74,10 @@ function SignIn() {
     //   toast.error("Invalid email format. Please enter a valid email.", { autoClose: 2000 });
     //   return;
     // }
-    if (!validatePassword(password)) {
-      toast.error("Password must contain at least one digit, one special symbol, and one uppercase letter.", { autoClose: 2000 });
-      return;
-    }
+    // if (!validatePassword(password)) {
+    //   toast.error("Password must contain at least one digit, one special symbol, and one uppercase letter.", { autoClose: 2000 });
+    //   return;
+    // }
     
     if (password !== confirmPassword) {
       toast.error("Password not match, please try again!", { autoClose: 2000 });
@@ -143,10 +143,10 @@ function SignIn() {
     //   toast.error("Invalid email format. Please enter a valid email.", { autoClose: 2000 });
     //   return;
     // }
-    if (!validatePassword(password)) {
-      toast.error("Password must contain at least one digit, one special symbol, and one uppercase letter.", { autoClose: 2000 });
-      return;
-    }
+    // if (!validatePassword(password)) {
+    //   toast.error("Password must contain at least one digit, one special symbol, and one uppercase letter.", { autoClose: 2000 });
+    //   return;
+    // }
 
     // if (!isCaptchaVerified) {
     //   toast.error("Please complete the captcha before submitting the form.");
@@ -156,7 +156,7 @@ function SignIn() {
     try {
         setLoading(true); // Hiển thị spinner
 
-        const response = await fetch("https://vaccine-system1.azurewebsites.net/api/auth/login", {
+        const response = await fetch("https://vaccine-system2.azurewebsites.net/api/auth/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -186,7 +186,7 @@ function SignIn() {
               console.log("Fetching children list...");
 
               const childResponse = await fetch(
-                `https://vaccine-system1.azurewebsites.net/Child/get-child/${data.id}`,{
+                `https://vaccine-system2.azurewebsites.net/Child/get-child/${data.id}`,{
                   method: "GET",
           mode: "cors",
           headers: {
@@ -207,13 +207,16 @@ function SignIn() {
           console.log("Saved to localStorage:", sessionStorage.getItem("user"));
 
             // Điều hướng đến trang dashboard hoặc trang chính
+
             if (data.role === "Data Entry") {
-              navigate("/data-entry-dashboard");
+              navigate("/dataEntry");
             } else if (data.role === "Receptionist") {
               navigate("/accept-appointments");
             } else if (data.role === "Nurse") {
-              navigate("/nurse-dashboard");
-            } else {
+              navigate("/nurse/vaccination-progress");
+            } else if (data.role === "Admin") {
+navigate("/roleManagement");
+            }else {
               navigate("/userDashboard"); // Nếu là Customer, điều hướng đến /userDashboard
             }
         } else {

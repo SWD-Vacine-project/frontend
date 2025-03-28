@@ -24,21 +24,19 @@ import ManageBookings from "./pages/booking/ManageBooking";
 import ChildList from "./pages/child-info/childInfo";
 import RoleManagement from "./Admin/RoleManagement";
 import DataEntry from "./Staff/dataEntry/dataEntry";
-// import Vaccine from "./staff/dataEntry/Vaccine/vaccineTable"
-// import DoctorNurseForm from "./staff/dataEntry/Doctor&Nurse/Doctor_Nurse";
-// import VaccineBatch from "./staff/dataEntry/VaccineBatch/vaccineBatch";
-// import VaccineCombo from "./staff/dataEntry/VaccineCombo/vaccineCombo";
-// import CustomerTable from "./staff/dataEntry/Customer&Child/customerTable";
-// import ViewFeedback from "./admin/feedback";
-// import ModalReview from "./pages/feedback/feedback";
-// import ProvideFeedback from "./pages/feedback/provideFeedback";
+ import VaccineBatch from "./Staff/dataEntry/VaccineBatch/vaccineBatch";
+ import VaccineCombo from "./Staff/VaccineCombo/vaccineCombo";
+ import CustomerTable from "./Staff/dataEntry/Customer&Child/customerTable";
+ import ViewFeedback from "./Admin/feedback";
+ import ModalReview from "./pages/feedback/feedback";
+ import ProvideFeedback from "./pages/feedback/provideFeedback";
  import VaccineList from "./Staff/dataEntry/Vaccine/vaccineTable";
 import DoctorNurseCRUD from "./Staff/dataEntry/Doctor&Nurse/Doctor_Nurse";
 import VaccinationProgress from "./Staff/Nurse/VaccinationProgress";
 import VaccinationReactions from "./Staff/Nurse/VaccinationReactions";
 import PaymentForm from "./pages/booking/PaymentFormforUnpaid";
 import PaymentResult from "./pages/booking/PaymentResultforUnpaid";
-
+import Dashboard from "./Admin/dashboard/index";
 
 
 
@@ -68,7 +66,7 @@ const MainLayout: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(location.pathname);
 
   // Danh sách trang full-page (không có header và footer)
-  const fullPageRoutes = ["/signIn","/checkIn","/accept-appointments","/book/booking-confirm","/roleManagement"];
+  const fullPageRoutes = ["/signIn","/checkIn","/accept-appointments","/book/booking-confirm","/roleManagement",];
   const isFullPage = fullPageRoutes.includes(location.pathname);
 
   useEffect(() => {
@@ -144,11 +142,19 @@ const MainLayout: React.FC = () => {
             <Route path="/doctor&Nurse" element={<DoctorNurseCRUD />} />
             <Route path="/payment-form" element={<PaymentForm />} />
             <Route path="/payment-result" element={<PaymentResult />} />
+            <Route path="/vaccine-batch" element={<VaccineBatch />} />
+            <Route path="/vaccine-combo" element={<VaccineCombo />} />
+            <Route path="/customer-children" element={<CustomerTable />} />
+            <Route path="/admin-feedback" element={<ViewFeedback />} />
+            <Route path="/customer-feedback" element={<ModalReview />} />
+            <Route path="/provideFeedback" element={<ProvideFeedback />} />
+
+
 
             <Route path="/nurse/vaccination-progress" element={<VaccinationProgress />} /> 
             <Route path="/nurse/vaccination-reactions" element={<VaccinationReactions />} />
 
-
+            <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route 
               path="/userDashboard" 
               element={

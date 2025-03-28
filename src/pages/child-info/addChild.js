@@ -149,7 +149,7 @@ export default function AddChild({ onChildAdded }) {
       console.log("Sending data:", requestData);
 
       const response = await axios.post(
-        "https://vaccine-system1.azurewebsites.net/Child/create-child",
+        "https://vaccine-system2.azurewebsites.net/Child/create-child",
         requestData,
         { headers: { "Content-Type": "application/json" } }
       );

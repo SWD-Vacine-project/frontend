@@ -22,8 +22,8 @@ const DoctorNurseCRUD = () => {
     setLoading(true);
     try {
       const [doctorRes, nurseRes] = await Promise.all([
-        axios.get("https://vaccine-system1.azurewebsites.net/Doctor/get-doctors"),
-        axios.get("https://vaccine-system1.azurewebsites.net/Staff/get-all-nurse"),
+        axios.get("https://vaccine-system2.azurewebsites.net/Doctor/get-doctors"),
+        axios.get("https://vaccine-system2.azurewebsites.net/Staff/get-all-nurse"),
       ]);
 
       const doctors = doctorRes.data.map((doc) => ({

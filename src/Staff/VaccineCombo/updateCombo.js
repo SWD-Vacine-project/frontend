@@ -22,7 +22,7 @@ const UpdateCombo = ({ isOpen, onClose, combo, refreshData }) => {
   const fetchAllVaccines = async () => {
     try {
       const response = await axios.get(
-        "https://vaccine-system1.azurewebsites.net/api/Vaccine"
+        "https://vaccine-system2.azurewebsites.net/api/Vaccine"
       );
       setAllVaccines(response.data);
     } catch (error) {
@@ -50,7 +50,7 @@ const UpdateCombo = ({ isOpen, onClose, combo, refreshData }) => {
 
       try {
         await axios.put(
-          `https://vaccine-system1.azurewebsites.net/api/Vaccine/update-vacccine-combo/${formData.comboId}`,
+          `https://vaccine-system2.azurewebsites.net/api/Vaccine/update-vacccine-combo/${formData.comboId}`,
           {
             name: formData.comboName,
             description: formData.description,

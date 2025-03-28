@@ -28,7 +28,7 @@ const AddVaccineBatch = ({ visible, onClose, onAddSuccess }) => {
   const fetchVaccines = async () => {
     try {
       const response = await axios.get(
-        "https://vaccine-system1.azurewebsites.net/api/Vaccine"
+        "https://vaccine-system2.azurewebsites.net/api/Vaccine"
       );
       setAllVaccines(response.data);
     } catch (error) {
@@ -74,7 +74,7 @@ const AddVaccineBatch = ({ visible, onClose, onAddSuccess }) => {
 
     try {
       await axios.post(
-        "https://vaccine-system1.azurewebsites.net/VaccineBatch/create-vaccine-batch",
+        "https://vaccine-system2.azurewebsites.net/VaccineBatch/create-vaccine-batch",
         payload
       );
       message.success("Vaccine batch added successfully");

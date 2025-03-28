@@ -24,7 +24,7 @@ const UpdateVaccine = ({ visible, onClose, vaccine, onUpdateSuccess }) => {
       setLoading(true);
       const values = await form.validateFields();
       await axios.put(
-        `https://vaccine-system1.azurewebsites.net/api/Vaccine/update-vaccine/${vaccine.vaccineId}`,
+        `https://vaccine-system2.azurewebsites.net/api/Vaccine/update-vaccine/${vaccine.vaccineId}`,
         values
       );
       message.success("Vaccine updated successfully!");

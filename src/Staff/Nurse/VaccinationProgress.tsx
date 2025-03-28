@@ -73,17 +73,16 @@ const VaccinationProgress = () => {
     const fetchAppointments = async () => {
       try {
         const response = await axios.get<Appointment[]>(
-          "https://vaccine-system1.azurewebsites.net/Appointment/get-appointments"
+          "https://vaccine-system2.azurewebsites.net/Appointment/get-appointment-in-progress"
         );
-        const submittedAppointments = JSON.parse(
-          localStorage.getItem("submittedAppointments") || "[]"
-        );
-        const inProgressAppointments = response.data.filter(
-          (appointment) =>
-            appointment.status === "InProgress" &&
-            !submittedAppointments.includes(appointment.appointmentId)
-        );
-        setAppointments(inProgressAppointments);
+        const formattedAppointments = response.data.map((item) => ({
+          ...item,
+          appointmentId: String(item.appointmentId),
+          customerId: String(item.customerId),
+          appointmentDate: item.appointmentDate,
+        }));
+
+        setAppointments(formattedAppointments);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching appointments:", error);
@@ -111,7 +110,7 @@ const VaccinationProgress = () => {
     try {
       // Bước 1: Tạo health record
       const createResponse = await axios.post(
-        `https://vaccine-system1.azurewebsites.net/api/HealthRecord/create-health-record`,
+        `https://vaccine-system2.azurewebsites.net/api/HealthRecord/create-health-record`,
         {
           AppointmentId: Number(appointmentId),
           StaffId: 1,
@@ -127,6 +126,12 @@ const VaccinationProgress = () => {
       );
       const recordId = createResponse.data.recordId;
       console.log("Health record created with ID:", recordId);
+
+      const savedRecordIds = JSON.parse(
+        localStorage.getItem("recordIds") || "[]"
+      );
+      savedRecordIds.push(recordId);
+      localStorage.setItem("recordIds", JSON.stringify(savedRecordIds));
 
       // Vì không có API update status, ta chuyển trạng thái thành "Success" trên FE
       // Lưu appointment đã submit vào localStorage

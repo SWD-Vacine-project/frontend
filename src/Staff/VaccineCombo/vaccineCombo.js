@@ -5,7 +5,7 @@ import style from "./VaccineCombo_style.module.css";
 import { Table, Input, Button } from "antd";
 import UpdateCombo from "./updateCombo";
 import AddCombo from "./addCombo";
-import NavbarForStaff from "../../NavbarForStaff";
+import NavbarForStaff from "../NavbarForStaff";
 
 const VaccineCombo = () => {
   const [combos, setCombos] = useState([]);
@@ -22,7 +22,7 @@ const VaccineCombo = () => {
   const fetchVaccineCombos = async () => {
     try {
       const response = await axios.get(
-        "https://vaccine-system1.azurewebsites.net/api/Vaccine/get-vaccine-combo"
+        "https://vaccine-system2.azurewebsites.net/api/Vaccine/get-vaccine-combo"
       );
       setCombos(response.data);
       setFilteredCombos(response.data);

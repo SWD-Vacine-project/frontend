@@ -9,7 +9,7 @@ const ViewFeedback = () => {
 
   useEffect(() => {
     axios
-      .get("https://vaccine-system1.azurewebsites.net/FeedBack/get-feedback")
+      .get("https://vaccine-system2.azurewebsites.net/FeedBack/get-feedback")
       .then((response) => {
         setFeedbacks(response.data);
         if (response.data.length > 0) {

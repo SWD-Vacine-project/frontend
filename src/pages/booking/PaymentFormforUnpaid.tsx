@@ -89,7 +89,7 @@ const PaymentForm: React.FC = () => {
     try {
       // Gọi API lấy URL thanh toán của VNPay
       const paymentResponse = await axios.get(
-        `https://vaccine-system1.azurewebsites.net/VnPay/CreatePaymentUrl`,
+        `https://vaccine-system2.azurewebsites.net/VnPay/CreatePaymentUrl`,
         {
           params: {
             moneyToPay: totalAmount,

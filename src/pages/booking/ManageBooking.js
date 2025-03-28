@@ -177,7 +177,7 @@ const ManageBookings = () => {
 
         // 1. Lấy invoices
         const invoicesResponse = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/api/Invoice/get-invoices"
+          "https://vaccine-system2.azurewebsites.net/api/Invoice/get-invoices"
         );
         // Lọc invoices theo customerId của user hiện tại
         const userInvoices = invoicesResponse.data.filter(
@@ -189,7 +189,7 @@ const ManageBookings = () => {
 
         // 2. Lấy invoiceDetails
         const invoiceDetailsResponse = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/api/InvoiceDetail/get-invoice-details"
+          "https://vaccine-system2.azurewebsites.net/api/InvoiceDetail/get-invoice-details"
         );
         const sortedInvoiceDetails = invoiceDetailsResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -197,7 +197,7 @@ const ManageBookings = () => {
 
         // 3. Lấy appointments
         const appointmentsResponse = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/Appointment/get-appointments"
+          "https://vaccine-system2.azurewebsites.net/Appointment/get-appointments"
         );
         const sortedAppointments = appointmentsResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)

@@ -23,7 +23,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SelectChangeEvent } from "@mui/material/Select";
-
+import { useNavigate } from "react-router-dom";
 const useStyles = makeStyles((theme: any) => ({
   container: {
     padding: "20px",
@@ -98,7 +98,7 @@ const CreateStaff: React.FC = () => {
     experienceYears: "",
   });
 
-  const API_URL = "https://vaccine-system1.azurewebsites.net/Staff/create-staff";
+  const API_URL = "https://vaccine-system2.azurewebsites.net/Staff/create-staff";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -115,6 +115,9 @@ const CreateStaff: React.FC = () => {
       [name]: value,
     }));
   };
+
+ 
+  
 
   const handleCreateStaff = async () => {
     // Validate số điện thoại: phải chứa đúng 10 số
@@ -175,6 +178,7 @@ const CreateStaff: React.FC = () => {
   };
 
   return (
+    
     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
       <Paper className={classes.formPaper} elevation={4}>
         <Typography variant="h5" className={classes.sectionTitle}>
@@ -192,6 +196,7 @@ const CreateStaff: React.FC = () => {
               placeholder="Nhập tên đầy đủ"
             />
           </Box>
+          
           <Box flex="1 1 45%" mt={3}>
             <TextField
               label="Ngày sinh"
@@ -343,8 +348,10 @@ const GetStaffs: React.FC = () => {
   const [staffs, setStaffs] = useState<Staff[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const navigate = useNavigate();
 
-  const API_URL = "https://vaccine-system1.azurewebsites.net/Staff/get-staffs";
+  
+  const API_URL = "https://vaccine-system2.azurewebsites.net/Staff/get-staffs";
 
   useEffect(() => {
     const fetchStaffs = async () => {
@@ -368,9 +375,20 @@ const GetStaffs: React.FC = () => {
     fetchStaffs();
   }, []);
 
+  const goToDashboard = () => {
+    navigate("/Admin/dashboard");
+  };
+
+ 
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+      
       <Paper className={classes.tablePaper} elevation={4}>
+      <Button variant="contained" color="primary" onClick={goToDashboard}>
+        Go to Dashboard
+      </Button>
+      
         <Typography variant="h5" className={classes.sectionTitle}>
           Danh Sách Staff
         </Typography>

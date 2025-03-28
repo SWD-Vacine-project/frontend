@@ -20,7 +20,7 @@ const ChildrenList = ({ customerId, isOpen, onClose }) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://vaccine-system1.azurewebsites.net/Child/get-child/${customerId}`
+        `https://vaccine-system2.azurewebsites.net/Child/get-child/${customerId}`
       );
 
       if (response.data && Array.isArray(response.data)) {
@@ -102,7 +102,7 @@ const ChildrenList = ({ customerId, isOpen, onClose }) => {
 
     try {
       const response = await axios.put(
-        `https://vaccine-system1.azurewebsites.net/Child/update-child/${childId}`,
+        `https://vaccine-system2.azurewebsites.net/Child/update-child/${childId}`,
         payload,
         {
           headers: {

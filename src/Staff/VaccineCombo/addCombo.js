@@ -21,7 +21,7 @@ const AddCombo = ({ isOpen, onClose, refreshData }) => {
   const fetchAllVaccines = async () => {
     try {
       const response = await axios.get(
-        "https://vaccine-system1.azurewebsites.net/api/Vaccine"
+        "https://vaccine-system2.azurewebsites.net/api/Vaccine"
       );
       setAllVaccines(response.data);
     } catch (error) {
@@ -58,7 +58,7 @@ const AddCombo = ({ isOpen, onClose, refreshData }) => {
 
     try {
       await axios.post(
-        "https://vaccine-system1.azurewebsites.net/api/Vaccine/create-vacccine-combo",
+        "https://vaccine-system2.azurewebsites.net/api/Vaccine/create-vacccine-combo",
         {
           name: formData.comboName,
           description: formData.description,

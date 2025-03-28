@@ -24,7 +24,7 @@ const UpdateDoctorNurse = ({ visible, onClose, user, reloadData }) => {
     console.log("Fetching details for doctorId:", doctorId);
     try {
       const res = await axios.get(
-        `https://vaccine-system1.azurewebsites.net/Doctor/get-doctor-by-id/${doctorId}`
+        `https://vaccine-system2.azurewebsites.net/Doctor/get-doctor-by-id/${doctorId}`
       );
       const doctorData = res.data;
       doctorData.gender = doctorData.gender === "M" ? "Male" : "Female";
@@ -42,7 +42,7 @@ const UpdateDoctorNurse = ({ visible, onClose, user, reloadData }) => {
     console.log("Fetching details for nurseId:", staffId);
     try {
       const res = await axios.get(
-        `https://vaccine-system1.azurewebsites.net/Staff/get-staff-by-id/${staffId}`
+        `https://vaccine-system2.azurewebsites.net/Staff/get-staff-by-id/${staffId}`
       );
       const nurseData = res.data;
       nurseData.gender = nurseData.gender === "M" ? "Male" : "Female";
@@ -81,12 +81,12 @@ const UpdateDoctorNurse = ({ visible, onClose, user, reloadData }) => {
     try {
       if (user.role === "Doctor") {
         await axios.put(
-          `https://vaccine-system1.azurewebsites.net/Doctor/update-doctor/${user.id}`,
+          `https://vaccine-system2.azurewebsites.net/Doctor/update-doctor/${user.id}`,
           updatedValues
         );
       } else {
         await axios.put(
-          `https://vaccine-system1.azurewebsites.net/Staff/update-staff/${user.id}`,
+          `https://vaccine-system2.azurewebsites.net/Staff/update-staff/${user.id}`,
           updatedValues
         );
       }

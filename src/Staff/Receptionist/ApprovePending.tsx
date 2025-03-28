@@ -280,7 +280,7 @@ const ApprovePendingPage = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "https://vaccine-system1.azurewebsites.net/api/Invoice/pending-invoices"
+        "https://vaccine-system2.azurewebsites.net/api/Invoice/pending-invoices"
       );
       setInvoices(response.data);
     } catch (error) {
@@ -317,7 +317,7 @@ const ApprovePendingPage = () => {
     }
 
     const formattedDate = moment(detail.appointmentDate).format("YYYY-MM-DDTHH:mm:ss");
-    const url = `https://vaccine-system1.azurewebsites.net/VaccineBatch/get-batch-by-vaccineID/${detail.vaccineId}/${formattedDate}`;
+    const url = `https://vaccine-system2.azurewebsites.net/VaccineBatch/get-batch-by-vaccineID/${detail.vaccineId}/${formattedDate}`;
 
     try {
       const response = await axios.get(url);
@@ -359,7 +359,7 @@ const ApprovePendingPage = () => {
     try {
       // Cập nhật trạng thái invoice thành unpaid
       await axios.put(
-        `https://vaccine-system1.azurewebsites.net/api/Invoice/update-invoice-status-unpaid/${selectedComboInvoice.invoiceId}`
+        `https://vaccine-system2.azurewebsites.net/api/Invoice/update-invoice-status-unpaid/${selectedComboInvoice.invoiceId}`
       );
       // Cập nhật trạng thái từng appointment thành approved
       await Promise.all(
@@ -368,7 +368,7 @@ const ApprovePendingPage = () => {
           if (!batch)
             return Promise.reject(`No batch for appointment ${detail.appointmentId}`);
           return axios.put(
-            `https://vaccine-system1.azurewebsites.net/Appointment/Approved-status-appointment/${detail.appointmentId}/${batch.batchNumber}`
+            `https://vaccine-system2.azurewebsites.net/Appointment/Approved-status-appointment/${detail.appointmentId}/${batch.batchNumber}`
           );
         })
       );
@@ -394,13 +394,13 @@ const ApprovePendingPage = () => {
       await Promise.all(
         selectedComboInvoice.invoiceDetails.map((detail) => {
           return axios.put(
-            `https://vaccine-system1.azurewebsites.net/Appointment/update-status-appointment-rejected/${detail.appointmentId}`
+            `https://vaccine-system2.azurewebsites.net/Appointment/update-status-appointment-rejected/${detail.appointmentId}`
           );
         })
       );
       // Cập nhật trạng thái invoice thành canceled
       await axios.put(
-        `https://vaccine-system1.azurewebsites.net/api/Invoice/update-invoice-status-canceled/${selectedComboInvoice.invoiceId}`
+        `https://vaccine-system2.azurewebsites.net/api/Invoice/update-invoice-status-canceled/${selectedComboInvoice.invoiceId}`
       );
       toast.success("Appointments canceled successfully!");
       setInvoices((prev) =>

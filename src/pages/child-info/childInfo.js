@@ -12,36 +12,17 @@ import AddIcon from "@mui/icons-material/Add";
 import AddChild from "./addChild";
 import UpdateChild from "./updateChild";
 import { message, Modal } from "antd";
+import { useNavigate } from "react-router-dom"; // Sửa import useNavigate
 
 const ChildList = () => {
   const [children, setChildren] = useState([]);
   const [selectedChild, setSelectedChild] = useState(null);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
 
+  const navigate = useNavigate(); // Khai báo navigate
+
   const getAvatar = (childName) =>
     `https://robohash.org/${encodeURIComponent(childName)}?set=set4`;
-
-  // const handleDelete = async (childId) => {
-  //   const confirmDelete = window.confirm(
-  //     "Are you sure you want to delete this child?"
-  //   );
-  //   if (!confirmDelete) return;
-
-  //   try {
-  //     await axios.delete(
-  //       `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/Child/delete-child/${childId}`
-  //     );
-
-  //     setChildren((prevChildren) =>
-  //       prevChildren.filter((child) => child.childId !== childId)
-  //     );
-
-  //     alert("Child deleted successfully!");
-  //   } catch (error) {
-  //     console.error("Error deleting child:", error);
-  //     alert("Failed to delete child. Please try again.");
-  //   }
-  // };
 
   const handleDelete = async (childId) => {
     Modal.confirm({
@@ -52,7 +33,7 @@ const ChildList = () => {
       onOk: async () => {
         try {
           await axios.delete(
-            `https://vaccine-system1.azurewebsites.net/Child/delete-child/${childId}`
+            `https://vaccine-system2.azurewebsites.net/Child/delete-child/${childId}`
           );
 
           setChildren((prevChildren) =>
@@ -102,7 +83,7 @@ const ChildList = () => {
 
         // Gọi API lấy dữ liệu trẻ em
         const response = await axios.get(
-          `https://vaccine-system1.azurewebsites.net/Child/get-child/${storedData.id}`
+          `https://vaccine-system2.azurewebsites.net/Child/get-child/${storedData.id}`
         );
 
         console.log("Dữ liệu trả về từ API:", response.data);
@@ -189,7 +170,10 @@ const ChildList = () => {
                   >
                     <i className="bx bx-trash"></i>
                   </button>
-                  <button className={style.btn}>
+                  <button
+                    className={style.btn}
+                    onClick={() => navigate("/vaccine")}
+                  >
                     <i className="bx bxs-injection"></i>
                   </button>
                 </div>

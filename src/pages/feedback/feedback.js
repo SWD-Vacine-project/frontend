@@ -102,13 +102,13 @@ const ModalReview = () => {
   const [visible, setVisible] = useState(false);
   const [stars, setStars] = useState(0);
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
-  console.log(JSON.parse(localStorage.getItem("user")));
+  const user = JSON.parse(sessionStorage.getItem("user"));
+  console.log(JSON.parse(sessionStorage.getItem("user")));
 
   useEffect(() => {
     if (user?.id) {
       axios
-        .get(`https://vaccine-system1.azurewebsites.net/FeedBack/get-success-appointments-pending-feedback/${user.id}`)
+        .get(`https://vaccine-system2.azurewebsites.net/FeedBack/get-success-appointments-pending-feedback/${user.id}`)
         .then((response) => {
           if (response.data.length > 0) {
             setVisible(true);

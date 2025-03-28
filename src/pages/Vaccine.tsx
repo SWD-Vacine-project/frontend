@@ -92,7 +92,7 @@ const VaccineComponent = () => {
   const fetchSingleVaccines = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://vaccine-system1.azurewebsites.net/api/Vaccine", {
+      const response = await fetch("https://vaccine-system2.azurewebsites.net/api/Vaccine", {
         method: "GET",
         mode: "cors",
         headers: {
@@ -118,7 +118,7 @@ const VaccineComponent = () => {
   const fetchComboVaccines = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://vaccine-system1.azurewebsites.net/api/Vaccine/get-vaccine-combo", {
+      const response = await fetch("https://vaccine-system2.azurewebsites.net/api/Vaccine/get-vaccine-combo", {
         method: "GET",
         mode: "cors",
         headers: {
@@ -203,7 +203,7 @@ const VaccineComponent = () => {
     setLoading(true);
     try {
       if (vaccineType === "single") {
-        const response = await fetch("https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine/sort-by-price");
+        const response = await fetch("https://vaccine-system2.azurewebsites.net/api/Vaccine/sort-by-price");
         const sortedData = await response.json();
         setVaccines(sortedData);
       }
@@ -261,7 +261,7 @@ const VaccineComponent = () => {
   async function fetchLatestChildren(customerId: number): Promise<Child[]> {
     try {
       const response = await fetch(
-        `https://vaccine-system1.azurewebsites.net/Child/get-child/${customerId}`,
+        `https://vaccine-system2.azurewebsites.net/Child/get-child/${customerId}`,
         { method: "GET", headers: { "Content-Type": "application/json" } }
       );
       if (!response.ok) throw new Error(`Failed to fetch children: ${response.statusText}`);

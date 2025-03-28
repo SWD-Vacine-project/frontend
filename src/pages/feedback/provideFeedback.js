@@ -16,7 +16,7 @@ const ProvideFeedback = () => {
 
   useEffect(() => {
     // Lấy thông tin người dùng đăng nhập từ localStorage
-    const storedUser = localStorage.getItem("user");
+    const storedUser = sessionStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
@@ -28,7 +28,7 @@ const ProvideFeedback = () => {
     const fetchDoctors = async () => {
       try {
         const response = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/Doctor/get-doctors"
+          "https://vaccine-system2.azurewebsites.net/Doctor/get-doctors"
         );
         setDoctors(response.data);
       } catch (error) {
@@ -41,14 +41,26 @@ const ProvideFeedback = () => {
   }, []);
 
   const findDoctorIdByName = (doctorName) => {
+    if (!doctors || doctors.length === 0) {
+      console.warn("Doctor list is empty or not loaded yet.");
+      return null;
+    }
+
     const doctor = doctors.find((doc) => doc.name === doctorName);
-    return doctor ? doctor.id : null;
+
+    if (doctor) {
+      console.log("Doctor found:", doctor.name);
+      return doctor.doctorId;
+    } else {
+      console.warn("Doctor not found:", doctorName);
+      return null;
+    }
   };
 
   const fetchAppointments = async (userId) => {
     try {
       const response = await axios.get(
-        `https://vaccine-system1.azurewebsites.net/FeedBack/get-success-appointments-pending-feedback/${userId}`
+        `https://vaccine-system2.azurewebsites.net/FeedBack/get-success-appointments-pending-feedback/${userId}`
       );
       setAppointments(response.data);
     } catch (error) {
@@ -81,7 +93,7 @@ const ProvideFeedback = () => {
 
     try {
       await axios.post(
-        "https://vaccine-system1.azurewebsites.net/FeedBack/create-feedback",
+        "https://vaccine-system2.azurewebsites.net/FeedBack/create-feedback",
         feedbackData
       );
       setAppointments((prevAppointments) =>

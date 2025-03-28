@@ -44,7 +44,7 @@ const AdminCheckinPage = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "https://vaccine-system1.azurewebsites.net/Appointment/get-appointment-checkin"
+        "https://vaccine-system2.azurewebsites.net/Appointment/get-appointment-checkin"
       );
       if (!response.ok) throw new Error("Lỗi tải dữ liệu");
       const data = await response.json();
@@ -80,7 +80,7 @@ const AdminCheckinPage = () => {
 
   const handleCheckIn = async (id: number) => {
     try {
-      const url = `https://vaccine-system1.azurewebsites.net/Appointment/set-appointment-inprogress/${id}`;
+      const url = `https://vaccine-system2.azurewebsites.net/Appointment/set-appointment-inprogress/${id}`;
   
       // Sử dụng phương thức PATCH theo cURL của bạn
       const response = await fetch(url, {

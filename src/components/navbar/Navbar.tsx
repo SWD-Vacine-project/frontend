@@ -58,7 +58,7 @@ const Navbar: React.FC = () => {
 
   const menuItems = userName 
     ? ['Schedule', 'Children', 'Vaccine','Contact']
-    : ['About', 'Vaccine', 'Register for Vaccination', 'Services'];
+    : ['About', 'Vaccine',  'Services'];
 
   return (
     <div style={styles.navbar}>

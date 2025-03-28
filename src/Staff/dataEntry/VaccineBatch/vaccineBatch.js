@@ -23,7 +23,7 @@ const VaccineBatch = () => {
   const fetchVaccineBatches = async () => {
     try {
       const response = await axios.get(
-        "https://vaccine-system1.azurewebsites.net/VaccineBatch/get-vaccine-batch"
+        "https://vaccine-system2.azurewebsites.net/VaccineBatch/get-vaccine-batch"
       );
       setBatches(response.data);
       setFilteredBatches(response.data);

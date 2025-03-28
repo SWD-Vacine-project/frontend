@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -201,39 +201,32 @@ const BookingConfirm = () => {
   const { date, time, cartItems } = state || {};
   const [appointmentDateISO, setAppointmentDateISO] = useState<string>("");
 
-
+  // Tính và lưu trữ appointmentDate theo định dạng ISO (không bao gồm mili giây và Z)
   useEffect(() => {
     if (date && time) {
       const d = new Date(date);
       const [hours, minutes] = time.split(":");
       d.setHours(Number(hours), Number(minutes), 0, 0);
-  
-      // Tính localTime
       const localTime = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-  
-      // Bỏ phần mili-giây và 'Z'
       const isoString = localTime.toISOString().slice(0, 19);
-  
       setAppointmentDateISO(isoString);
     } else {
-      // Không có date/time thì để trống
       setAppointmentDateISO("");
     }
   }, [date, time]);
-  
 
-  // Open and close modal
-  const openModal = () => {
-    setShowModal(true);
-  };
-  const closeModal = () => {
-    setShowModal(false);
-  };
+  // Modal handlers
+  const openModal = () => setShowModal(true);
+  const closeModal = () => setShowModal(false);
 
   const confirmModal = async () => {
     setShowModal(false);
+
+    // Debug toast để kiểm tra confirmModal đã được gọi
+    toast.info("Debug: confirmModal được gọi!", { autoClose: 3000 });
+
     if (!cartItems || cartItems.length === 0) return;
-  
+
     const storedUser = sessionStorage.getItem("user");
     if (!storedUser) {
       toast.error("Bạn cần đăng nhập!");
@@ -241,8 +234,8 @@ const BookingConfirm = () => {
     }
     const user = JSON.parse(storedUser);
     const customerId = user.id;
-  
-    // Tính appointmentDate theo định dạng ISO
+
+    // Tính appointmentDateISO
     let appointmentDateISO: string;
     if (date && time) {
       const d = new Date(date);
@@ -255,7 +248,7 @@ const BookingConfirm = () => {
       const localTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
       appointmentDateISO = localTime.toISOString().slice(0, 19);
     }
-  
+
     // Tạo danh sách Promise cho mỗi appointment
     const promises = [];
     for (const item of cartItems) {
@@ -271,8 +264,7 @@ const BookingConfirm = () => {
             appointmentDate: appointmentDateISO,
             notes: "Đặt lịch từ hệ thống",
           };
-          endpoint =
-            "https://vaccine-system1.azurewebsites.net/Appointment/create-appointment";
+          endpoint = "https://vaccine-system2.azurewebsites.net/Appointment/create-appointment";
         } else if (item.vaccine.comboId !== undefined) {
           // Vaccine combo
           payload = {
@@ -282,14 +274,12 @@ const BookingConfirm = () => {
             appointmentDate: appointmentDateISO,
             notes: "Đặt lịch từ hệ thống",
           };
-          endpoint =
-            "https://vaccine-system1.azurewebsites.net/Appointment/create-appointment-combo";
+          endpoint = "https://vaccine-system2.azurewebsites.net/Appointment/create-appointment-combo";
         } else {
           continue;
         }
-  
+
         if (endpoint) {
-          // Mỗi fetch được bọc trong một Promise xử lý riêng
           promises.push(
             fetch(endpoint, {
               method: "POST",
@@ -300,66 +290,61 @@ const BookingConfirm = () => {
         }
       }
     }
-  
+
     try {
-      // Dùng Promise.allSettled để thu thập kết quả tất cả request
       const results = await Promise.allSettled(promises);
-  
-      // Với mỗi request, nếu "fulfilled" thì kiểm tra res.ok
       const responsesData = await Promise.all(
         results.map(async (result) => {
           if (result.status === "fulfilled") {
             const res = result.value;
             if (!res.ok) {
-              // Nếu res không ok, đọc text để debug
               const errorText = await res.text();
               console.error("Error from server:", errorText);
               return { error: `Lỗi HTTP ${res.status}: ${errorText}` };
             }
             return await res.json();
           } else {
-            // Request bị lỗi (kết nối, v.v.)
             return { error: result.reason };
           }
         })
       );
-  
+
       console.log("responsesData:", responsesData);
-  
-      // Kiểm tra có lỗi trong responsesData hay không
+      // Debug toast hiển thị số lượng responses
+      toast.info(`Debug: Số lượng responses nhận được: ${responsesData.length}`, { autoClose: 3000 });
+
       const errors = responsesData.filter((data) => data && data.error);
       if (errors.length > 0) {
         console.warn("Một số request không thành công:", errors);
-        toast.error("Một số appointment không được tạo thành công. Vui lòng kiểm tra lại.");
+        toast.error("Một số appointment không được tạo thành công. Vui lòng kiểm tra lại.", { autoClose: 5000 });
       }
-  
-      // Lấy các response thành công
+
       const successResponses = responsesData.filter((data) => !data.error);
-      if (!successResponses || successResponses.length === 0) {
-        return;
-      }
-  
-      // Kiểm tra message từ API thay vì status
-      // Nếu có message chứa "chờ xác nhận" thì thông báo và không tiến hành thanh toán
+      if (!successResponses || successResponses.length === 0) return;
+
+      // Kiểm tra pending response
       const pendingResponses = successResponses.filter(
-        (response) => response.message && response.message.includes("chờ xác nhận")
+        (response: any) =>
+          response.message &&
+          response.message.toLowerCase().includes("chờ")
       );
       if (pendingResponses.length > 0) {
         toast.info(
-          "Yêu cầu của bạn đang được duyệt bởi nhân viên . Vui lòng chờ ở trang schedule để xem thông tin lịch tiêm"
+          "Yêu cầu của bạn đang chờ duyệt bởi nhân viên. Vui lòng đến trang quản lý đặt lịch để theo dõi.",
+          { autoClose: 5000 }
         );
-       
+        // Delay chuyển hướng sau 5 giây
+        setTimeout(() => {
+          navigate("/manage-booking");
+        }, 5000);
         return;
       }
-  
-      // Nếu không có message nào báo "chờ xác nhận", tiến hành xử lý theo Combo hay Single
+
+      // Nếu không pending, xử lý theo loại vaccine
       if (cartItems && cartItems[0]?.vaccine?.comboId) {
-        // Lấy tất cả appointmentId từ response combo
         const allAppointments = successResponses.flatMap((item: any) => item.appointments || []);
         const appointmentIds = allAppointments.map((app: any) => app.appointmentId);
         console.log("Combo appointmentIds:", appointmentIds);
-  
-        // Chuyển hướng sang PaymentForm
         navigate("/book/payment-form", {
           state: {
             appointmentDate: appointmentDateISO,
@@ -371,15 +356,10 @@ const BookingConfirm = () => {
           },
         });
       } else {
-        // Trường hợp Single (mỗi response có 'appointment')
         const firstSuccess = successResponses.find((item: any) => item.appointment);
-        if (!firstSuccess) {
-          return;
-        }
+        if (!firstSuccess) return;
         const appointmentId = firstSuccess.appointment.appointmentId;
         console.log("Single appointmentId:", appointmentId);
-  
-        // Chuyển hướng sang PaymentForm
         navigate("/book/payment-form", {
           state: {
             appointmentDate: appointmentDateISO,
@@ -391,21 +371,14 @@ const BookingConfirm = () => {
           },
         });
       }
-  
-      toast.success(`Tạo appointment thành công! Ngày giờ: ${appointmentDateISO}`);
+
+      toast.success(`Tạo appointment thành công! Ngày giờ: ${appointmentDateISO}`, { autoClose: 5000 });
     } catch (error) {
       console.error("Lỗi tạo appointment:", error);
-      toast.error("Đã xảy ra lỗi, vui lòng thử lại sau.");
+      toast.error("Đã xảy ra lỗi, vui lòng thử lại sau.", { autoClose: 5000 });
     }
   };
-  
-    
-    
 
-  
-
-
-  
   const calculateAge = (dob: string) => {
     const birthDate = new Date(dob);
     const diff = Date.now() - birthDate.getTime();
@@ -472,20 +445,17 @@ const BookingConfirm = () => {
                     borderRadius: "10px",
                   }}
                 >
-                  <Text> 📅/⏰  Ngày Giờ tiêm: 
-  {appointmentDateISO 
-    ? moment(appointmentDateISO).format("DD/MM/YYYY HH:mm") 
-    : "N/A"
-  }
-</Text>
-
+                  <Text>
+                    📅/⏰ Ngày Giờ tiêm:{" "}
+                    {appointmentDateISO
+                      ? moment(appointmentDateISO).format("DD/MM/YYYY HH:mm")
+                      : "N/A"}
+                  </Text>
                   <Text>💰 Tổng số vaccine: {cartItems?.length || 0}</Text>
                   <Text style={{ color: "#4CAF50", fontSize: "1.4rem" }}>
                     💵 Tổng tiền: {calculateTotal().toLocaleString()} VND
                   </Text>
                 </div>
-
-                {/* Detailed Vaccine Information */}
                 {cartItems?.map((item: CartItem, index: number) => (
                   <div
                     key={index}

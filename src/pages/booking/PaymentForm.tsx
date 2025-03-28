@@ -80,7 +80,7 @@ const PaymentForm: React.FC = () => {
   const [paymentUrl, setPaymentUrl] = useState<string>("");
 
   const API_BASE_URL =
-    "https://vaccine-system1.azurewebsites.net";
+    "https://vaccine-system2.azurewebsites.net/";
 
   // Nếu không truyền totalAmount thì fallback là "0"
   const finalTotalAmount = totalAmount || "0";
@@ -151,7 +151,7 @@ if (cartItems && cartItems.length > 0) {
 
         // 3. Xử lý thanh toán
         if (paymentMethod === "vnpay") {
-          const paymentResponse = await axios.get(`https://vaccine-system1.azurewebsites.net/VnPay/CreatePaymentUrl`, {
+          const paymentResponse = await axios.get(`https://vaccine-system2.azurewebsites.net/VnPay/CreatePaymentUrl`, {
             params: {
               moneyToPay: finalTotalAmount,
               description: `Payment for invoice ${invoiceId}`,

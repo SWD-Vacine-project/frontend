@@ -28,8 +28,8 @@ const VaccineList = () => {
   const fetchVaccines = async (name = "") => {
     try {
       const url = name
-        ? `https://vaccine-system1.azurewebsites.net/api/Vaccine/get-vaccine-by-name?name=${name}`
-        : "https://vaccine-system1.azurewebsites.net/api/Vaccine/get-vaccine-for-staff";
+        ? `https://vaccine-system2.azurewebsites.net/api/Vaccine/get-vaccine-by-name?name=${name}`
+        : "https://vaccine-system2.azurewebsites.net/api/Vaccine/get-vaccine-for-staff";
 
       const response = await axios.get(url);
       if (Array.isArray(response.data)) {

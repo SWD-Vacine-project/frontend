@@ -26,7 +26,7 @@ const UpdateVaccineBatch = ({ visible, onClose, batch, onUpdateSuccess }) => {
   }, [batch, form]);
 
   useEffect(() => {
-    axios.get("https://vaccine-system1.azurewebsites.net/api/Vaccine")
+    axios.get("https://vaccine-system2.azurewebsites.net/api/Vaccine")
       .then(response => setAllVaccines(response.data))
       .catch(error => console.error("Error fetching vaccines:", error));
   }, []);
@@ -58,7 +58,7 @@ const UpdateVaccineBatch = ({ visible, onClose, batch, onUpdateSuccess }) => {
       console.log("Payload gửi lên API:", JSON.stringify(payload, null, 2));
 
       await axios.put(
-        `https://vaccine-system1.azurewebsites.net/VaccineBatch/update/${batch.batchNumber}`,
+        `https://vaccine-system2.azurewebsites.net/VaccineBatch/update/${batch.batchNumber}`,
         payload
       );
 

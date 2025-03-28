@@ -110,7 +110,7 @@ const PaymentResult: React.FC = () => {
       if (paymentDetails && isSuccess && paymentDetails.invoiceId && !statusUpdated) {
         try {
           await axios.put(
-            `https://vaccine-system1.azurewebsites.net/api/Invoice/update-invoice-status-to-paid/${paymentDetails.invoiceId}`
+            `https://vaccine-system2.azurewebsites.net/api/Invoice/update-invoice-status-to-paid/${paymentDetails.invoiceId}`
           );
           setStatusUpdated(true);
         } catch (error) {

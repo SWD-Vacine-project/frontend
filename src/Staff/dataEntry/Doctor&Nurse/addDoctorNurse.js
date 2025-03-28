@@ -50,7 +50,7 @@ const AddDoctorNurse = ({ visible, onClose, reloadData }) => {
 
       if (role === "Doctor") {
         await axios.post(
-          "https://vaccine-system1.azurewebsites.net/Doctor/create-doctor",
+          "https://vaccine-system2.azurewebsites.net/Doctor/create-doctor",
           formattedData
         );
       } else {
@@ -65,7 +65,7 @@ const AddDoctorNurse = ({ visible, onClose, reloadData }) => {
         console.log("Nurse data being sent:", nurseData);
 
         await axios.post(
-          "https://vaccine-system1.azurewebsites.net/Staff/create-staff",
+          "https://vaccine-system2.azurewebsites.net/Staff/create-staff",
           nurseData
         );
       }

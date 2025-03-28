@@ -55,7 +55,7 @@ const UserProfile = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://vaccinesystem.azurewebsites.net/api/user/update",
+        "https://vaccine-system2.azurewebsites.net/api/user/update",
         {
           method: "PUT",
           headers: {

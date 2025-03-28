@@ -20,7 +20,7 @@ const CustomerTable = () => {
     const fetchCustomers = async () => {
       try {
         const response = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/Customer/get-customer"
+          "https://vaccine-system2.azurewebsites.net/Customer/get-customer"
         );
         setCustomers(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
@@ -57,7 +57,7 @@ const CustomerTable = () => {
 
     try {
       await axios.put(
-        `https://vaccine-system1.azurewebsites.net/Customer/update-customer/${editingCustomer}`,
+        `https://vaccine-system2.azurewebsites.net/Customer/update-customer/${editingCustomer}`,
         formData,
         {
           headers: {

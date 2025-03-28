@@ -11,7 +11,7 @@ const AddVaccine = ({ visible, onClose, onAddSuccess }) => {
       setLoading(true);
       const values = await form.validateFields();
 
-      await axios.post("https://vaccine-system1.azurewebsites.net/api/Vaccine/create-vaccine", values);
+      await axios.post("https://vaccine-system2.azurewebsites.net/api/Vaccine/create-vaccine", values);
 
       message.success("Vaccine added successfully!");
       form.resetFields();

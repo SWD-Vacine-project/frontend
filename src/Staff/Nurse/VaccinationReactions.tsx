@@ -78,7 +78,7 @@ const VaccinationReactions = () => {
         const records = await Promise.all(
           savedRecordIds.map(async (recordId: number) => {
             const response = await axios.get<HealthRecord>(
-              `https://vaccine-system1.azurewebsites.net//api/HealthRecord/get-health-records/${recordId}`
+              `https://vaccine-system2.azurewebsites.net/api/HealthRecord/get-health-records/${recordId}`
             );
             return response.data;
           })
