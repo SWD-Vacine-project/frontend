@@ -40,3 +40,4 @@ const StatBox = ({ title, subtitle, icon, progress, increase }) => {
 };
 
 export default StatBox;
+

@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import Modal from "../Modal/ModalVaccine"; // Import modal component
 import { motion } from "framer-motion";
+
 import { useNavigate, useLocation } from "react-router-dom";
+
 
 // Interface for single vaccine
 interface Vaccine {
@@ -140,6 +142,7 @@ const VaccineComponent = () => {
     }
   };
 
+
   // When vaccineType changes, fetch the appropriate data.
   useEffect(() => {
     if (vaccineType === "single") {
@@ -160,6 +163,7 @@ const VaccineComponent = () => {
         return (item as Vaccine).name?.toLowerCase().includes(searchLower);
       } else {
         return (item as ComboVaccine).comboName?.toLowerCase().includes(searchLower);
+
       }
     })
     .sort((a: Vaccine | ComboVaccine, b: Vaccine | ComboVaccine) => {
@@ -181,11 +185,13 @@ const VaccineComponent = () => {
   // Function to search vaccines by name.
   const fetchVaccineByName = async (name: string) => {
     try {
+
       const endpoint =
         vaccineType === "single"
           ? `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine/?name=${encodeURIComponent(name)}`
           : `https://vaccine-system-hxczh3e5apdjdbfe.southeastasia-01.azurewebsites.net/api/Vaccine/get-vaccine-combo?name=${encodeURIComponent(name)}`;
       const response = await fetch(endpoint);
+
       if (!response.ok) throw new Error("Không tìm thấy vaccine");
       const data = await response.json();
       if (vaccineType === "single") {
@@ -202,12 +208,14 @@ const VaccineComponent = () => {
   const fetchSortedVaccines = async () => {
     setLoading(true);
     try {
+
       if (vaccineType === "single") {
         const response = await fetch("https://vaccine-system2.azurewebsites.net/api/Vaccine/sort-by-price");
         const sortedData = await response.json();
         setVaccines(sortedData);
       }
       // For combo vaccines, add similar logic if the API is available.
+
     } catch (error) {
       console.error("Error fetching sorted vaccines:", error);
     }
@@ -215,11 +223,13 @@ const VaccineComponent = () => {
   };
 
   const handleBuyClick = () => {
+
     if (!selectedVaccine) {
       alert("Vui lòng chọn vaccine trước!");
       return;
     }
     if (!user) {
+
       setShowLoginPopup(true);
       return;
     }

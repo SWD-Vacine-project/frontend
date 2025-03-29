@@ -31,4 +31,6 @@ export const BookingProvider = ({ children }) => {
       {children}
     </BookingContext.Provider>
   );
+
 };
+

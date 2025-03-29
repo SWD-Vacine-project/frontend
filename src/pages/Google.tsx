@@ -32,7 +32,7 @@ const SignInGoogle = () => {
           code: code,
           client_id: "1006543489483-mrg7qa1pas18ulb0hvnadiagh8jajghs.apps.googleusercontent.com",
           client_secret: "<YOUR_CLIENT_SECRET>", // Use backend to protect the secret
-          redirect_uri: "https://localhost:7090/signin-google",
+          redirect_uri: "https://vaccinesystem.azurewebsites.net/signin-google",
           grant_type: "authorization_code",
         }),
       });
