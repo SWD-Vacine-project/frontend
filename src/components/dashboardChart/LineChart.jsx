@@ -115,3 +115,4 @@ const LineChart = ({ isDashboard = false }) => {
 };
 
 export default LineChart;
+

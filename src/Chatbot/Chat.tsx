@@ -11,90 +11,88 @@ const Chatbot: React.FC = () => {
 
   const toggleChat = () => setIsOpen(!isOpen);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (userInput.trim()) {
-      // Add user's message
-      setMessages([
-        ...messages,
-        { text: userInput, fromBot: false },
-      ]);
-      handleBotResponse(userInput); // Handle bot's response
-      setUserInput(''); // Clear the input
+      const userMessage = { text: userInput, fromBot: false };
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
+      setUserInput('');
+      
+      const botResponse = await fetchBotResponse(userInput);
+      setMessages((prevMessages) => [...prevMessages, { text: botResponse, fromBot: true }]);
     }
   };
 
-  const handleBotResponse = (input: string) => {
-    let response = '';
-
-    // Handle basic greetings and vaccine details
-    if (input.toLowerCase().includes('hello') || input.toLowerCase().includes('hi')) {
-      response = 'Hello! How can I assist you today?';
-    } else if (input.toLowerCase().includes('vaccine') || input.toLowerCase().includes('vaccination')) {
-      response = 'Vaccines are important for preventing diseases. Do you need information about a specific vaccine?';
-    } else {
-      response = "I'm sorry, I didn't understand that. Can you please clarify?";
+  const fetchBotResponse = async (input: string): Promise<string> => {
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer YOUR_API_KEY`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [{ role: 'user', content: input }],
+        }),
+      });
+      const data = await response.json();
+      return data.choices[0]?.message?.content || "I'm sorry, I didn't understand that.";
+    } catch (error) {
+      console.error('Error fetching bot response:', error);
+      return "Sorry, I'm having trouble responding right now.";
     }
-
-    // Add bot's response
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: response, fromBot: true },
-    ]);
   };
 
   return (
     <div style={styles.chatbotContainer}>
-      <motion.div
-        style={isOpen ? styles.chatWindow : { display: 'none' }}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div style={styles.chatHeader}>
-          <h4 style={styles.chatTitle}>Virtual Assistant</h4>
-          <button onClick={toggleChat} style={styles.closeButton}>×</button>
-        </div>
-        <div style={styles.chatBody}>
-          {messages.map((message, index) => (
-            <p
-              key={index}
-              style={message.fromBot ? styles.chatMessage : styles.userMessage}
-            >
-              {message.text}
-            </p>
-          ))}
-        </div>
-        <div style={styles.chatFooter}>
-          <input
-           type="text"
-           placeholder="Type your message..."
-           style={styles.chatInput}
-           value={userInput}
-           onChange={(e) => setUserInput(e.target.value)}
-           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-          />
-          <button onClick={handleSendMessage} style={styles.sendButton}>
-            Send
-          </button>
-        </div>
-      </motion.div>
+      {isOpen && (
+        <motion.div
+          style={styles.chatWindow}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div style={styles.chatHeader}>
+            <h4 style={styles.chatTitle}>Virtual Assistant</h4>
+            <button onClick={toggleChat} style={styles.closeButton}>×</button>
+          </div>
+          <div style={styles.chatBody}>
+            {messages.map((message, index) => (
+              <p key={index} style={message.fromBot ? styles.chatMessage : styles.userMessage}>
+                {message.text}
+              </p>
+            ))}
+          </div>
+          <div style={styles.chatFooter}>
+            <input
+              type="text"
+              placeholder="Type your message..."
+              style={styles.chatInput}
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+            />
+            <button onClick={handleSendMessage} style={styles.sendButton}>Send</button>
+          </div>
+        </motion.div>
+      )}
 
-      <button onClick={toggleChat} style={styles.chatToggle}>
+      <motion.button onClick={toggleChat} style={styles.chatToggle} whileTap={{ scale: 0.9 }}>
         <FiMessageCircle size={24} color="#fff" />
-      </button>
+      </motion.button>
     </div>
   );
 };
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   chatbotContainer: {
     position: 'fixed',
-    bottom: '65px',
+    bottom: '150px',
     right: '20px',
     zIndex: 1000,
-  } as React.CSSProperties,
+  },
   chatWindow: {
-    width: '300px',
+    width: '320px',
     height: '400px',
     backgroundColor: '#fff',
     borderRadius: '12px',
@@ -102,7 +100,10 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-  } as React.CSSProperties,
+    position: 'absolute',
+    bottom: '70px',
+    right: '0px',
+  },
   chatHeader: {
     backgroundColor: '#007bff',
     color: '#fff',
@@ -110,31 +111,28 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-  } as React.CSSProperties,
-  chatTitle: {
-    margin: 0,
-    fontSize: '16px',
-  } as React.CSSProperties,
+  },
+  chatTitle: { margin: 0, fontSize: '16px' },
   closeButton: {
     background: 'none',
     border: 'none',
     color: '#fff',
     fontSize: '20px',
     cursor: 'pointer',
-  } as React.CSSProperties,
+  },
   chatBody: {
     flex: 1,
     padding: '10px',
-    overflowY: 'auto',
+    overflowY: 'auto' as 'auto',
     backgroundColor: '#f9f9f9',
-  } as React.CSSProperties,
+  },
   chatMessage: {
     backgroundColor: '#e0f7fa',
     borderRadius: '8px',
     padding: '8px 12px',
     marginBottom: '8px',
     fontSize: '14px',
-  } as React.CSSProperties,
+  },
   userMessage: {
     backgroundColor: '#f0f0f0',
     borderRadius: '8px',
@@ -142,19 +140,19 @@ const styles = {
     marginBottom: '8px',
     fontSize: '14px',
     textAlign: 'right',
-  } as React.CSSProperties,
+  },
   chatFooter: {
     padding: '10px',
     borderTop: '1px solid #ddd',
     display: 'flex',
     gap: '8px',
-  } as React.CSSProperties,
+  },
   chatInput: {
     flex: 1,
     padding: '8px',
     borderRadius: '8px',
     border: '1px solid #ccc',
-  } as React.CSSProperties,
+  },
   sendButton: {
     backgroundColor: '#007bff',
     color: '#fff',
@@ -162,7 +160,7 @@ const styles = {
     borderRadius: '8px',
     padding: '8px 16px',
     cursor: 'pointer',
-  } as React.CSSProperties,
+  },
   chatToggle: {
     width: '50px',
     height: '50px',
@@ -174,7 +172,7 @@ const styles = {
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
     border: 'none',
     cursor: 'pointer',
-  } as React.CSSProperties,
+  },
 };
 
 export default Chatbot;

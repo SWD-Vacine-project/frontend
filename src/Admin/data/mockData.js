@@ -2,7 +2,9 @@ import { tokens } from "../../theme";
 
 import axios from "axios";
 
-const API_URL = "https://vaccine-system1.azurewebsites.net"; // Thay bằng URL thực tế của bạn
+
+const API_URL = "https://vaccine-system2.azurewebsites.net"; // Thay bằng URL thực tế của bạn
+
 
 export const getCustomers = async () => {
   try {
@@ -241,4 +243,6 @@ const getMockWithdrawData = () => {
 fetchData();
 setInterval(fetchData, 15000);
 
+
 export { fetchData };
+

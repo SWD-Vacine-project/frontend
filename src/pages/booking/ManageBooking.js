@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Pagination } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import axios from "axios";
 import moment from "moment";
 import LoadingAnimation from "../../animation/loading-animation";
 
-// Define styles using makeStyles
 const useStyles = makeStyles((theme) => ({
   manageBookingsPage: {
     height: "fit-content",
@@ -17,19 +16,13 @@ const useStyles = makeStyles((theme) => ({
     margin: "2rem auto",
     borderRadius: "8px",
     marginTop: "100px",
-    backgroundColor: "#f9f9f9", // Light background color
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", // Soft shadow
-    animation: "$fadeIn 0.5s ease-in-out", // Fade-in animation
+    backgroundColor: "#f9f9f9",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+    animation: "$fadeIn 0.5s ease-in-out",
   },
   "@keyframes fadeIn": {
-    "0%": {
-      opacity: 0,
-      transform: "translateY(20px)",
-    },
-    "100%": {
-      opacity: 1,
-      transform: "translateY(0)",
-    },
+    "0%": { opacity: 0, transform: "translateY(20px)" },
+    "100%": { opacity: 1, transform: "translateY(0)" },
   },
   bookingsSection: {
     display: "flex",
@@ -43,70 +36,64 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     fontSize: "2.5rem",
     marginBottom: "1rem",
-    color: "#4D9FEC", // Light Blue
+    color: "#4D9FEC",
     fontWeight: "bold",
-    animation: "$slideIn 0.5s ease-in-out", // Slide-in animation
+    animation: "$slideIn 0.5s ease-in-out",
   },
   "@keyframes slideIn": {
-    "0%": {
-      opacity: 0,
-      transform: "translateX(-20px)",
-    },
-    "100%": {
-      opacity: 1,
-      transform: "translateX(0)",
-    },
+    "0%": { opacity: 0, transform: "translateX(-20px)" },
+    "100%": { opacity: 1, transform: "translateX(0)" },
   },
   toggleButton: {
     display: "flex",
     justifyContent: "center",
     marginBottom: "1rem",
-    gap: "1rem", // Space between buttons
+    gap: "1rem",
   },
   button: {
     padding: "0.6rem 1.2rem",
     border: "none",
-    backgroundColor: "#4D9FEC", // Light Blue
+    backgroundColor: "#4D9FEC",
     color: "white",
     borderRadius: "25px",
     cursor: "pointer",
     fontSize: "1.5rem",
     transition: "background-color .3s, transform 0.2s ease, border .3s",
     "&:hover": {
-      backgroundColor: "#3B8ECB", // Darker shade of primary color
+      backgroundColor: "#3B8ECB",
       transform: "scale(1.05)",
     },
     "&.active": {
-      backgroundColor: "#8ACBFF", // Darker shade for active tab
+      backgroundColor: "#8ACBFF",
     },
   },
   table: {
     width: "100%",
     borderCollapse: "collapse",
     marginTop: "1.5rem",
-    animation: "$fadeIn 0.5s ease-in-out", // Fade-in animation
+    animation: "$fadeIn 0.5s ease-in-out",
   },
   th: {
-    border: "1px solid #F0F0F0", // Light Gray
+    border: "1px solid #F0F0F0",
     padding: "0.8rem",
     textAlign: "center",
     fontSize: "1.5rem",
-    backgroundColor: "#4D9FEC", // Light Blue
+    backgroundColor: "#4D9FEC",
     color: "white",
     fontWeight: "bold",
   },
   td: {
-    border: "1px solid #F0F0F0", // Light Gray
+    border: "1px solid #F0F0F0",
     padding: "0.8rem",
     textAlign: "center",
     fontSize: "1.5rem",
-    backgroundColor: "#FFFFFF", // White
-    color: "#333333", // Dark Gray
+    backgroundColor: "#FFFFFF",
+    color: "#333333",
     transition: "background-color 0.3s ease",
   },
   tr: {
     "&:hover": {
-      backgroundColor: "#E8F4FF", // Light shade of primary color on hover
+      backgroundColor: "#E8F4FF",
     },
   },
   statusCell: {
@@ -116,26 +103,26 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "4px",
   },
   statusPaid: {
-    color: "#5cb85c", // Green
-    backgroundColor: "#E1F3E5", // Light green background
+    color: "#5cb85c",
+    backgroundColor: "#E1F3E5",
   },
   statusUnpaid: {
-    color: "#f0ad4e", // Yellow
-    backgroundColor: "#FFF9E1", // Light yellow background
+    color: "#f0ad4e",
+    backgroundColor: "#FFF9E1",
   },
   pagination: {
     display: "flex",
     justifyContent: "center",
     marginTop: "1.5rem",
     "& .MuiPaginationItem-root": {
-      backgroundColor: "#4D9FEC", // Light Blue
+      backgroundColor: "#4D9FEC",
       color: "#fff",
       transition: "background-color 0.3s ease, transform 0.2s ease",
       "&:hover": {
-        backgroundColor: "#3B8ECB", // Darker shade of primary color on hover
+        backgroundColor: "#3B8ECB",
       },
       "&.Mui-selected": {
-        backgroundColor: "#8ACBFF", // Slightly different primary shade for selected
+        backgroundColor: "#8ACBFF",
         color: "#fff",
       },
     },
@@ -146,30 +133,6 @@ const useStyles = makeStyles((theme) => ({
     color: "#666",
     marginTop: "2rem",
   },
-  starRating: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "0.5rem",
-    fontSize: "1.5rem",
-  },
-  commentInput: {
-    padding: "0.5rem",
-    borderRadius: "4px",
-    border: "1px solid #ccc",
-    width: "100%",
-  },
-  submitButton: {
-    padding: "0.5rem 1rem",
-    backgroundColor: "#4D9FEC",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    transition: "background-color 0.3s ease",
-    "&:hover": {
-      backgroundColor: "#3B8ECB",
-    },
-  },
 }));
 
 const ManageBookings = () => {
@@ -178,64 +141,98 @@ const ManageBookings = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [bookingsPerPage] = useState(5);
-  const [appointments, setAppointments] = useState([]);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [currentTab, setCurrentTab] = useState("Paid");
-  const [ratings, setRatings] = useState({});
-  const [comments, setComments] = useState({});
 
-  // Fetch invoices, invoice-details, and appointments from API
+  // Hiển thị thông báo nếu có thông tin appointment mới được chuyển qua state
+  useEffect(() => {
+    if (
+      location.state &&
+      location.state.appointmentIds &&
+      location.state.appointmentDate
+    ) {
+      toast.success(
+        `Appointment mới: ${location.state.appointmentIds.join(
+          ", "
+        )} - Ngày: ${moment(location.state.appointmentDate).format(
+          "DD/MM/YYYY HH:mm"
+        )}`
+      );
+    }
+  }, [location.state]);
+
+  // Fetch dữ liệu invoices, invoice-details và appointments
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch invoices
+        // Lấy user từ sessionStorage
+        const storedUser = sessionStorage.getItem("user");
+        const userId = storedUser ? JSON.parse(storedUser).id : null;
+        if (!userId) {
+          toast.error("Không tìm thấy thông tin user");
+          setLoading(false);
+          return;
+        }
+
+        // 1. Lấy invoices
         const invoicesResponse = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/api/Invoice/get-invoices"
+          "https://vaccine-system2.azurewebsites.net/api/Invoice/get-invoices"
         );
-        const sortedInvoices = invoicesResponse.data.sort(
+        // Lọc invoices theo customerId của user hiện tại
+        const userInvoices = invoicesResponse.data.filter(
+          (invoice) => invoice.customerId === userId
+        );
+        const sortedInvoices = userInvoices.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
 
-        // Fetch invoice-details
+        // 2. Lấy invoiceDetails
         const invoiceDetailsResponse = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/api/InvoiceDetail/get-invoice-details"
+          "https://vaccine-system2.azurewebsites.net/api/InvoiceDetail/get-invoice-details"
         );
         const sortedInvoiceDetails = invoiceDetailsResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
 
-        // Fetch appointments
+        // 3. Lấy appointments
         const appointmentsResponse = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/Appointment/get-appointments"
+          "https://vaccine-system2.azurewebsites.net/Appointment/get-appointments"
         );
         const sortedAppointments = appointmentsResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
 
-        // Combine data from invoices, invoice-details and appointments.
-        // First try to match using invoiceDetails; if not found, then try by customerId.
+        // Kết hợp dữ liệu
         const combinedData = sortedInvoices.map((invoice) => {
-          const invoiceDetail = sortedInvoiceDetails.find(
+          // Lọc ra tất cả invoiceDetail của invoice này
+          const invoiceDetailsOfInvoice = sortedInvoiceDetails.filter(
             (detail) => detail.invoiceId === invoice.invoiceId
           );
-          let appointment;
-          if (invoiceDetail && invoiceDetail.appointmentId) {
-            appointment = sortedAppointments.find(
-              (app) => app.appointmentId === invoiceDetail.appointmentId
+
+          // Tìm appointment tương ứng cho mỗi invoiceDetail
+          const appointmentsOfInvoice = invoiceDetailsOfInvoice.map((detail) => {
+            if (!detail.appointmentId) return null;
+            return sortedAppointments.find(
+              (app) => app.appointmentId === detail.appointmentId
             );
-          }
-          if (!appointment) {
-            // Fallback: match by customerId (if available)
-            appointment = sortedAppointments.find(
-              (app) => app.customerId === invoice.customerId
-            );
-          }
+          });
+
+          // Loại bỏ các null (nếu có detail không có appointmentId)
+          const validAppointments = appointmentsOfInvoice.filter(Boolean);
+
+          // Tạo mảng appointmentId và appointmentDate
+          const appointmentIds = validAppointments.map(
+            (app) => app.appointmentId
+          );
+          const appointmentDates = validAppointments.map(
+            (app) => app.appointmentDate
+          );
+
           return {
             ...invoice,
-            appointmentId: appointment ? appointment.appointmentId : "N/A",
-            appointmentDate:
-              appointment && appointment.appointmentDate
-                ? appointment.appointmentDate
-                : "N/A",
+            appointmentIds,
+            appointmentDates,
           };
         });
 
@@ -251,123 +248,29 @@ const ManageBookings = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch invoices
-        const invoicesResponse = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/api/Invoice/get-invoices"
-        );
-        const sortedInvoices = invoicesResponse.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setInvoices(sortedInvoices);
+  // Thay đổi hành vi nút Pay: chuyển hướng sang PaymentForm với dữ liệu invoice
+  const handlePay = (invoice) => {
+    navigate("/payment-form", { state: { invoice } });
+  };
 
-        // Fetch appointments
-        const appointmentsResponse = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/Appointment/get-appointments"
-        );
-        const sortedAppointments = appointmentsResponse.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setAppointments(sortedAppointments);
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("Failed to fetch data. Please try again.");
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Filter invoices based on current tab
-  const getCurrentData = () => {
+  // Lọc invoices theo tab Paid/Unpaid
+  const getCurrentInvoices = () => {
     if (currentTab === "Paid") {
       return invoices.filter((invoice) => invoice.status === "Paid");
     } else if (currentTab === "Unpaid") {
       return invoices.filter((invoice) => invoice.status === "Unpaid");
-    } else if (currentTab === "Rated") {
-      return appointments.filter(
-        (appointment) => appointment.status === "Success"
-      );
     } else {
-      return [];
+      return invoices;
     }
   };
 
-  // Pagination logic
+  // Phân trang
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
-  const currentData = getCurrentData().slice(
+  const currentInvoices = getCurrentInvoices().slice(
     indexOfFirstBooking,
     indexOfLastBooking
   );
-
-  const handleRatingChange = (appointmentId, rating) => {
-    setRatings((prevRatings) => ({
-      ...prevRatings,
-      [appointmentId]: rating,
-    }));
-  };
-
-  const handleCommentChange = (appointmentId, comment) => {
-    setComments((prevComments) => ({
-      ...prevComments,
-      [appointmentId]: comment,
-    }));
-  };
-
-  const handleSubmitFeedback = async (appointmentId) => {
-    const rating = ratings[appointmentId];
-    const comment = comments[appointmentId];
-
-    if (!rating || !comment) {
-      toast.error("Please provide both rating and comment.");
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        "https://vaccine-system1.azurewebsites.net/FeedBack/create-feedback",
-        {
-          CustomerId: appointments.find(
-            (appointment) => appointment.appointmentId === appointmentId
-          ).customerId,
-          DoctorId: appointments.find(
-            (appointment) => appointment.appointmentId === appointmentId
-          ).doctorId, // Replace with actual doctor ID
-          StaffId: appointments.find(
-            (appointment) => appointment.appointmentId === appointmentId
-          ).staffId, // Replace with actual staff ID
-          VaccineId: appointments.find(
-            (appointment) => appointment.appointmentId === appointmentId
-          ).vaccineId, // Replace with actual vaccine ID
-          AppointmentId: appointmentId,
-          Rating: rating,
-          Comment: comment,
-        }
-      );
-      console.log(response.data);
-
-      if (response.status === 200) {
-        toast.success("Feedback submitted successfully!");
-        // Update the status of the appointment to "Rated"
-        setAppointments((prevAppointments) =>
-          prevAppointments.map((appointment) =>
-            appointment.appointmentId === appointmentId
-              ? { ...appointment, status: "Rated" }
-              : appointment
-          )
-        );
-      }
-    } catch (error) {
-      console.error("Error submitting feedback:", error);
-      toast.error("Failed to submit feedback. Please try again.");
-    }
-  };
 
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
@@ -376,28 +279,6 @@ const ManageBookings = () => {
   const handleTabChange = (status) => {
     setCurrentTab(status);
     setCurrentPage(1);
-  };
-
-  const StarRating = ({ rating, onChange }) => {
-    return (
-      <div className={classes.starRating}>
-        {[...Array(5)].map((star, index) => {
-          index += 1;
-          return (
-            <span
-              key={index}
-              style={{
-                cursor: "pointer",
-                color: index <= rating ? "gold" : "gray",
-              }}
-              onClick={() => onChange(index)}
-            >
-              ★
-            </span>
-          );
-        })}
-      </div>
-    );
   };
 
   return (
@@ -421,14 +302,6 @@ const ManageBookings = () => {
         >
           Unpaid
         </button>
-        <button
-          className={`${classes.button} ${
-            currentTab === "Rated" ? "active" : ""
-          }`}
-          onClick={() => handleTabChange("Rated")}
-        >
-          Rated
-        </button>
       </div>
 
       <div className={classes.bookingsSection}>
@@ -441,124 +314,76 @@ const ManageBookings = () => {
               <thead>
                 <tr>
                   <th className={classes.th}>#</th>
-                  {currentTab === "Rated" ? (
-                    <>
-                      <th className={classes.th}>Customer ID</th>
-                      <th className={classes.th}>Status</th>
-                      <th className={classes.th}>Appointment ID</th>
-                      <th className={classes.th}>Appointment Date</th>
-                      <th className={classes.th}>Rating</th>
-                      <th className={classes.th}>Comment</th>
-                      <th className={classes.th}>Submit</th>
-                    </>
-                  ) : (
-                    <>
-                      <th className={classes.th}>Invoice ID</th>
-                      <th className={classes.th}>Customer ID</th>
-                      <th className={classes.th}>Total Amount</th>
-                      <th className={classes.th}>Status</th>
-                      <th className={classes.th}>Type</th>
-                      <th className={classes.th}>Created At</th>
-                      <th className={classes.th}>Appointment ID</th>
-                      <th className={classes.th}>Appointment Date</th>
-                    </>
-                  )}
+                  <th className={classes.th}>Invoice ID</th>
+                  <th className={classes.th}>Customer ID</th>
+                  <th className={classes.th}>Total Amount</th>
+                  <th className={classes.th}>Status</th>
+                  <th className={classes.th}>Type</th>
+                  <th className={classes.th}>Created At</th>
+                  <th className={classes.th}>Appointment IDs</th>
+                  <th className={classes.th}>Appointment Dates</th>
+                  <th className={classes.th}>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {currentData.length > 0 ? (
-                  currentData.map((item, index) => (
-                    <tr
-                      key={item.invoiceId || item.appointmentId}
-                      className={classes.tr}
-                    >
-                      <td className={classes.td}>
-                        {indexOfFirstBooking + index + 1}
-                      </td>
-                      {currentTab === "Rated" ? (
-                        <>
-                          <td className={classes.td}>{item.customerId}</td>
-                          <td className={classes.td}>{item.status}</td>
-                          <td className={classes.td}>{item.appointmentId}</td>
-                          <td className={classes.td}>
-                            {moment(item.appointmentDate).format(
-                              "DD/MM/YYYY HH:mm"
-                            )}
-                          </td>
-                          <td className={classes.td}>
-                            <StarRating
-                              rating={ratings[item.appointmentId] || 0}
-                              onChange={(rating) =>
-                                handleRatingChange(item.appointmentId, rating)
-                              }
-                            />
-                          </td>
-                          <td className={classes.td}>
-                            <input
-                              type="text"
-                              value={comments[item.appointmentId] || ""}
-                              onChange={(e) =>
-                                handleCommentChange(
-                                  item.appointmentId,
-                                  e.target.value
-                                )
-                              }
-                              className={classes.commentInput}
-                            />
-                          </td>
-                          <td className={classes.td}>
+                {currentInvoices.length > 0 ? (
+                  currentInvoices.map((invoice, index) => {
+                    const { appointmentIds, appointmentDates } = invoice;
+                    const appointmentIdsString =
+                      appointmentIds && appointmentIds.length > 0
+                        ? appointmentIds.join(", ")
+                        : "N/A";
+                    const appointmentDatesString =
+                      appointmentDates && appointmentDates.length > 0
+                        ? appointmentDates
+                            .map((date) =>
+                              date && moment(date, moment.ISO_8601, true).isValid()
+                                ? moment(date).format("DD/MM/YYYY HH:mm")
+                                : "N/A"
+                            )
+                            .join(", ")
+                        : "N/A";
+                    return (
+                      <tr key={invoice.invoiceId} className={classes.tr}>
+                        <td className={classes.td}>
+                          {indexOfFirstBooking + index + 1}
+                        </td>
+                        <td className={classes.td}>{invoice.invoiceId}</td>
+                        <td className={classes.td}>{invoice.customerId}</td>
+                        <td className={classes.td}>{invoice.totalAmount}</td>
+                        <td
+                          className={`${classes.statusCell} ${
+                            invoice.status === "Paid"
+                              ? classes.statusPaid
+                              : classes.statusUnpaid
+                          }`}
+                        >
+                          {invoice.status}
+                        </td>
+                        <td className={classes.td}>{invoice.type}</td>
+                        <td className={classes.td}>
+                          {moment(invoice.createdAt).format("DD/MM/YYYY HH:mm")}
+                        </td>
+                        <td className={classes.td}>{appointmentIdsString}</td>
+                        <td className={classes.td}>{appointmentDatesString}</td>
+                        <td className={classes.td}>
+                          {invoice.status === "Unpaid" ? (
                             <button
-                              onClick={() =>
-                                handleSubmitFeedback(item.appointmentId)
-                              }
-                              className={classes.submitButton}
+                              className={classes.button}
+                              onClick={() => handlePay(invoice)}
                             >
-                              Submit
+                              Pay
                             </button>
-                          </td>
-                        </>
-                      ) : (
-                        <>
-                          <td className={classes.td}>{item.invoiceId}</td>
-                          <td className={classes.td}>{item.customerId}</td>
-                          <td className={classes.td}>{item.totalAmount}</td>
-                          <td
-                            className={`${classes.statusCell} ${
-                              item.status === "Paid"
-                                ? classes.statusPaid
-                                : classes.statusUnpaid
-                            }`}
-                          >
-                            {item.status}
-                          </td>
-                          <td className={classes.td}>{item.type}</td>
-                          <td className={classes.td}>
-                            {moment(item.createdAt).format("DD/MM/YYYY HH:mm")}
-                          </td>
-                          <td className={classes.td}>{item.appointmentId}</td>
-                          <td className={classes.td}>
-                            {item.appointmentDate &&
-                            item.appointmentDate !== "N/A" &&
-                            moment(
-                              item.appointmentDate,
-                              moment.ISO_8601,
-                              true
-                            ).isValid()
-                              ? moment(item.appointmentDate).format(
-                                  "DD/MM/YYYY HH:mm"
-                                )
-                              : "N/A"}
-                          </td>
-                        </>
-                      )}
-                    </tr>
-                  ))
+                          ) : (
+                            "N/A"
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td
-                      colSpan={currentTab === "Rated" ? 8 : 9}
-                      className={classes.noData}
-                    >
+                    <td colSpan="10" className={classes.noData}>
                       No data available
                     </td>
                   </tr>
@@ -566,9 +391,9 @@ const ManageBookings = () => {
               </tbody>
             </table>
 
-            {getCurrentData().length > bookingsPerPage && (
+            {getCurrentInvoices().length > bookingsPerPage && (
               <Pagination
-                count={Math.ceil(getCurrentData().length / bookingsPerPage)}
+                count={Math.ceil(getCurrentInvoices().length / bookingsPerPage)}
                 page={currentPage}
                 onChange={handlePageChange}
                 color="primary"
@@ -586,4 +411,5 @@ const ManageBookings = () => {
     </div>
   );
 };
+
 export default ManageBookings;

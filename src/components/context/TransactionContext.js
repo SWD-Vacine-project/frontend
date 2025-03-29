@@ -40,4 +40,6 @@ export const TransactionProvider = ({ children }) => {
       {children}
     </TransactionContext.Provider>
   );
+
 };
+

@@ -285,7 +285,9 @@ const Body: React.FC = () => {
     const fetchFeedbacks = async () => {
       try {
         const response = await axios.get(
-          "https://vaccine-system1.azurewebsites.net/FeedBack/get-feedback"
+
+          "https://vaccine-system2.azurewebsites.net/FeedBack/get-feedback"
+
         );
         setFeedbacks(response.data);
       } catch (error) {

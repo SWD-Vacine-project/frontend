@@ -23,7 +23,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SelectChangeEvent } from "@mui/material/Select";
-
+import { useNavigate } from "react-router-dom";
 const useStyles = makeStyles((theme: any) => ({
   container: {
     padding: "20px",
@@ -98,8 +98,7 @@ const CreateStaff: React.FC = () => {
     experienceYears: "",
   });
 
-  const API_URL =
-    "https://vaccine-system1.azurewebsites.net/Staff/create-staff";
+  const API_URL = "https://vaccine-system2.azurewebsites.net/Staff/create-staff";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -116,6 +115,9 @@ const CreateStaff: React.FC = () => {
       [name]: value,
     }));
   };
+
+ 
+  
 
   const handleCreateStaff = async () => {
     // Validate số điện thoại: phải chứa đúng 10 số
@@ -176,6 +178,7 @@ const CreateStaff: React.FC = () => {
   };
 
   return (
+    
     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
       <Paper className={classes.formPaper} elevation={4}>
         <Typography variant="h5" className={classes.sectionTitle}>
@@ -193,6 +196,7 @@ const CreateStaff: React.FC = () => {
               placeholder="Nhập tên đầy đủ"
             />
           </Box>
+          
           <Box flex="1 1 45%" mt={3}>
             <TextField
               label="Ngày sinh"
@@ -206,11 +210,7 @@ const CreateStaff: React.FC = () => {
             />
           </Box>
           <Box flex="1 1 45%">
-            <FormControl
-              variant="outlined"
-              fullWidth
-              className={classes.formControl}
-            >
+            <FormControl variant="outlined" fullWidth className={classes.formControl}>
               <InputLabel id="gender-label">Giới tính</InputLabel>
               <Select
                 labelId="gender-label"
@@ -247,11 +247,7 @@ const CreateStaff: React.FC = () => {
             />
           </Box>
           <Box flex="1 1 45%">
-            <FormControl
-              variant="outlined"
-              fullWidth
-              className={classes.formControl}
-            >
+            <FormControl variant="outlined" fullWidth className={classes.formControl}>
               <InputLabel id="role-label">Vai trò</InputLabel>
               <Select
                 labelId="role-label"
@@ -352,8 +348,10 @@ const GetStaffs: React.FC = () => {
   const [staffs, setStaffs] = useState<Staff[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const navigate = useNavigate();
 
-  const API_URL = "https://vaccine-system1.azurewebsites.net/Staff/get-staffs";
+  
+  const API_URL = "https://vaccine-system2.azurewebsites.net/Staff/get-staffs";
 
   useEffect(() => {
     const fetchStaffs = async () => {
@@ -377,9 +375,20 @@ const GetStaffs: React.FC = () => {
     fetchStaffs();
   }, []);
 
+  const goToDashboard = () => {
+    navigate("/Admin/dashboard");
+  };
+
+ 
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+      
       <Paper className={classes.tablePaper} elevation={4}>
+      <Button variant="contained" color="primary" onClick={goToDashboard}>
+        Go to Dashboard
+      </Button>
+      
         <Typography variant="h5" className={classes.sectionTitle}>
           Danh Sách Staff
         </Typography>
@@ -398,64 +407,30 @@ const GetStaffs: React.FC = () => {
                 <TableCell className={classes.tableHeaderCell}>ID</TableCell>
                 <TableCell className={classes.tableHeaderCell}>Tên</TableCell>
                 <TableCell className={classes.tableHeaderCell}>Email</TableCell>
-                <TableCell className={classes.tableHeaderCell}>
-                  Vai trò
-                </TableCell>
-                <TableCell className={classes.tableHeaderCell}>
-                  Giới tính
-                </TableCell>
+                <TableCell className={classes.tableHeaderCell}>Vai trò</TableCell>
+                <TableCell className={classes.tableHeaderCell}>Giới tính</TableCell>
                 <TableCell className={classes.tableHeaderCell}>SĐT</TableCell>
-                <TableCell className={classes.tableHeaderCell}>
-                  Ngày sinh
-                </TableCell>
-                <TableCell className={classes.tableHeaderCell}>
-                  Trạng thái
-                </TableCell>
-                <TableCell className={classes.tableHeaderCell}>
-                  UserName
-                </TableCell>
-                <TableCell className={classes.tableHeaderCell}>
-                  Kinh nghiệm
-                </TableCell>
-                <TableCell className={classes.tableHeaderCell}>
-                  Bằng cấp
-                </TableCell>
+                <TableCell className={classes.tableHeaderCell}>Ngày sinh</TableCell>
+                <TableCell className={classes.tableHeaderCell}>Trạng thái</TableCell>
+                <TableCell className={classes.tableHeaderCell}>UserName</TableCell>
+                <TableCell className={classes.tableHeaderCell}>Kinh nghiệm</TableCell>
+                <TableCell className={classes.tableHeaderCell}>Bằng cấp</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {staffs.map((staff, index) => (
                 <TableRow key={staff.staffId || index}>
+                  <TableCell className={classes.tableCell}>{staff.staffId}</TableCell>
+                  <TableCell className={classes.tableCell}>{staff.name}</TableCell>
+                  <TableCell className={classes.tableCell}>{staff.email}</TableCell>
+                  <TableCell className={classes.tableCell}>{staff.role}</TableCell>
+                  <TableCell className={classes.tableCell}>{staff.gender}</TableCell>
+                  <TableCell className={classes.tableCell}>{staff.phone}</TableCell>
+                  <TableCell className={classes.tableCell}>{staff.dob}</TableCell>
+                  <TableCell className={classes.tableCell}>{staff.status}</TableCell>
+                  <TableCell className={classes.tableCell}>{staff.userName}</TableCell>
                   <TableCell className={classes.tableCell}>
-                    {staff.staffId}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {staff.name}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {staff.email}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {staff.role}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {staff.gender}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {staff.phone}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {staff.dob}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {staff.status}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {staff.userName}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {staff.experienceYears !== null
-                      ? staff.experienceYears
-                      : "N/A"}
+                    {staff.experienceYears !== null ? staff.experienceYears : "N/A"}
                   </TableCell>
                   <TableCell className={classes.tableCell}>
                     {staff.degree || "N/A"}
@@ -476,11 +451,7 @@ const StaffManagement: React.FC = () => {
   return (
     <MuiContainer className={classes.container}>
       <ToastContainer autoClose={3000} />
-      <Box
-        display="flex"
-        flexDirection={{ xs: "column", md: "row" }}
-        gap="20px"
-      >
+      <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap="20px">
         <Box flex="1">
           <CreateStaff />
         </Box>

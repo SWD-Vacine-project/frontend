@@ -55,7 +55,7 @@ const UserProfile = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://vaccinesystem.azurewebsites.net/api/user/update",
+        "https://vaccine-system2.azurewebsites.net/api/user/update",
         {
           method: "PUT",
           headers: {
@@ -196,7 +196,7 @@ const UserProfile = () => {
 
 
 
-            {/* Hiển thị danh sách trẻ em */}
+{/* Hiển thị danh sách trẻ em */}
 <div style={styles.childrenContainer}>
   <h3 style={styles.childrenTitle}>Children</h3>
   {user.children && user.children.length > 0 ? (

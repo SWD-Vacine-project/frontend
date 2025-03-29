@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const styles = {
   fullPage: {
@@ -18,7 +19,6 @@ const styles = {
     width: "100%",
     maxWidth: "900px",
     textAlign: "center",
-    animation: "fadeIn 0.8s ease-in-out",
   } as React.CSSProperties,
   heading: {
     color: "#8B008B",
@@ -44,9 +44,18 @@ const styles = {
     boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
     transition: "transform 0.3s ease-in-out",
   } as React.CSSProperties,
-  cardHover: {
-    transform: "scale(1.05)",
-  },
+  bookButton: {
+    marginTop: "30px",
+    background: "linear-gradient(135deg, #8B008B, #C71585)",
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
+    padding: "12px 24px",
+    fontSize: "18px",
+    cursor: "pointer",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+    transition: "background 0.3s ease",
+  } as React.CSSProperties,
 };
 
 const services = [
@@ -73,28 +82,33 @@ const services = [
 ];
 
 const Services = () => {
+  const navigate = useNavigate();
+
   return (
     <div style={styles.fullPage}>
       <div style={styles.container}>
         <h1 style={styles.heading}>Our Services</h1>
-        <p style={styles.subtitle}>We provide essential vaccine-related services to keep you safe and informed.</p>
+        <p style={styles.subtitle}>
+          We provide essential vaccine-related services to keep you safe and
+          informed.
+        </p>
 
         <div style={styles.grid}>
           {services.map((service, index) => (
-            <motion.div
-              key={index}
-              style={styles.card}
-              whileHover={styles.cardHover}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-            >
+            <div key={index} style={styles.card}>
               <div style={{ fontSize: "40px" }}>{service.icon}</div>
-              <h3 style={{ fontSize: "20px", fontWeight: "bold", marginTop: "10px" }}>{service.title}</h3>
-              <p style={{ color: "#555", marginTop: "8px" }}>{service.description}</p>
-            </motion.div>
+              <h3 style={{ fontSize: "20px", fontWeight: "bold", marginTop: "10px" }}>
+                {service.title}
+              </h3>
+              <p style={{ color: "#555", marginTop: "8px" }}>
+                {service.description}
+              </p>
+            </div>
           ))}
         </div>
+        <button style={styles.bookButton} onClick={() => navigate("/vaccine")}>
+          Book Now
+        </button>
       </div>
     </div>
   );

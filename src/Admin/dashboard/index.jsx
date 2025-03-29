@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme, Button } from "@mui/material";
 import { tokens } from "../../../src/theme";
 import { mockTransactions, mockDataTeam } from "../../../src/Admin/data/mockData";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
@@ -9,10 +9,16 @@ import LineChart from "../../../src/components/dashboardChart/LineChart";
 import BarChart from "../../../src/components/dashboardChart/BarChart";
 import StatBox from "../../../src/components/dashboardChart/StatBox";
 import PieChart from "../../../src/components/dashboardChart/PieChart";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const navigate = useNavigate(); // Định nghĩa biến navigate
+
+  const goToRoleManagement = () => {
+    navigate("/roleManagement");
+  };
 
   // Hàm lấy ngày hiện tại theo định dạng YYYY-MM-DD
   const getCurrentDate = () => {
@@ -37,21 +43,16 @@ const Dashboard = () => {
   const [newUser, setNewUser] = useState("");
 
   // Hàm tính tổng doanh thu từ mockDataTeam theo ngày, tháng hay năm.
-  // Nếu không có data cho mốc thời gian đó, trả về 0.
   const getTotalPaid = (date, type) => {
     let totalPaid = 0;
     mockDataTeam.forEach((user) => {
       for (const bookingId in user.bookings) {
         const booking = user.bookings[bookingId];
-        // Chỉ tính các giao dịch đã thanh toán
         if (booking.status !== "Paid") continue;
-
-        // Sử dụng booking.date (hoặc booking.createdAt nếu có)
         const bookingDate = new Date(booking.createdAt || booking.date);
         const formattedDate = `${bookingDate.getFullYear()}-${(bookingDate.getMonth() + 1)
           .toString()
           .padStart(2, "0")}-${bookingDate.getDate().toString().padStart(2, "0")}`;
-
         if (type === "date" && date === formattedDate) {
           totalPaid += booking.totalPaid || 0;
         } else if (type === "month" && formattedDate.startsWith(date)) {
@@ -67,13 +68,11 @@ const Dashboard = () => {
   // Cập nhật doanh thu tổng hợp dựa trên ngày được chọn.
   useEffect(() => {
     const updateRevenue = () => {
-      // Nếu chọn ngày khác custom thì dùng selectedDate, nếu không dùng ngày hiện tại
       const targetDate = isCustomDateSelected ? selectedDate : getCurrentDate();
       const targetDateObj = new Date(targetDate);
       const targetYear = targetDateObj.getFullYear();
       const targetMonth = String(targetDateObj.getMonth() + 1).padStart(2, "0");
 
-      // Tính doanh thu theo ngày, tháng và năm dựa trên targetDate
       const totalPaidForDay = getTotalPaid(targetDate, "date");
       const totalPaidForMonth = getTotalPaid(`${targetYear}-${targetMonth}`, "month");
       const totalPaidForYear = getTotalPaid(targetYear.toString(), "year");
@@ -82,7 +81,6 @@ const Dashboard = () => {
       setMonthlyRevenue(totalPaidForMonth.toLocaleString());
       setYearlyRevenue(totalPaidForYear.toLocaleString());
 
-      // Tính % thay đổi so với mốc thời gian trước đó
       const previousDayObj = new Date(targetDateObj);
       previousDayObj.setDate(targetDateObj.getDate() - 1);
       const previousDay = previousDayObj.toISOString().split("T")[0];
@@ -129,30 +127,27 @@ const Dashboard = () => {
     setSelectedDate(event.target.value);
   };
 
-  // Tính số lượng New User nếu có (ví dụ so sánh ngày tạo với ngày hiện tại)
+  // Tính số lượng New User dựa theo tháng và năm của selectedDate.
   useEffect(() => {
-    let newUserCount = 0;
-    mockDataTeam.forEach((user) => {
-      if (user.creationTime) {
-        const date = new Date(user.creationTime);
-        const fullDate = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-        if (fullDate > getCurrentDate()) {
-          newUserCount++;
-        }
-      }
+    const selected = new Date(selectedDate);
+    const selectedMonth = selected.getMonth();
+    const selectedYear = selected.getFullYear();
+    const newUsers = mockDataTeam.filter((user) => {
+      if (!user.creationTime) return false;
+      const creationDate = new Date(user.creationTime);
+      return (
+        creationDate.getMonth() === selectedMonth &&
+        creationDate.getFullYear() === selectedYear
+      );
     });
-    setNewUser(newUserCount);
-  }, []);
+    setNewUser(newUsers.length);
+  }, [selectedDate]);
 
-  // ---------- XỬ LÝ DỮ LIỆU CHO BIỂU ĐỒ ----------
-
-  // Tính dữ liệu cho LineChart theo từng ngày của tháng được chọn.
-  // Nếu không có dữ liệu nào, mảng sẽ chứa toàn số 0.
+  // Dữ liệu cho LineChart
   const getLineDataForMonth = () => {
     const selected = new Date(selectedDate);
     const year = selected.getFullYear();
-    const month = selected.getMonth(); // 0-index
-    // Số ngày trong tháng được chọn
+    const month = selected.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const dailyRevenueArr = Array(daysInMonth).fill(0);
 
@@ -160,10 +155,9 @@ const Dashboard = () => {
       for (const bookingId in user.bookings) {
         const booking = user.bookings[bookingId];
         if (booking.status !== "Paid") continue;
-        // Ưu tiên dùng createdAt nếu có
         const bookingDate = new Date(booking.createdAt || booking.date);
         if (bookingDate.getFullYear() === year && bookingDate.getMonth() === month) {
-          const day = bookingDate.getDate(); // 1-index
+          const day = bookingDate.getDate();
           dailyRevenueArr[day - 1] += booking.totalPaid || 0;
         }
       }
@@ -175,8 +169,7 @@ const Dashboard = () => {
     }));
   };
 
-  // Tính dữ liệu cho BarChart theo từng ngày của tháng được chọn,
-  // đếm số giao dịch của từng loại dịch vụ.
+  // Dữ liệu cho BarChart
   const getBarDataForMonth = () => {
     const selected = new Date(selectedDate);
     const year = selected.getFullYear();
@@ -206,12 +199,9 @@ const Dashboard = () => {
     return barData;
   };
 
-  // Tính tổng doanh thu của tháng để kiểm tra có data hay không.
   const lineData = getLineDataForMonth();
   const totalMonthlyRevenue = lineData.reduce((sum, item) => sum + item.y, 0);
-
   const barData = getBarDataForMonth();
-  // Tính tổng số giao dịch (có thể dùng để kiểm tra có data hay không)
   const totalTransactions = barData.reduce((sum, item) => sum + item.Single + item.Combo, 0);
 
   return (
@@ -220,6 +210,9 @@ const Dashboard = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
       </Box>
+      <Button variant="contained" color="primary" onClick={goToRoleManagement}>
+        Go to RoleManagement
+      </Button>
 
       {/* Bộ lọc ngày */}
       <Box textAlign="center" mb="20px">
@@ -233,7 +226,7 @@ const Dashboard = () => {
             borderRadius: "4px",
             border: `1px solid ${colors.primary[300]}`,
             backgroundColor: colors.primary[400],
-            color: colors.grey[100]
+            color: colors.grey[100],
           }}
         />
       </Box>
@@ -259,9 +252,7 @@ const Dashboard = () => {
             progress="0.75"
             increase={dailyRevenueChange}
             icon={
-              <PointOfSaleIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
+              <PointOfSaleIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />
             }
           />
         </Box>
@@ -278,9 +269,7 @@ const Dashboard = () => {
             progress="0.50"
             increase={monthlyRevenueChange}
             icon={
-              <PointOfSaleIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
+              <PointOfSaleIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />
             }
           />
         </Box>
@@ -297,9 +286,7 @@ const Dashboard = () => {
             progress="0.30"
             increase={yearlyRevenueChange}
             icon={
-              <PointOfSaleIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
+              <PointOfSaleIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />
             }
           />
         </Box>
@@ -316,22 +303,14 @@ const Dashboard = () => {
             progress="0.80"
             increase="+43%"
             icon={
-              <TrafficIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
+              <TrafficIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />
             }
           />
         </Box>
 
         {/* ROW 2: LineChart & PieChart */}
         <Box gridColumn="span 8" gridRow="span 2" backgroundColor={colors.primary[400]}>
-          <Box
-            mt="25px"
-            p="0 30px"
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
+          <Box mt="25px" p="0 30px" display="flex" justifyContent="space-between" alignItems="center">
             <Box>
               <Typography variant="h5" fontWeight="600" color={colors.grey[100]}>
                 Revenue Generated
@@ -356,7 +335,6 @@ const Dashboard = () => {
             Sales Quantity
           </Typography>
           <Box height="250px" mt="-20px">
-            {/* Ví dụ PieChart có thể vẫn render toàn cục (nếu dữ liệu toàn hệ thống) */}
             <PieChart isDashboard={true} />
           </Box>
         </Box>
